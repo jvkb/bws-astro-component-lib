@@ -1,0 +1,16 @@
+/*
+ * Imported by consumers right after Tailwind:
+ *
+ *   @import 'tailwindcss';
+ *   @import 'bws-astro-components/styles.css';
+ */
+
+/* Let Tailwind scan the library's components for class names. */
+@source '../components';
+
+/*
+ * Default design tokens. Consumers override them with their own @theme block.
+ * @theme {
+ *   --color-primary: oklch(55% 0.2 260);
+ * }
+ */

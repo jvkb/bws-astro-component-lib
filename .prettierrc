@@ -1,0 +1,6 @@
+{
+  "singleQuote": true,
+  "plugins": ["prettier-plugin-astro", "prettier-plugin-tailwindcss"],
+  "tailwindStylesheet": "./playground/styles/global.css",
+  "overrides": [{ "files": "*.astro", "options": { "parser": "astro" } }]
+}

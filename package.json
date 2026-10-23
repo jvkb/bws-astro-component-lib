@@ -1,0 +1,65 @@
+{
+  "name": "bws-astro-components",
+  "version": "0.0.0",
+  "description": "Reusable Astro components styled with Tailwind CSS.",
+  "type": "module",
+  "license": "MIT",
+  "author": "Jakub Banach",
+  "keywords": [
+    "astro-component",
+    "withastro",
+    "astro",
+    "tailwindcss",
+    "ui",
+    "components"
+  ],
+  "exports": {
+    ".": "./src/index.ts",
+    "./components/*": "./src/components/*",
+    "./styles.css": "./src/styles/index.css",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "src"
+  ],
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint:pkg": "publint",
+    "pack:dry": "npm pack --dry-run",
+    "verify": "pnpm check && pnpm format:check && pnpm lint:pkg && pnpm build",
+    "prepublishOnly": "pnpm verify",
+    "release:patch": "npm version patch -m \"release: v%s\" && git push --follow-tags && pnpm publish",
+    "release:minor": "npm version minor -m \"release: v%s\" && git push --follow-tags && pnpm publish",
+    "release:major": "npm version major -m \"release: v%s\" && git push --follow-tags && pnpm publish"
+  },
+  "peerDependencies": {
+    "astro": "^7.0.0",
+    "tailwindcss": "^4.0.0"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.12",
+    "@tailwindcss/vite": "^4.3.3",
+    "astro": "^7.4.2",
+    "prettier": "^3.9.10",
+    "prettier-plugin-astro": "^1.1.1",
+    "prettier-plugin-tailwindcss": "^0.8.1",
+    "publint": "^0.3.25",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^6.0.3"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "packageManager": "pnpm@10.33.2"
+}
