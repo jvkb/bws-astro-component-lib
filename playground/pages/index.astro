@@ -1,5 +1,35 @@
 ---
 import '../styles/global.css';
+
+// Full class names so Tailwind can detect them.
+const palettes = {
+  primary: [
+    ['50', 'bg-primary-50'],
+    ['100', 'bg-primary-100'],
+    ['200', 'bg-primary-200'],
+    ['300', 'bg-primary-300'],
+    ['400', 'bg-primary-400'],
+    ['500', 'bg-primary-500'],
+    ['600', 'bg-primary-600'],
+    ['700', 'bg-primary-700'],
+    ['800', 'bg-primary-800'],
+    ['900', 'bg-primary-900'],
+    ['950', 'bg-primary-950'],
+  ],
+  secondary: [
+    ['50', 'bg-secondary-50'],
+    ['100', 'bg-secondary-100'],
+    ['200', 'bg-secondary-200'],
+    ['300', 'bg-secondary-300'],
+    ['400', 'bg-secondary-400'],
+    ['500', 'bg-secondary-500'],
+    ['600', 'bg-secondary-600'],
+    ['700', 'bg-secondary-700'],
+    ['800', 'bg-secondary-800'],
+    ['900', 'bg-secondary-900'],
+    ['950', 'bg-secondary-950'],
+  ],
+};
 ---
 
 <html lang="pl">
@@ -9,6 +39,23 @@ import '../styles/global.css';
     <title>Playground</title>
   </head>
   <body class="p-8">
-    <h1 class="text-2xl font-bold">bws-astro-components</h1>
+    <h1 class="text-2xl font-bold text-primary">bws-astro-components</h1>
+
+    <section class="mt-8 space-y-6">
+      <h2 class="text-lg font-semibold">Palette</h2>
+      {Object.entries(palettes).map(([name, shades]) => (
+        <div>
+          <p class="mb-2 text-sm font-medium">{name}</p>
+          <div class="grid grid-cols-11 gap-2">
+            {shades.map(([step, bg]) => (
+              <div>
+                <div class:list={['h-12 rounded-md', bg]} />
+                <p class="mt-1 text-xs text-gray-600">{step}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </section>
   </body>
 </html>

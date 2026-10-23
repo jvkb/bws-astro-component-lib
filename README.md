@@ -17,6 +17,44 @@ so Tailwind picks up the classes used inside the components:
 @import 'bws-astro-components/styles.css';
 ```
 
+### Required theme variables
+
+The components use the `primary` and `secondary` colors (e.g. `bg-primary`,
+`text-secondary-700`), but the library does not define them — every project
+supplies its own brand colors. Add them in an `@theme` block **after** the
+library import, otherwise Tailwind will not generate those utilities:
+
+| Variable                   | Used for                                        |
+| -------------------------- | ----------------------------------------------- |
+| `--color-primary`          | Main brand color (`bg-primary`, `text-primary`) |
+| `--color-primary-{step}`   | Shades of the main color                        |
+| `--color-secondary`        | Accent color (`bg-secondary`, `text-secondary`) |
+| `--color-secondary-{step}` | Shades of the accent color                      |
+
+`{step}` is every one of: `50`, `100`, `200`, `300`, `400`, `500`, `600`, `700`,
+`800`, `900`, `950` — all 11 shades are required for both colors.
+
+```css
+@import 'tailwindcss';
+@import 'bws-astro-components/styles.css';
+
+@theme {
+  --color-primary: #2b4570;
+  --color-primary-50: #f0f6ff;
+  /* … 100–900 … */
+  --color-primary-950: #112443;
+
+  --color-secondary: #dc5f26;
+  --color-secondary-50: #fff3ee;
+  /* … 100–900 … */
+  --color-secondary-950: #421300;
+}
+```
+
+A complete example lives in the repository's `playground/styles/global.css`.
+Any CSS color format works (hex, `rgb()`, `oklch()`), and tools like
+[uicolors.app](https://uicolors.app) can generate the shades from a single color.
+
 Then use the components:
 
 ```astro
