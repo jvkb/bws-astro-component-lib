@@ -1,4 +1,5 @@
 ---
+import type { HTMLAttributes } from 'astro/types';
 import { twMerge } from 'tailwind-merge';
 import type {
   ButtonVariant,
@@ -8,17 +9,27 @@ import type {
   Size,
 } from './types.ts';
 
-type Props = {
+type OwnProps = {
   variant?: ButtonVariant;
   color?: ColorVariant;
   size?: Size;
   rounded?: RoundedVariant;
-  href?: string;
 } & SharedProps;
+
+// With `href` the component renders a link and takes <a> attributes, otherwise <button> attributes.
+type Props = OwnProps &
+  (
+    | (Omit<HTMLAttributes<'a'>, keyof OwnProps> & { href: string })
+    | (Omit<HTMLAttributes<'button'>, keyof OwnProps> & { href?: undefined })
+  );
 
 const props = Astro.props;
 // Component-only props stay out of the spread, so they don't end up as HTML attributes.
-const { variant, color, size, rounded, class: _class, ...attrs } = props;
+const { variant, color, size, rounded, class: _class, type, ...attrs } = props;
+
+// `type` is set once, outside the spread: Astro would render it twice and the browser keeps the first.
+// A <button> defaults to type="submit" — default to "button" so it never submits a form by accident.
+const buttonType = (type ?? 'button') as HTMLAttributes<'button'>['type'];
 
 // Shared by every variant. Every variant has a 1px border (transparent unless outlined), so all of them are the same size.
 // Dimensions live in getButtonSize, corner radius in getButtonRounded.
@@ -132,12 +143,11 @@ function getClasses() {
 ---
 
 {props.href !== undefined ? (
-  <a class={getClasses()} {...attrs}>
+  <a type={type} class={getClasses()} {...attrs}>
     <slot />
   </a>
 ) : (
-  // A <button> defaults to type="submit" — default to "button" so it never submits a form by accident.
-  <button type="button" class={getClasses()} {...attrs}>
+  <button type={buttonType} class={getClasses()} {...attrs}>
     <slot />
   </button>
 )}

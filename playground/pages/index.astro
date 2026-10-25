@@ -1,11 +1,12 @@
 ---
 import '../styles/global.css';
-import { Button, Icon } from '../../src';
+import { Button, Icon, TextInput } from '../../src';
 import { Heart, MessageCircle, ArrowRight } from '../../src/icons';
 import Star from '../assets/star.svg';
 import type {
   ButtonVariant,
   ColorVariant,
+  InputVariant,
   RoundedVariant,
   Size,
 } from '../../src/components/types';
@@ -27,6 +28,7 @@ const variants: ButtonVariant[] = [
 ];
 const sizes: Size[] = ['xs', 'sm', 'default', 'lg', 'xl'];
 const roundings: RoundedVariant[] = ['xs', 'sm', 'default', 'lg', 'xl', 'full'];
+const inputVariants: InputVariant[] = ['filled', 'outlined', 'underlined'];
 
 // Full class names so Tailwind can detect them.
 const palettes = {
@@ -138,6 +140,44 @@ const palettes = {
         Dopasowuje się do tekstu <Icon icon={MessageCircle} />{' '}
         <Icon icon={ArrowRight} stroke-width={3} />
       </p>
+    </section>
+
+    <section class="mt-8 space-y-4">
+      <h2 class="text-lg font-semibold">TextInput</h2>
+      {inputVariants.map((variant) => (
+        <div class="grid max-w-5xl grid-cols-3 items-start gap-4">
+          <TextInput variant={variant} label={`${variant}: empty`} />
+          <TextInput
+            variant={variant}
+            label="With value"
+            value="Jan Kowalski"
+          />
+          <TextInput
+            variant={variant}
+            label="Email"
+            type="email"
+            hint="We'll never share it"
+          />
+          <TextInput
+            variant={variant}
+            label="Email"
+            value="jan@"
+            error="Enter a valid email address"
+          />
+          <TextInput
+            variant={variant}
+            label="With placeholder"
+            placeholder="e.g. Warszawa"
+            color="secondary"
+          />
+          <TextInput
+            variant={variant}
+            label="Disabled"
+            value="Read only"
+            disabled
+          />
+        </div>
+      ))}
     </section>
   </body>
 </html>
