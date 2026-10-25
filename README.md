@@ -167,6 +167,11 @@ highlighted option. The value is kept in a hidden native `<select>`, so it
 submits with the form, resets and fires `input`/`change` like a native one.
 It needs JavaScript to open.
 
+The list is positioned with [Floating UI](https://floating-ui.com): it is never
+clipped by a parent with `overflow: hidden` and follows the field while
+scrolling. `location` sets where it opens — `auto` (default) opens below and
+flips above when there's no room, `bottom` / `top` always open on that side.
+
 ## Form validation
 
 Inspired by Vuetify's `rules`, but rules are plain objects instead of functions,

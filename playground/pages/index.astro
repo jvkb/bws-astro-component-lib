@@ -283,6 +283,34 @@ const palettes = {
           />
         </div>
       ))}
+      <div class="grid max-w-5xl grid-cols-3 items-end gap-4">
+        <Select
+          variant="outlined"
+          label='location="top"'
+          items={cities}
+          location="top"
+          hint="Always opens above"
+        />
+        <Select
+          variant="outlined"
+          label='location="bottom"'
+          items={cities}
+          location="bottom"
+          hint="Always opens below"
+        />
+        <div
+          id="overflow-demo"
+          class="flex h-40 items-end overflow-hidden rounded-md border border-dashed border-gray-400 p-3"
+        >
+          <Select
+            class="w-full"
+            variant="outlined"
+            label="auto, inside overflow-hidden"
+            items={cities}
+            hint="The list overflows the box instead of being cut off"
+          />
+        </div>
+      </div>
     </section>
 
     <section class="mt-8 mb-16 space-y-4">
