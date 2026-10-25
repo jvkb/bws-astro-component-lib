@@ -1,9 +1,17 @@
 ---
 import '../styles/global.css';
-import { Button, Form, Icon, NumberInput, Select, TextInput } from '../../src';
+import {
+  Button,
+  Chip,
+  Form,
+  Icon,
+  NumberInput,
+  Select,
+  TextInput,
+} from '../../src';
 import { required } from '../../src/rules';
 import { contactRules } from '../forms/contact';
-import { Heart, MessageCircle, ArrowRight } from '../../src/icons';
+import { Heart, MessageCircle, ArrowRight, Check } from '../../src/icons';
 import Star from '../assets/star.svg';
 import type {
   ButtonVariant,
@@ -46,6 +54,20 @@ const cities = [
   'Białystok',
 ];
 const cardVariants: Variant[] = ['elevated', 'flat', 'outlined', 'tonal'];
+const chipVariants: ButtonVariant[] = [
+  'tonal',
+  'flat',
+  'elevated',
+  'outlined',
+  'text',
+];
+const chipColors: (ColorVariant | undefined)[] = [
+  undefined,
+  'primary',
+  'secondary',
+  'success',
+  'error',
+];
 const plans = [
   { title: 'Free', value: 'free' },
   { title: 'Pro — 49 zł / mies.', value: 'pro' },
@@ -419,6 +441,78 @@ const palettes = {
       </div>
     </section>
 
+    <section class="mt-8 mb-16 space-y-4">
+      <h2 class="text-lg font-semibold">Chip</h2>
+      <div class="grid w-max grid-cols-[repeat(6,max-content)] items-center gap-3">
+        {chipColors.map((color) => (
+          <>
+            <p class="text-sm text-gray-600">{color ?? 'no color'}</p>
+            {chipVariants.map((variant) => (
+              <Chip color={color} variant={variant} text={variant} />
+            ))}
+          </>
+        ))}
+      </div>
+      <div class="flex flex-wrap items-center gap-3">
+        {sizes.map((size) => (
+          <Chip size={size} color="primary" prependIcon={Heart} text={size} />
+        ))}
+      </div>
+      <div class="flex flex-wrap items-center gap-3">
+        <Chip rounded="sm" color="info" text='rounded="sm" (label)' />
+        <Chip
+          href="#"
+          color="primary"
+          appendIcon={ArrowRight}
+          text="Link chip"
+        />
+        <Chip
+          href="#"
+          variant="outlined"
+          color="secondary"
+          text="Outlined link"
+        />
+        <Chip
+          variant="outlined"
+          color="success"
+          prependIcon={Check}
+          text="Done"
+        />
+        <Chip color="primary">
+          <span
+            slot="prepend"
+            class="-ml-2 inline-flex size-6 items-center justify-center rounded-full bg-primary text-[0.625rem] text-white"
+          >
+            JB
+          </span>
+          Jakub Banach
+        </Chip>
+      </div>
+      <div id="chip-list" class="flex flex-wrap items-center gap-2">
+        <Chip closable text="Astro" />
+        <Chip closable color="primary" text="Tailwind" />
+        <Chip closable color="secondary" variant="outlined" text="TypeScript" />
+        <Chip closable color="error" text="Can't remove me" data-keep />
+        <Chip closable color="success" variant="flat" text="Vuetify" />
+      </div>
+      <p id="chip-log" class="text-sm text-gray-600"></p>
+    </section>
+
+    <script>
+      // chip:close is cancelable — the chip with data-keep stays.
+      document
+        .getElementById('chip-list')
+        ?.addEventListener('chip:close', (event) => {
+          const chip = event.target as HTMLElement;
+          const log = document.getElementById('chip-log')!;
+          if (chip.hasAttribute('data-keep')) {
+            event.preventDefault();
+            log.textContent = 'Kept: the chip:close event was canceled.';
+          } else {
+            log.textContent = `Removed: ${chip.textContent?.trim()}`;
+          }
+        });
+    </script>
     <script>
       // Registers the custom "nip" rule in the browser.
       import '../forms/contact';

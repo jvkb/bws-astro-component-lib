@@ -142,6 +142,36 @@ Each part is a prop for plain text or a slot for anything else.
 
 Slots: `title`, `subtitle`, the default slot (body) and `actions`.
 
+## Chip
+
+Like Vuetify's `v-chip`: a small pill for tags, statuses or filters.
+
+```astro
+---
+import { Chip } from 'bws-astro-components';
+import { Check } from 'bws-astro-components/icons';
+---
+
+<Chip text="Nowy" />
+<Chip color="success" variant="outlined" prependIcon={Check} text="Opłacone" />
+<Chip href="/blog/tag/astro" color="primary" text="#astro" />
+<Chip closable text="Kraków" />
+```
+
+| Prop                         | Default   |                                                              |
+| ---------------------------- | --------- | ------------------------------------------------------------ |
+| `variant`                    | `tonal`   | `tonal` · `flat` · `elevated` · `outlined` · `text`          |
+| `color`                      | —         | without one the chip is neutral gray                         |
+| `size`                       | `default` | `xs` · `sm` · `default` · `lg` · `xl`                        |
+| `rounded`                    | `full`    | `sm` gives Vuetify's "label" look                            |
+| `prependIcon` / `appendIcon` | —         | any icon `<Icon>` accepts; or the `prepend` / `append` slots |
+| `href`                       | —         | makes the chip a link with hover and focus styles            |
+| `closable`                   | `false`   | adds a × button that removes the chip                        |
+
+Closing fires a cancelable, bubbling `chip:close` event on the chip — call
+`event.preventDefault()` to keep it (e.g. while a request runs). Focus moves to
+the next chip's × button. A chip can't be both a link and closable.
+
 ## Select
 
 A Vuetify-style dropdown with the same variants, colors, label, hint and
