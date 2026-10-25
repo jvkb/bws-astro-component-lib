@@ -13,6 +13,7 @@ type OwnProps = {
   variant?: ButtonVariant;
   color?: ColorVariant;
   size?: Size;
+  block?: boolean;
   rounded?: RoundedVariant;
 } & SharedProps;
 
@@ -25,7 +26,16 @@ type Props = OwnProps &
 
 const props = Astro.props;
 // Component-only props stay out of the spread, so they don't end up as HTML attributes.
-const { variant, color, size, rounded, class: _class, type, ...attrs } = props;
+const {
+  block,
+  variant,
+  color,
+  size,
+  rounded,
+  class: _class,
+  type,
+  ...attrs
+} = props;
 
 // `type` is set once, outside the spread: Astro would render it twice and the browser keeps the first.
 // A <button> defaults to type="submit" — default to "button" so it never submits a form by accident.
@@ -131,14 +141,20 @@ function getButtonRounded(rounded: RoundedVariant) {
 // twMerge drops default classes that conflict with ones passed from outside,
 // so e.g. class="rounded-full" replaces rounded-md instead of fighting over CSS order.
 function getClasses() {
-  return twMerge(
+  const cls = [
     base,
     getButtonColor(color ?? 'primary'),
     getClassesBasedOnVariant(variant ?? 'elevated'),
     getButtonSize(size ?? 'default'),
     getButtonRounded(rounded ?? 'default'),
     props.class,
-  );
+  ];
+
+  if (props.block === true) {
+    cls.unshift('w-full');
+  }
+
+  return twMerge(...cls);
 }
 ---
 

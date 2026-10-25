@@ -115,6 +115,93 @@ Icons take their color from `currentColor`, so use text utilities
 passed through. Icons live on their own entry point, `bws-astro-components/icons`,
 because names like `Link`, `Image` or `Menu` would clash with components.
 
+## Form validation
+
+Inspired by Vuetify's `rules`, but rules are plain objects instead of functions,
+so the same rules run in the browser and on the server.
+
+```astro
+---
+import { Button, Form, NumberInput, TextInput } from 'bws-astro-components';
+import { email, max, required } from 'bws-astro-components/rules';
+---
+
+<Form method="post">
+  <TextInput
+    name="email"
+    label="Email"
+    rules={[required('Enter your email'), email()]}
+  />
+  <NumberInput
+    name="guests"
+    label="Guests"
+    rules={[required(), max(20, 'At most 20 guests')]}
+  />
+  <Button type="submit">Send</Button>
+</Form>
+```
+
+Inside a `<Form>`, fields with `rules` validate in the browser: messages replace
+the hint, the submit is blocked while anything is invalid and the first invalid
+field gets focus. Without JavaScript, the rules still apply as native attributes
+(`required`, `min`, `maxlength`, …).
+
+| Rule                                                | Fails when                                          |
+| --------------------------------------------------- | --------------------------------------------------- |
+| `required(message?)`                                | the value is empty (or only whitespace)             |
+| `email(message?)`                                   | not a valid email address                           |
+| `minLength(n, message?)` / `maxLength(n, message?)` | shorter / longer than `n` characters                |
+| `min(n, message?)` / `max(n, message?)`             | the number is below / above `n`                     |
+| `pattern(regex, message?)`                          | the **whole** value doesn't match                   |
+| `custom(name, message?)`                            | a rule registered with `defineRule` returns `false` |
+
+Like in Vuetify, every rule except `required` passes on an empty value, and only
+the first failing rule's message is shown. Default messages are in English —
+pass your own as the last argument.
+
+`<Form validateOn="…">` sets when fields start validating: `blur` (default —
+after leaving a field, then live while typing), `input` (from the first
+keystroke) or `submit` (on submit, then live). Submit handlers on the form only
+run once everything is valid.
+
+### Server-side validation
+
+Always validate again on the server. Keep the rules in a module both sides import:
+
+```ts
+// src/forms/contact.ts
+import {
+  custom,
+  defineRule,
+  email,
+  required,
+} from 'bws-astro-components/rules';
+
+defineRule('nip', (value) => isValidNip(value)); // custom rules: register them here
+
+export const contactRules = {
+  email: [required(), email()],
+  nip: [custom('nip', 'Invalid NIP')],
+};
+```
+
+Use it in the markup (`rules={contactRules.email}`), import the module in a
+page `<script>` so custom rules exist in the browser, and check submissions with
+`validateForm` — in an Astro Action, an endpoint or the page frontmatter:
+
+```ts
+import { validateForm } from 'bws-astro-components/rules';
+
+const { valid, errors } = validateForm(
+  await Astro.request.formData(),
+  contactRules,
+);
+// errors → { email: 'Enter a valid email address' }; render fields with error={errors.email}
+```
+
+A field with an `error` prop starts out invalid, and the message clears as soon
+as the value is edited into something valid.
+
 ## Development
 
 | Script               | What it does                                                           |

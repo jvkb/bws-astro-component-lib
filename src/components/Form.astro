@@ -1,0 +1,134 @@
+---
+import type { HTMLAttributes } from 'astro/types';
+import type { FormValidateOn } from './types.ts';
+
+type Props = HTMLAttributes<'form'> & {
+  /**
+   * When fields start validating, like Vuetify's validate-on:
+   * - `blur` (default): after a field is left for the first time, then live while typing
+   * - `input`: live from the first keystroke
+   * - `submit`: only on submit, then live while typing
+   */
+  validateOn?: FormValidateOn;
+};
+
+const { validateOn, ...attrs } = Astro.props;
+---
+
+<form data-validate-on={validateOn ?? 'blur'} {...attrs}>
+  <slot />
+</form>
+
+<script>
+  // One set of delegated listeners serves every <Form> on the page (Astro bundles this script once).
+  // Fields opt in through data-rules, which TextInput/NumberInput render from their `rules` prop.
+  import { type Rule, validate } from '../rules.ts';
+
+  const FORM = 'form[data-validate-on]';
+  const FIELD = 'input[data-rules]';
+
+  function getField(target: EventTarget | null) {
+    return target instanceof HTMLInputElement && target.matches(FIELD)
+      ? target
+      : null;
+  }
+
+  function getValidateOn(input: HTMLInputElement) {
+    return input.closest<HTMLFormElement>(FORM)?.dataset.validateOn ?? null;
+  }
+
+  function getRules(input: HTMLInputElement): Rule[] {
+    try {
+      return JSON.parse(input.dataset.rules ?? '[]');
+    } catch {
+      return [];
+    }
+  }
+
+  // Shows the result the same way a server-side `error` prop does: data-invalid on the field wrapper,
+  // aria-invalid on the input and the message in place of the hint.
+  function showResult(input: HTMLInputElement, message: string | null) {
+    const wrapper = input.closest('[data-field]');
+    const messageElement = document.getElementById(
+      input.getAttribute('aria-describedby') ?? '',
+    );
+
+    // Keeps form.checkValidity() and :invalid in sync with the rules.
+    input.setCustomValidity(message ?? '');
+    wrapper?.toggleAttribute('data-invalid', message !== null);
+    if (message) input.setAttribute('aria-invalid', 'true');
+    else input.removeAttribute('aria-invalid');
+    if (messageElement) {
+      messageElement.textContent = message ?? messageElement.dataset.hint ?? '';
+    }
+  }
+
+  function validateField(input: HTMLInputElement) {
+    const message = input.disabled
+      ? null
+      : validate(input.value, getRules(input));
+    showResult(input, message);
+    return message === null;
+  }
+
+  // The script takes over the messages, so the browser's own validation bubbles are turned off.
+  // Without JavaScript the native attributes (required, min, …) still validate.
+  function disableNativeValidation() {
+    for (const form of document.querySelectorAll<HTMLFormElement>(FORM)) {
+      form.noValidate = true;
+    }
+  }
+
+  document.addEventListener('focusout', (event) => {
+    const input = getField(event.target);
+    if (!input || getValidateOn(input) !== 'blur') return;
+    input.dataset.touched = '';
+    validateField(input);
+  });
+
+  document.addEventListener('input', (event) => {
+    const input = getField(event.target);
+    if (!input || !getValidateOn(input)) return;
+    if (getValidateOn(input) === 'input') input.dataset.touched = '';
+    if (input.dataset.touched !== undefined) validateField(input);
+  });
+
+  // Capture phase: runs before submit handlers on the form itself, so they don't fire for an invalid form.
+  document.addEventListener(
+    'submit',
+    (event) => {
+      const form = event.target;
+      if (!(form instanceof HTMLFormElement) || !form.matches(FORM)) return;
+
+      const invalid = [
+        ...form.querySelectorAll<HTMLInputElement>(FIELD),
+      ].filter((input) => {
+        input.dataset.touched = '';
+        return !validateField(input);
+      });
+      if (invalid.length === 0) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      invalid[0].focus();
+    },
+    true,
+  );
+
+  // A reset form starts over: no messages until the fields are touched again.
+  document.addEventListener('reset', (event) => {
+    const form = event.target;
+    if (!(form instanceof HTMLFormElement) || !form.matches(FORM)) return;
+    // The values are restored after this event, so wait a tick.
+    setTimeout(() => {
+      for (const input of form.querySelectorAll<HTMLInputElement>(FIELD)) {
+        delete input.dataset.touched;
+        showResult(input, null);
+      }
+    });
+  });
+
+  disableNativeValidation();
+  // Re-run after client-side navigation when the site uses Astro's view transitions.
+  document.addEventListener('astro:page-load', disableNativeValidation);
+</script>

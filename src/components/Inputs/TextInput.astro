@@ -1,6 +1,7 @@
 ---
 import type { HTMLAttributes } from 'astro/types';
 import { twMerge } from 'tailwind-merge';
+import { type Rule, toInputAttributes } from '../../rules.ts';
 import type { ColorVariant, InputVariant, SharedProps } from '../types.ts';
 
 type Props = Omit<HTMLAttributes<'input'>, 'class' | 'id' | 'color'> &
@@ -10,8 +11,10 @@ type Props = Omit<HTMLAttributes<'input'>, 'class' | 'id' | 'color'> &
     color?: ColorVariant;
     /** Helper text under the field. */
     hint?: string;
-    /** Error message. When set, the field is marked invalid and shown in the error color. */
+    /** Error message, e.g. from server-side validation. When set, the field starts out invalid. */
     error?: string;
+    /** Validation rules from `bws-astro-components/rules`, checked in the browser inside a <Form>. */
+    rules?: Rule[];
   };
 
 const props = Astro.props;
@@ -22,6 +25,7 @@ const {
   color,
   hint,
   error,
+  rules,
   class: _class,
   id: _id,
   placeholder,
@@ -33,6 +37,10 @@ const {
 const inputId = props.id ?? `text-input-${crypto.randomUUID().slice(0, 8)}`;
 const messageId = `${inputId}-message`;
 const message = error ?? hint;
+// Fields with rules (or a server error that should clear once edited) are picked up by Form's script.
+const validated = rules !== undefined || error !== undefined;
+// Native attributes from the rules come first, so explicitly passed ones (e.g. max) win.
+const inputAttrs = { ...toInputAttributes(rules ?? []), ...attrs };
 
 // The floating label is pure CSS: it rests inside the field while the input is empty and not focused,
 // detected with :placeholder-shown. A single-space placeholder makes that work without a real one.
@@ -76,14 +84,16 @@ function getFieldClasses(variant: InputVariant) {
   }
 }
 
-function getErrorFieldClasses(variant: InputVariant) {
+// The invalid state is driven by data-invalid on the wrapper, so Form's script can toggle it in the
+// browser and a server-side `error` looks the same.
+function getInvalidFieldClasses(variant: InputVariant) {
   switch (variant) {
     case 'filled':
     case 'underlined': {
-      return 'after:scale-x-100';
+      return 'group-data-invalid/field:after:scale-x-100';
     }
     case 'outlined': {
-      return 'border-(--input-color) hover:border-(--input-color)';
+      return 'group-data-invalid/field:border-(--input-color) group-data-invalid/field:hover:border-(--input-color)';
     }
   }
 }
@@ -139,9 +149,11 @@ const hasAppend = Astro.slots.has('append-inner');
 ---
 
 <div
+  data-field
+  data-invalid={error ? '' : undefined}
   class={twMerge(
-    'flex flex-col gap-1 has-[input:disabled]:opacity-60',
-    getInputColor(error ? 'error' : (color ?? 'primary')),
+    'group/field flex flex-col gap-1 has-[input:disabled]:opacity-60 data-invalid:[--input-color:var(--color-error)]',
+    getInputColor(color ?? 'primary'),
     props.class,
   )}
 >
@@ -149,7 +161,7 @@ const hasAppend = Astro.slots.has('append-inner');
     class={twMerge(
       'relative flex h-14',
       getFieldClasses(currentVariant),
-      error && getErrorFieldClasses(currentVariant),
+      getInvalidFieldClasses(currentVariant),
     )}
   >
     {hasPrepend && <slot name="prepend-inner" />}
@@ -159,12 +171,14 @@ const hasAppend = Astro.slots.has('append-inner');
         type={type ?? 'text'}
         placeholder={inputPlaceholder}
         aria-invalid={error ? 'true' : undefined}
-        aria-describedby={message ? messageId : undefined}
+        aria-describedby={message || validated ? messageId : undefined}
+        data-rules={validated ? JSON.stringify(rules ?? []) : undefined}
+        data-touched={error ? '' : undefined}
         class={twMerge(
           'peer h-full w-full bg-transparent text-base text-gray-900 outline-none placeholder:text-gray-500 disabled:cursor-not-allowed',
           getInputPadding(currentVariant),
         )}
-        {...attrs}
+        {...inputAttrs}
       />
       {label && (
         <label
@@ -173,7 +187,7 @@ const hasAppend = Astro.slots.has('append-inner');
             'pointer-events-none absolute text-xs text-gray-600 transition-all duration-150 peer-focus:text-(--input-color)',
             getLabelClasses(currentVariant),
             !placeholder && getRestingLabelClasses(currentVariant),
-            error && 'text-(--input-color)',
+            'group-data-invalid/field:text-(--input-color)',
           )}
         >
           {label}
@@ -182,13 +196,16 @@ const hasAppend = Astro.slots.has('append-inner');
     </div>
     {hasAppend && <slot name="append-inner" />}
   </div>
-  {message && (
+  {(message || validated) && (
     <p
       id={messageId}
+      data-hint={hint}
+      aria-live={validated ? 'polite' : undefined}
       class={twMerge(
-        'text-xs text-gray-600',
+        'text-xs text-gray-600 group-data-invalid/field:text-error',
         currentVariant !== 'underlined' && 'px-4',
-        error && 'text-error',
+        // Reserve the line, so the layout doesn't jump when an error appears.
+        validated && 'min-h-4',
       )}
     >
       {message}
