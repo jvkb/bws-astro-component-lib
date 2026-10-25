@@ -4,9 +4,20 @@
  *   @import 'tailwindcss';
  *   @import 'bws-astro-components/styles.css';
  *
- * Color tokens (--color-primary-*, --color-secondary-*) are not defined here —
+ * Brand colors (--color-primary-*, --color-secondary-*) are not defined here —
  * the consuming project provides them in its own @theme block (see README).
  */
 
 /* Let Tailwind scan the library's components for class names. */
 @source '../components';
+
+/*
+ * Status colors with defaults from the Tailwind palette, picked so white text
+ * on them meets WCAG AA (4.5:1). Override them in the project's @theme block.
+ */
+@theme {
+  --color-success: oklch(52.7% 0.154 150.069); /* green-700 */
+  --color-warning: oklch(55.5% 0.163 48.998); /* amber-700 */
+  --color-info: oklch(50% 0.134 242.749); /* sky-700 */
+  --color-error: oklch(57.7% 0.245 27.325); /* red-600 */
+}

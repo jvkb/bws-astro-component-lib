@@ -55,6 +55,20 @@ A complete example lives in the repository's `playground/styles/global.css`.
 Any CSS color format works (hex, `rgb()`, `oklch()`), and tools like
 [uicolors.app](https://uicolors.app) can generate the shades from a single color.
 
+### Optional status colors
+
+Components with a `color` prop (e.g. `<Button color="error">`) also accept
+`success`, `warning`, `info` and `error`. These come with defaults from the
+Tailwind palette (white text on them passes WCAG AA); override any of them in
+the same `@theme` block:
+
+| Variable          | Default     |
+| ----------------- | ----------- |
+| `--color-success` | `green-700` |
+| `--color-warning` | `amber-700` |
+| `--color-info`    | `sky-700`   |
+| `--color-error`   | `red-600`   |
+
 Then use the components:
 
 ```astro
@@ -65,6 +79,41 @@ import { Button } from 'bws-astro-components';
 
 <Button>Click</Button>
 ```
+
+## Icons
+
+[Lucide](https://lucide.dev/icons) ships with the library — no extra install.
+Icons are rendered to inline SVG at build time: no JavaScript, and only the
+icons you actually use end up in the HTML.
+
+```astro
+---
+import { Icon } from 'bws-astro-components';
+import { Heart, MessageCircle } from 'bws-astro-components/icons';
+import Logo from '../assets/logo.svg';
+---
+
+<Icon icon={Heart} /> <!-- 1em, scales with the text -->
+<Icon icon={MessageCircle} size="lg" /> <!-- xs | sm | default | lg | xl -->
+<Icon icon={Heart} size={40} /> <!-- pixels -->
+<Icon icon={Logo} label="Company logo" /> <!-- any imported .svg file -->
+```
+
+| Prop    | Type                                                               | Default  |
+| ------- | ------------------------------------------------------------------ | -------- |
+| `icon`  | Lucide icon or imported `.svg` component                           | required |
+| `size`  | `'xs'` · `'sm'` · `'default'` · `'lg'` · `'xl'` · px               | `1em`    |
+| `label` | Accessible name; without it the icon is decorative (`aria-hidden`) | —        |
+
+The steps are the same `Size` names `Button` uses: `xs` 12 px, `sm` 16 px,
+`default` 20 px, `lg` 24 px, `xl` 32 px. Note that `size="default"` is the fixed
+20 px step — leave `size` out to make the icon follow the surrounding text
+(`1em`), which is what you want inside a `Button`.
+
+Icons take their color from `currentColor`, so use text utilities
+(`class="text-primary"`). Any other SVG attribute (e.g. `stroke-width`) is
+passed through. Icons live on their own entry point, `bws-astro-components/icons`,
+because names like `Link`, `Image` or `Menu` would clash with components.
 
 ## Development
 

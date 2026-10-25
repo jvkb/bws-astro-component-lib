@@ -1,5 +1,30 @@
 ---
 import '../styles/global.css';
+import { Button, Icon } from '../../src';
+import { Heart, MessageCircle, ArrowRight } from '../../src/icons';
+import Star from '../assets/star.svg';
+import type {
+  ButtonVariant,
+  ColorVariant,
+  Size,
+} from '../../src/components/types';
+
+const colors: ColorVariant[] = [
+  'primary',
+  'secondary',
+  'success',
+  'warning',
+  'info',
+  'error',
+];
+const variants: ButtonVariant[] = [
+  'elevated',
+  'flat',
+  'tonal',
+  'outlined',
+  'text',
+];
+const sizes: Size[] = ['xs', 'sm', 'default', 'lg', 'xl'];
 
 // Full class names so Tailwind can detect them.
 const palettes = {
@@ -56,6 +81,54 @@ const palettes = {
           </div>
         </div>
       ))}
+    </section>
+
+    <section class="mt-8 space-y-4">
+      <h2 class="text-lg font-semibold">Button</h2>
+      <div class="grid grid-cols-[repeat(6,max-content)] items-center gap-3">
+        {colors.map((color) => (
+          <>
+            <p class="text-sm text-gray-600">{color}</p>
+            {variants.map((variant) => (
+              <Button color={color} variant={variant}>
+                {variant}
+              </Button>
+            ))}
+          </>
+        ))}
+      </div>
+      <div class="flex flex-wrap items-center gap-4">
+        {sizes.map((size) => (
+          <Button size={size}>
+            {size} <Icon icon={ArrowRight} />
+          </Button>
+        ))}
+      </div>
+      <div class="flex flex-wrap items-center gap-4">
+        <Button href="#">Link (&lt;a&gt;)</Button>
+        <Button variant="tonal" color="secondary">
+          Umów spotkanie <Icon icon={ArrowRight} />
+        </Button>
+        <Button class="rounded-full">Override: rounded-full</Button>
+        <Button variant="outlined" class="h-12 px-6 text-base">
+          Override: size
+        </Button>
+      </div>
+    </section>
+
+    <section class="mt-8 space-y-4">
+      <h2 class="text-lg font-semibold">Icon</h2>
+      <div class="flex items-end gap-4 text-primary">
+        {sizes.map((size) => (
+          <Icon icon={Heart} size={size} />
+        ))}
+        <Icon icon={Heart} size={40} class="text-secondary" />
+        <Icon icon={Star} size="xl" label="Ulubione" class="text-secondary" />
+      </div>
+      <p class="flex items-center gap-2 text-xl">
+        Dopasowuje się do tekstu <Icon icon={MessageCircle} />{' '}
+        <Icon icon={ArrowRight} stroke-width={3} />
+      </p>
     </section>
   </body>
 </html>
