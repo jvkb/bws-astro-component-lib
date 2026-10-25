@@ -11,6 +11,7 @@ import type {
   InputVariant,
   RoundedVariant,
   Size,
+  Variant,
 } from '../../src/components/types';
 import Card from '../../src/components/Card.astro';
 
@@ -44,6 +45,7 @@ const cities = [
   'Katowice',
   'Białystok',
 ];
+const cardVariants: Variant[] = ['elevated', 'flat', 'outlined', 'tonal'];
 const plans = [
   { title: 'Free', value: 'free' },
   { title: 'Pro — 49 zł / mies.', value: 'pro' },
@@ -334,7 +336,59 @@ const palettes = {
     </section>
 
     <section class="mt-8 mb-16 space-y-4">
-      <Card />
+      <h2 class="text-lg font-semibold">Card</h2>
+      <div class="grid max-w-5xl grid-cols-3 gap-4 rounded-lg bg-gray-100 p-6">
+        {cardVariants.map((variant) => (
+          <Card
+            variant={variant}
+            title={`${variant[0].toUpperCase()}${variant.slice(1)}`}
+            subtitle={`variant="${variant}"`}
+            text="Neutral card without a color. The body takes any content through the default slot."
+          >
+            <Fragment slot="actions">
+              <Button variant="text">Cancel</Button>
+              <Button variant="text">Save</Button>
+            </Fragment>
+          </Card>
+        ))}
+        <Card
+          title="Elevated, primary"
+          subtitle='color="primary"'
+          color="primary"
+          text="With a color, elevated and flat cards get a solid background."
+        >
+          <Button slot="actions" variant="flat" color="secondary">
+            Book a call <Icon icon={ArrowRight} />
+          </Button>
+        </Card>
+        <Card
+          variant="tonal"
+          color="secondary"
+          title="Tonal, secondary"
+          text="Tonal and outlined cards take the color for the tint, border and text."
+        />
+        <Card variant="outlined" color="success" rounded="xl">
+          <div slot="title" class="flex items-center gap-2">
+            <Icon icon={Heart} size="sm" /> Slots everywhere
+          </div>
+          <Fragment slot="subtitle">
+            Title via the <code>title</code> slot
+          </Fragment>
+          <ul class="list-disc pl-5">
+            <li>outlined, color="success"</li>
+            <li>rounded="xl"</li>
+          </ul>
+          <Button slot="actions" variant="outlined" color="success" size="sm">
+            Got it
+          </Button>
+        </Card>
+        <Card title="Only a title and actions">
+          <Button slot="actions" variant="text">
+            Open
+          </Button>
+        </Card>
+        <Card text="Only body text — no header, no actions." variant="flat" />
+      </div>
     </section>
 
     <script>

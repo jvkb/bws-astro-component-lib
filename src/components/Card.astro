@@ -1,4 +1,160 @@
 ---
+import type { HTMLAttributes } from 'astro/types';
+import { twMerge } from 'tailwind-merge';
+import type {
+  ColorVariant,
+  RoundedVariant,
+  SharedProps,
+  Variant,
+} from './types.ts';
+
+type Props = Omit<HTMLAttributes<'div'>, 'class' | 'id' | 'title'> &
+  SharedProps & {
+    /** Title text; use the `title` slot for richer content. */
+    title?: string;
+    /** Smaller, muted line under the title; or the `subtitle` slot. */
+    subtitle?: string;
+    /** Body text; use the default slot for any other content. */
+    text?: string;
+    variant?: Variant;
+    /** Without a color the card is neutral (white / gray). */
+    color?: ColorVariant;
+    rounded?: RoundedVariant;
+    /** Element for the title — pick the heading level that fits the page outline. */
+    titleTag?: 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'div';
+  };
+
+const props = Astro.props;
+// Component-only props stay out of the spread, so they don't end up as HTML attributes.
+const {
+  title,
+  subtitle,
+  text,
+  variant,
+  color,
+  rounded,
+  titleTag,
+  class: _class,
+  ...attrs
+} = props;
+
+const TitleTag = titleTag ?? 'div';
+const hasTitle = title !== undefined || Astro.slots.has('title');
+const hasSubtitle = subtitle !== undefined || Astro.slots.has('subtitle');
+const hasHeader = hasTitle || hasSubtitle;
+const hasBody = text !== undefined || Astro.slots.has('default');
+const hasActions = Astro.slots.has('actions');
+
+function getCardColor(color: ColorVariant) {
+  switch (color) {
+    case 'primary': {
+      return '[--card-color:var(--color-primary)]';
+    }
+    case 'secondary': {
+      return '[--card-color:var(--color-secondary)]';
+    }
+    case 'success': {
+      return '[--card-color:var(--color-success)]';
+    }
+    case 'warning': {
+      return '[--card-color:var(--color-warning)]';
+    }
+    case 'info': {
+      return '[--card-color:var(--color-info)]';
+    }
+    case 'error': {
+      return '[--card-color:var(--color-error)]';
+    }
+  }
+}
+
+// Like Vuetify: with a color, elevated/flat get a solid background and outlined/tonal take the color
+// for the border/tint and the text. Without one, the card stays neutral.
+function getClassesBasedOnVariant(variant: Variant, hasColor: boolean) {
+  switch (variant) {
+    case 'elevated': {
+      return hasColor
+        ? 'bg-(--card-color) text-white shadow-md'
+        : 'bg-white shadow-md';
+    }
+    case 'flat': {
+      return hasColor ? 'bg-(--card-color) text-white' : 'bg-white';
+    }
+    case 'outlined': {
+      return hasColor
+        ? 'border border-(--card-color) text-(--card-color)'
+        : 'border border-gray-200 bg-white';
+    }
+    case 'tonal': {
+      return hasColor
+        ? 'bg-(--card-color)/12 text-(--card-color)'
+        : 'bg-gray-900/5';
+    }
+  }
+}
+
+function getCardRounded(rounded: RoundedVariant) {
+  switch (rounded) {
+    case 'xs': {
+      return 'rounded-xs';
+    }
+    case 'sm': {
+      return 'rounded-sm';
+    }
+    case 'default': {
+      return 'rounded-md';
+    }
+    case 'lg': {
+      return 'rounded-lg';
+    }
+    case 'xl': {
+      return 'rounded-xl';
+    }
+    case 'full': {
+      return 'rounded-full';
+    }
+  }
+}
 ---
 
-<div></div>
+<div
+  class={twMerge(
+    'flex flex-col text-gray-900',
+    color && getCardColor(color),
+    getClassesBasedOnVariant(variant ?? 'elevated', color !== undefined),
+    getCardRounded(rounded ?? 'default'),
+    props.class,
+  )}
+  {...attrs}
+>
+  {hasHeader && (
+    <div class="px-4 pt-4 pb-2">
+      {hasTitle && (
+        <TitleTag class="text-xl leading-snug font-medium">
+          <slot name="title">{title}</slot>
+        </TitleTag>
+      )}
+      {hasSubtitle && (
+        <div class="mt-0.5 text-sm opacity-70">
+          <slot name="subtitle">{subtitle}</slot>
+        </div>
+      )}
+    </div>
+  )}
+  {hasBody && (
+    <div
+      class={twMerge(
+        'flex-1 px-4 pb-4 text-sm leading-relaxed',
+        hasHeader ? 'pt-2' : 'pt-4',
+      )}
+    >
+      <slot>{text}</slot>
+    </div>
+  )}
+  {hasActions && (
+    // mt-auto keeps the actions at the bottom when cards in a grid stretch to the same height.
+    <div class="mt-auto flex flex-wrap items-center gap-2 p-2">
+      <slot name="actions" />
+    </div>
+  )}
+</div>

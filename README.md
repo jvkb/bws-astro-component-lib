@@ -115,6 +115,33 @@ Icons take their color from `currentColor`, so use text utilities
 passed through. Icons live on their own entry point, `bws-astro-components/icons`,
 because names like `Link`, `Image` or `Menu` would clash with components.
 
+## Card
+
+Like Vuetify's `v-card`: a title with an optional subtitle, a body and actions.
+Each part is a prop for plain text or a slot for anything else.
+
+```astro
+<Card
+  title="Konsultacja"
+  subtitle="30 min, online"
+  text="Omówimy Twój projekt."
+>
+  <Fragment slot="actions">
+    <Button variant="text">Później</Button>
+    <Button variant="text">Umów</Button>
+  </Fragment>
+</Card>
+```
+
+| Prop       | Default    |                                                                           |
+| ---------- | ---------- | ------------------------------------------------------------------------- |
+| `variant`  | `elevated` | `elevated` · `flat` · `outlined` · `tonal`                                |
+| `color`    | —          | solid background (elevated, flat) or tinted border/text (outlined, tonal) |
+| `rounded`  | `default`  | same scale as `Button`                                                    |
+| `titleTag` | `div`      | `h2`–`h6` to put the title into the page's heading outline                |
+
+Slots: `title`, `subtitle`, the default slot (body) and `actions`.
+
 ## Select
 
 A Vuetify-style dropdown with the same variants, colors, label, hint and
