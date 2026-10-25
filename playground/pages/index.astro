@@ -1,6 +1,6 @@
 ---
 import '../styles/global.css';
-import { Button, Form, Icon, NumberInput, TextInput } from '../../src';
+import { Button, Form, Icon, NumberInput, Select, TextInput } from '../../src';
 import { required } from '../../src/rules';
 import { contactRules } from '../forms/contact';
 import { Heart, MessageCircle, ArrowRight } from '../../src/icons';
@@ -12,6 +12,7 @@ import type {
   RoundedVariant,
   Size,
 } from '../../src/components/types';
+import Card from '../../src/components/Card.astro';
 
 const colors: ColorVariant[] = [
   'primary',
@@ -31,6 +32,23 @@ const variants: ButtonVariant[] = [
 const sizes: Size[] = ['xs', 'sm', 'default', 'lg', 'xl'];
 const roundings: RoundedVariant[] = ['xs', 'sm', 'default', 'lg', 'xl', 'full'];
 const inputVariants: InputVariant[] = ['filled', 'outlined', 'underlined'];
+const cities = [
+  'Warszawa',
+  'Kraków',
+  'Wrocław',
+  'Gdańsk',
+  'Poznań',
+  'Łódź',
+  'Szczecin',
+  'Lublin',
+  'Katowice',
+  'Białystok',
+];
+const plans = [
+  { title: 'Free', value: 'free' },
+  { title: 'Pro — 49 zł / mies.', value: 'pro' },
+  { title: 'Enterprise (contact us)', value: 'enterprise', disabled: true },
+];
 
 // Full class names so Tailwind can detect them.
 const palettes = {
@@ -225,6 +243,46 @@ const palettes = {
       ))}
     </section>
 
+    <section class="mt-8 space-y-4">
+      <h2 class="text-lg font-semibold">Select</h2>
+      {inputVariants.map((variant) => (
+        <div class="grid max-w-5xl grid-cols-3 items-start gap-4">
+          <Select
+            variant={variant}
+            label={`${variant}: city`}
+            items={cities}
+            hint="Type a letter to jump"
+          />
+          <Select
+            variant={variant}
+            label="Plan"
+            items={plans}
+            value="pro"
+            color="secondary"
+          />
+          <Select
+            variant={variant}
+            label="With placeholder"
+            placeholder="Choose…"
+            items={cities}
+          />
+          <Select
+            variant={variant}
+            label="Error"
+            items={cities}
+            error="This city is not available"
+          />
+          <Select
+            variant={variant}
+            label="Disabled"
+            items={cities}
+            value="Kraków"
+            disabled
+          />
+        </div>
+      ))}
+    </section>
+
     <section class="mt-8 mb-16 space-y-4">
       <h2 class="text-lg font-semibold">Form</h2>
       <Form
@@ -246,6 +304,12 @@ const palettes = {
           rules={contactRules.postalCode}
         />
         <TextInput name="nip" label="NIP" rules={contactRules.nip} />
+        <Select
+          name="country"
+          label="Kraj"
+          items={['Polska', 'Niemcy', 'Czechy', 'Słowacja']}
+          rules={contactRules.country}
+        />
         <NumberInput
           name="guests"
           label="Liczba gości"
@@ -267,6 +331,10 @@ const palettes = {
         </div>
         <p id="form-result" class="col-span-2 text-sm text-success"></p>
       </Form>
+    </section>
+
+    <section class="mt-8 mb-16 space-y-4">
+      <Card />
     </section>
 
     <script>

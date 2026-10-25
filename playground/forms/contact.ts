@@ -28,6 +28,7 @@ export const contactRules = {
   email: [required('Podaj email'), email('Niepoprawny adres email')],
   postalCode: [pattern(/\d{2}-\d{3}/, 'Kod w formacie 00-000')],
   nip: [custom('nip', 'Niepoprawny NIP')],
+  country: [required('Wybierz kraj')],
   guests: [
     required('Podaj liczbę gości'),
     min(1, 'Co najmniej 1 osoba'),

@@ -3,6 +3,13 @@ import type { HTMLAttributes } from 'astro/types';
 import { twMerge } from 'tailwind-merge';
 import { type Rule, toInputAttributes } from '../../rules.ts';
 import type { ColorVariant, InputVariant, SharedProps } from '../types.ts';
+import {
+  getFieldClasses,
+  getInputColor,
+  getInputPadding,
+  getInvalidFieldClasses,
+  getLabelClasses,
+} from './field.ts';
 
 type Props = Omit<HTMLAttributes<'input'>, 'class' | 'id' | 'color'> &
   SharedProps & {
@@ -45,88 +52,6 @@ const inputAttrs = { ...toInputAttributes(rules ?? []), ...attrs };
 // The floating label is pure CSS: it rests inside the field while the input is empty and not focused,
 // detected with :placeholder-shown. A single-space placeholder makes that work without a real one.
 const inputPlaceholder = label && !placeholder ? ' ' : placeholder;
-
-function getInputColor(color: ColorVariant) {
-  switch (color) {
-    case 'primary': {
-      return '[--input-color:var(--color-primary)]';
-    }
-    case 'secondary': {
-      return '[--input-color:var(--color-secondary)]';
-    }
-    case 'success': {
-      return '[--input-color:var(--color-success)]';
-    }
-    case 'warning': {
-      return '[--input-color:var(--color-warning)]';
-    }
-    case 'info': {
-      return '[--input-color:var(--color-info)]';
-    }
-    case 'error': {
-      return '[--input-color:var(--color-error)]';
-    }
-  }
-}
-
-// filled/underlined get Vuetify's underline that grows from the middle on focus (the ::after line).
-function getFieldClasses(variant: InputVariant) {
-  switch (variant) {
-    case 'filled': {
-      return 'rounded-t-md border-b border-gray-500 bg-gray-100 hover:border-gray-900 hover:bg-gray-200 after:absolute after:inset-x-0 after:-bottom-px after:h-0.5 after:scale-x-0 after:bg-(--input-color) after:transition-transform after:duration-200 focus-within:after:scale-x-100';
-    }
-    case 'underlined': {
-      return 'border-b border-gray-500 hover:border-gray-900 after:absolute after:inset-x-0 after:-bottom-px after:h-0.5 after:scale-x-0 after:bg-(--input-color) after:transition-transform after:duration-200 focus-within:after:scale-x-100';
-    }
-    case 'outlined': {
-      return 'rounded-md border border-gray-400 hover:border-gray-900 focus-within:border-(--input-color) focus-within:ring-1 focus-within:ring-(--input-color) focus-within:ring-inset';
-    }
-  }
-}
-
-// The invalid state is driven by data-invalid on the wrapper, so Form's script can toggle it in the
-// browser and a server-side `error` looks the same.
-function getInvalidFieldClasses(variant: InputVariant) {
-  switch (variant) {
-    case 'filled':
-    case 'underlined': {
-      return 'group-data-invalid/field:after:scale-x-100';
-    }
-    case 'outlined': {
-      return 'group-data-invalid/field:border-(--input-color) group-data-invalid/field:hover:border-(--input-color)';
-    }
-  }
-}
-
-function getInputPadding(variant: InputVariant) {
-  switch (variant) {
-    case 'filled': {
-      return label ? 'px-4 pt-5 pb-1' : 'px-4';
-    }
-    case 'underlined': {
-      // No side padding, unless something sits before the input in the prepend-inner slot.
-      return twMerge(label && 'pt-5 pb-1', hasPrepend && 'pl-3');
-    }
-    case 'outlined': {
-      return 'px-4';
-    }
-  }
-}
-
-function getLabelClasses(variant: InputVariant) {
-  switch (variant) {
-    case 'filled': {
-      return 'left-4 top-2';
-    }
-    case 'underlined': {
-      return hasPrepend ? 'left-3 top-2' : 'left-0 top-2';
-    }
-    case 'outlined': {
-      // Floated onto the border; the background covers the line behind the text (override with --input-bg).
-      return 'left-3 top-0 -translate-y-1/2 bg-[var(--input-bg,white)] px-1';
-    }
-  }
-}
 
 // Moves the label back into the field while it's empty and not focused.
 // Skipped when there's a real placeholder — the label then stays floated above it.
@@ -176,7 +101,7 @@ const hasAppend = Astro.slots.has('append-inner');
         data-touched={error ? '' : undefined}
         class={twMerge(
           'peer h-full w-full bg-transparent text-base text-gray-900 outline-none placeholder:text-gray-500 disabled:cursor-not-allowed',
-          getInputPadding(currentVariant),
+          getInputPadding(currentVariant, Boolean(label), hasPrepend),
         )}
         {...inputAttrs}
       />
@@ -185,7 +110,7 @@ const hasAppend = Astro.slots.has('append-inner');
           for={inputId}
           class={twMerge(
             'pointer-events-none absolute text-xs text-gray-600 transition-all duration-150 peer-focus:text-(--input-color)',
-            getLabelClasses(currentVariant),
+            getLabelClasses(currentVariant, hasPrepend),
             !placeholder && getRestingLabelClasses(currentVariant),
             'group-data-invalid/field:text-(--input-color)',
           )}

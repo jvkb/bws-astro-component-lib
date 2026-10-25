@@ -21,23 +21,36 @@ const { validateOn, ...attrs } = Astro.props;
 
 <script>
   // One set of delegated listeners serves every <Form> on the page (Astro bundles this script once).
-  // Fields opt in through data-rules, which TextInput/NumberInput render from their `rules` prop.
+  // Fields opt in through data-rules, which the inputs render from their `rules` prop.
   import { type Rule, validate } from '../rules.ts';
 
   const FORM = 'form[data-validate-on]';
-  const FIELD = 'input[data-rules]';
+  const FIELD = '[data-rules]';
 
-  function getField(target: EventTarget | null) {
-    return target instanceof HTMLInputElement && target.matches(FIELD)
-      ? target
-      : null;
+  // The element holding the value: an <input>, or the hidden <select> behind Select.
+  type Field = HTMLInputElement | HTMLSelectElement;
+
+  function getField(target: EventTarget | null): Field | null {
+    if (!(target instanceof Element)) return null;
+    if (target.matches(FIELD)) return target as Field;
+    // Custom controls (Select's combobox) stand in for the field inside their wrapper.
+    return target.closest('[data-field]')?.querySelector<Field>(FIELD) ?? null;
   }
 
-  function getValidateOn(input: HTMLInputElement) {
+  // The element the user interacts with — it gets focus, aria-invalid and the message link.
+  function getControl(field: Field) {
+    return (
+      field
+        .closest('[data-field]')
+        ?.querySelector<HTMLElement>('[data-focus]') ?? field
+    );
+  }
+
+  function getValidateOn(input: Field) {
     return input.closest<HTMLFormElement>(FORM)?.dataset.validateOn ?? null;
   }
 
-  function getRules(input: HTMLInputElement): Rule[] {
+  function getRules(input: Field): Rule[] {
     try {
       return JSON.parse(input.dataset.rules ?? '[]');
     } catch {
@@ -47,23 +60,24 @@ const { validateOn, ...attrs } = Astro.props;
 
   // Shows the result the same way a server-side `error` prop does: data-invalid on the field wrapper,
   // aria-invalid on the input and the message in place of the hint.
-  function showResult(input: HTMLInputElement, message: string | null) {
+  function showResult(input: Field, message: string | null) {
     const wrapper = input.closest('[data-field]');
+    const control = getControl(input);
     const messageElement = document.getElementById(
-      input.getAttribute('aria-describedby') ?? '',
+      control.getAttribute('aria-describedby') ?? '',
     );
 
     // Keeps form.checkValidity() and :invalid in sync with the rules.
     input.setCustomValidity(message ?? '');
     wrapper?.toggleAttribute('data-invalid', message !== null);
-    if (message) input.setAttribute('aria-invalid', 'true');
-    else input.removeAttribute('aria-invalid');
+    if (message) control.setAttribute('aria-invalid', 'true');
+    else control.removeAttribute('aria-invalid');
     if (messageElement) {
       messageElement.textContent = message ?? messageElement.dataset.hint ?? '';
     }
   }
 
-  function validateField(input: HTMLInputElement) {
+  function validateField(input: Field) {
     const message = input.disabled
       ? null
       : validate(input.value, getRules(input));
@@ -100,17 +114,17 @@ const { validateOn, ...attrs } = Astro.props;
       const form = event.target;
       if (!(form instanceof HTMLFormElement) || !form.matches(FORM)) return;
 
-      const invalid = [
-        ...form.querySelectorAll<HTMLInputElement>(FIELD),
-      ].filter((input) => {
-        input.dataset.touched = '';
-        return !validateField(input);
-      });
+      const invalid = [...form.querySelectorAll<Field>(FIELD)].filter(
+        (input) => {
+          input.dataset.touched = '';
+          return !validateField(input);
+        },
+      );
       if (invalid.length === 0) return;
 
       event.preventDefault();
       event.stopPropagation();
-      invalid[0].focus();
+      getControl(invalid[0]).focus();
     },
     true,
   );
@@ -121,7 +135,7 @@ const { validateOn, ...attrs } = Astro.props;
     if (!(form instanceof HTMLFormElement) || !form.matches(FORM)) return;
     // The values are restored after this event, so wait a tick.
     setTimeout(() => {
-      for (const input of form.querySelectorAll<HTMLInputElement>(FIELD)) {
+      for (const input of form.querySelectorAll<Field>(FIELD)) {
         delete input.dataset.touched;
         showResult(input, null);
       }

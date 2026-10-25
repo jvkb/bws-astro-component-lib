@@ -7,6 +7,8 @@ export type RoundedVariant = 'xs' | 'sm' | 'default' | 'lg' | 'xl' | 'full';
 export type InputVariant = 'filled' | 'outlined' | 'underlined';
 export type NumberControlVariant = 'default' | 'split' | 'hidden';
 export type FormValidateOn = 'blur' | 'input' | 'submit';
+export type SelectItem =
+  string | { title: string; value: string; disabled?: boolean };
 
 export type SharedProps = {
   class?: string;

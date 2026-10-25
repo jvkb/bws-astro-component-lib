@@ -1,2 +1,433 @@
 ---
+import ChevronDown from '@lucide/astro/icons/chevron-down';
+import { twMerge } from 'tailwind-merge';
+import { type Rule, toInputAttributes } from '../../rules.ts';
+import type {
+  ColorVariant,
+  InputVariant,
+  SelectItem,
+  SharedProps,
+} from '../types.ts';
+import {
+  getFieldClasses,
+  getInputColor,
+  getInputPadding,
+  getInvalidFieldClasses,
+  getLabelClasses,
+} from './field.ts';
+
+type Props = SharedProps & {
+  /** Plain strings, or `{ title, value, disabled? }` when the shown text differs from the value. */
+  items: SelectItem[];
+  name?: string;
+  /** Value of the initially selected item. */
+  value?: string;
+  label?: string;
+  placeholder?: string;
+  variant?: InputVariant;
+  color?: ColorVariant;
+  /** Helper text under the field. */
+  hint?: string;
+  /** Error message, e.g. from server-side validation. When set, the field starts out invalid. */
+  error?: string;
+  /** Validation rules from `bws-astro-components/rules`, checked in the browser inside a <Form>. */
+  rules?: Rule[];
+  disabled?: boolean;
+};
+
+const props = Astro.props;
+const {
+  items,
+  name,
+  value,
+  label,
+  placeholder,
+  variant,
+  color,
+  hint,
+  error,
+  rules,
+  disabled,
+} = props;
+
+// The combobox gets the id, since it's the element that takes focus.
+const id = props.id ?? `select-${crypto.randomUUID().slice(0, 8)}`;
+const labelId = `${id}-label`;
+const listId = `${id}-list`;
+const messageId = `${id}-message`;
+
+const options = items.map((item) =>
+  typeof item === 'string'
+    ? { title: item, value: item, disabled: false }
+    : item,
+);
+const selected = options.find((option) => option.value === value);
+const message = error ?? hint;
+// Fields with rules (or a server error that should clear once changed) are picked up by Form's script.
+const validated = rules !== undefined || error !== undefined;
+const currentVariant = variant ?? 'filled';
+
+// Moves the label back into the field while nothing is selected and the field is neither focused nor open.
+// data-filled on the wrapper is kept in sync by the script below.
+function getRestingLabelClasses(variant: InputVariant) {
+  switch (variant) {
+    case 'filled':
+    case 'underlined': {
+      return 'group-[:not([data-filled]):not([data-open]):not(:focus-within)]/field:top-1/2 group-[:not([data-filled]):not([data-open]):not(:focus-within)]/field:-translate-y-1/2 group-[:not([data-filled]):not([data-open]):not(:focus-within)]/field:text-base';
+    }
+    case 'outlined': {
+      return 'group-[:not([data-filled]):not([data-open]):not(:focus-within)]/field:top-1/2 group-[:not([data-filled]):not([data-open]):not(:focus-within)]/field:bg-transparent group-[:not([data-filled]):not([data-open]):not(:focus-within)]/field:text-base';
+    }
+  }
+}
 ---
+
+<div
+  data-field
+  data-select
+  data-invalid={error ? '' : undefined}
+  data-filled={selected ? '' : undefined}
+  class={twMerge(
+    'group/field flex flex-col gap-1 has-[select:disabled]:opacity-60 data-invalid:[--input-color:var(--color-error)]',
+    getInputColor(color ?? 'primary'),
+    props.class,
+  )}
+>
+  {/* The value lives in a hidden native <select>, so the field submits, resets and validates like any other. */}
+  <select
+    hidden
+    name={name}
+    disabled={disabled}
+    data-rules={validated ? JSON.stringify(rules ?? []) : undefined}
+    data-touched={error ? '' : undefined}
+    {...toInputAttributes(rules ?? [])}
+  >
+    <option value=""></option>
+    {options.map((option) => (
+      <option value={option.value} selected={option === selected}>
+        {option.title}
+      </option>
+    ))}
+  </select>
+
+  <div
+    class={twMerge(
+      'relative flex h-14',
+      getFieldClasses(currentVariant),
+      getInvalidFieldClasses(currentVariant),
+    )}
+  >
+    <div
+      id={id}
+      role="combobox"
+      tabindex={disabled ? -1 : 0}
+      aria-haspopup="listbox"
+      aria-expanded="false"
+      aria-controls={listId}
+      aria-labelledby={label ? labelId : undefined}
+      aria-label={label ? undefined : placeholder}
+      aria-describedby={message || validated ? messageId : undefined}
+      aria-invalid={error ? 'true' : undefined}
+      aria-disabled={disabled ? 'true' : undefined}
+      data-focus
+      class={twMerge(
+        'flex h-full min-w-0 flex-1 cursor-pointer items-center text-base text-gray-900 outline-none aria-disabled:cursor-not-allowed',
+        getInputPadding(currentVariant, Boolean(label), false),
+        // Room for the chevron.
+        'pr-10',
+      )}
+    >
+      <span data-select-display class="truncate">
+        {selected?.title}
+      </span>
+      {placeholder && (
+        <span class="truncate text-gray-500 group-data-filled/field:hidden">
+          {placeholder}
+        </span>
+      )}
+    </div>
+
+    {label && (
+      <span
+        id={labelId}
+        class={twMerge(
+          'pointer-events-none absolute text-xs text-gray-600 transition-all duration-150 group-focus-within/field:text-(--input-color)',
+          getLabelClasses(currentVariant, false),
+          !placeholder && getRestingLabelClasses(currentVariant),
+          'group-data-invalid/field:text-(--input-color)',
+        )}
+      >
+        {label}
+      </span>
+    )}
+
+    <ChevronDown
+      aria-hidden="true"
+      class={twMerge(
+        'pointer-events-none absolute top-1/2 size-5 -translate-y-1/2 text-gray-600 transition-transform group-data-open/field:rotate-180',
+        currentVariant === 'underlined' ? 'right-0' : 'right-3',
+      )}
+    />
+
+    <ul
+      id={listId}
+      role="listbox"
+      hidden
+      aria-labelledby={label ? labelId : undefined}
+      class="absolute inset-x-0 top-full z-20 mt-1 max-h-72 overflow-y-auto rounded-md bg-white py-1 shadow-lg ring-1 ring-gray-900/10"
+    >
+      {options.map((option, index) => (
+        <li
+          id={`${id}-option-${index}`}
+          role="option"
+          data-value={option.value}
+          aria-selected={option === selected ? 'true' : 'false'}
+          aria-disabled={option.disabled ? 'true' : undefined}
+          class="cursor-pointer px-4 py-2.5 text-base text-gray-900 hover:bg-gray-100 data-active:bg-gray-100 aria-disabled:cursor-not-allowed aria-disabled:opacity-50 aria-selected:bg-(--input-color)/10 aria-selected:text-(--input-color)"
+        >
+          {option.title}
+        </li>
+      ))}
+    </ul>
+  </div>
+
+  {(message || validated) && (
+    <p
+      id={messageId}
+      data-hint={hint}
+      aria-live={validated ? 'polite' : undefined}
+      class={twMerge(
+        'text-xs text-gray-600 group-data-invalid/field:text-error',
+        currentVariant !== 'underlined' && 'px-4',
+        // Reserve the line, so the layout doesn't jump when an error appears.
+        validated && 'min-h-4',
+      )}
+    >
+      {message}
+    </p>
+  )}
+</div>
+
+<script>
+  // One set of delegated listeners serves every Select on the page (Astro bundles this script once).
+  // Implements the WAI-ARIA "select-only combobox": focus stays on the combobox, and the highlighted
+  // option is announced through aria-activedescendant.
+  const SELECT = '[data-select]';
+
+  type Parts = {
+    wrapper: HTMLElement;
+    combobox: HTMLElement;
+    listbox: HTMLElement;
+    select: HTMLSelectElement;
+    options: HTMLElement[];
+  };
+
+  function getParts(element: Element | null): Parts | null {
+    const wrapper = element?.closest<HTMLElement>(SELECT);
+    if (!wrapper) return null;
+    return {
+      wrapper,
+      combobox: wrapper.querySelector<HTMLElement>('[role="combobox"]')!,
+      listbox: wrapper.querySelector<HTMLElement>('[role="listbox"]')!,
+      select: wrapper.querySelector('select')!,
+      options: [...wrapper.querySelectorAll<HTMLElement>('[role="option"]')],
+    };
+  }
+
+  const isEnabled = (option: HTMLElement) =>
+    option.getAttribute('aria-disabled') !== 'true';
+  const isOpen = (parts: Parts) => !parts.listbox.hidden;
+  const getActive = (parts: Parts) =>
+    parts.options.find((option) => option.hasAttribute('data-active'));
+
+  function setActive(parts: Parts, option: HTMLElement | undefined) {
+    for (const item of parts.options) {
+      item.toggleAttribute('data-active', item === option);
+    }
+    if (option) {
+      parts.combobox.setAttribute('aria-activedescendant', option.id);
+      option.scrollIntoView({ block: 'nearest' });
+    } else {
+      parts.combobox.removeAttribute('aria-activedescendant');
+    }
+  }
+
+  function open(parts: Parts) {
+    if (parts.combobox.getAttribute('aria-disabled') === 'true') return;
+    parts.listbox.hidden = false;
+    parts.wrapper.setAttribute('data-open', '');
+    parts.combobox.setAttribute('aria-expanded', 'true');
+    setActive(
+      parts,
+      parts.options.find(
+        (option) => option.getAttribute('aria-selected') === 'true',
+      ) ?? parts.options.find(isEnabled),
+    );
+  }
+
+  function close(parts: Parts) {
+    parts.listbox.hidden = true;
+    parts.wrapper.removeAttribute('data-open');
+    parts.combobox.setAttribute('aria-expanded', 'false');
+    setActive(parts, undefined);
+  }
+
+  // Mirrors the native select into the UI — after a choice and after a form reset.
+  function render(parts: Parts) {
+    const value = parts.select.value;
+    let title = '';
+    for (const option of parts.options) {
+      const selected = value !== '' && option.dataset.value === value;
+      option.setAttribute('aria-selected', String(selected));
+      if (selected) title = option.textContent?.trim() ?? '';
+    }
+    parts.wrapper.toggleAttribute('data-filled', value !== '');
+    parts.combobox.querySelector('[data-select-display]')!.textContent = title;
+  }
+
+  function choose(parts: Parts, option: HTMLElement) {
+    if (!isEnabled(option)) return;
+    const value = option.dataset.value ?? '';
+    const changed = parts.select.value !== value;
+    parts.select.value = value;
+    render(parts);
+    close(parts);
+    // Same events a native select fires, so Form validation and your own listeners react.
+    if (changed) {
+      parts.select.dispatchEvent(new Event('input', { bubbles: true }));
+      parts.select.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+  }
+
+  function move(parts: Parts, to: 'next' | 'previous' | 'first' | 'last') {
+    const enabled = parts.options.filter(isEnabled);
+    const current = enabled.indexOf(getActive(parts)!);
+    const target = {
+      next: enabled[Math.min(current + 1, enabled.length - 1)],
+      previous: enabled[Math.max(current - 1, 0)],
+      first: enabled[0],
+      last: enabled.at(-1),
+    }[to];
+    setActive(parts, target);
+  }
+
+  // Typing jumps to the first option starting with the typed text; repeating a letter cycles through matches.
+  let typed = '';
+  let typedTimer: ReturnType<typeof setTimeout> | undefined;
+  function typeahead(parts: Parts, key: string) {
+    clearTimeout(typedTimer);
+    typed += key.toLowerCase();
+    typedTimer = setTimeout(() => (typed = ''), 500);
+
+    const enabled = parts.options.filter(isEnabled);
+    const current = enabled.indexOf(getActive(parts)!);
+    const cycling = [...typed].every((letter) => letter === typed[0]);
+    const query = cycling ? typed[0] : typed;
+    // When cycling, start after the current option; when refining a word, the current one may still match.
+    const start = cycling ? current + 1 : Math.max(current, 0);
+    const ordered = [...enabled.slice(start), ...enabled.slice(0, start)];
+    const match = ordered.find((option) =>
+      option.textContent?.trim().toLowerCase().startsWith(query),
+    );
+    if (match) setActive(parts, match);
+  }
+
+  // Keep focus on the combobox while clicking options or the list's scrollbar.
+  document.addEventListener('mousedown', (event) => {
+    if (
+      (event.target as Element | null)?.closest(`${SELECT} [role="listbox"]`)
+    ) {
+      event.preventDefault();
+    }
+  });
+
+  document.addEventListener('click', (event) => {
+    const target = event.target as Element | null;
+    const option = target?.closest<HTMLElement>(`${SELECT} [role="option"]`);
+    const combobox = target?.closest(`${SELECT} [role="combobox"]`);
+    const parts = getParts(target);
+
+    if (option && parts) choose(parts, option);
+    else if (combobox && parts) {
+      if (isOpen(parts)) close(parts);
+      else open(parts);
+    }
+
+    // A click anywhere else closes every other open select.
+    for (const wrapper of document.querySelectorAll(`${SELECT}[data-open]`)) {
+      if (!wrapper.contains(target)) close(getParts(wrapper)!);
+    }
+  });
+
+  document.addEventListener('keydown', (event) => {
+    const combobox = (event.target as Element | null)?.closest?.(
+      `${SELECT} [role="combobox"]`,
+    );
+    const parts = getParts(combobox ?? null);
+    if (!parts) return;
+    const opened = isOpen(parts);
+
+    switch (event.key) {
+      case 'ArrowDown':
+      case 'ArrowUp': {
+        event.preventDefault();
+        if (!opened) open(parts);
+        else move(parts, event.key === 'ArrowDown' ? 'next' : 'previous');
+        break;
+      }
+      case 'Home':
+      case 'End': {
+        if (!opened) break;
+        event.preventDefault();
+        move(parts, event.key === 'Home' ? 'first' : 'last');
+        break;
+      }
+      case 'Enter':
+      case ' ': {
+        event.preventDefault();
+        const active = getActive(parts);
+        if (!opened) open(parts);
+        else if (active) choose(parts, active);
+        else close(parts);
+        break;
+      }
+      case 'Escape': {
+        if (!opened) break;
+        event.preventDefault();
+        close(parts);
+        break;
+      }
+      case 'Tab': {
+        if (opened) close(parts);
+        break;
+      }
+      default: {
+        if (
+          event.key.length !== 1 ||
+          event.ctrlKey ||
+          event.metaKey ||
+          event.altKey
+        )
+          break;
+        if (!opened) open(parts);
+        typeahead(parts, event.key);
+      }
+    }
+  });
+
+  // Leaving the field closes the list.
+  document.addEventListener('focusout', (event) => {
+    const parts = getParts(event.target as Element | null);
+    if (parts && isOpen(parts)) close(parts);
+  });
+
+  // After a form reset the native selects have their initial values back — show them.
+  document.addEventListener('reset', (event) => {
+    const form = event.target;
+    if (!(form instanceof HTMLFormElement)) return;
+    setTimeout(() => {
+      for (const wrapper of form.querySelectorAll(SELECT))
+        render(getParts(wrapper)!);
+    });
+  });
+</script>

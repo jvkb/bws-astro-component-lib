@@ -115,6 +115,31 @@ Icons take their color from `currentColor`, so use text utilities
 passed through. Icons live on their own entry point, `bws-astro-components/icons`,
 because names like `Link`, `Image` or `Menu` would clash with components.
 
+## Select
+
+A Vuetify-style dropdown with the same variants, colors, label, hint and
+error as `TextInput`:
+
+```astro
+<Select name="city" label="City" items={['Warszawa', 'Kraków', 'Gdańsk']} />
+<Select
+  name="plan"
+  label="Plan"
+  value="pro"
+  items={[
+    { title: 'Free', value: 'free' },
+    { title: 'Pro', value: 'pro' },
+    { title: 'Enterprise', value: 'enterprise', disabled: true },
+  ]}
+/>
+```
+
+It follows the WAI-ARIA select-only combobox pattern: arrow keys, Home/End,
+Enter/Space, Escape and type-to-jump work, and screen readers announce the
+highlighted option. The value is kept in a hidden native `<select>`, so it
+submits with the form, resets and fires `input`/`change` like a native one.
+It needs JavaScript to open.
+
 ## Form validation
 
 Inspired by Vuetify's `rules`, but rules are plain objects instead of functions,
@@ -141,7 +166,7 @@ import { email, max, required } from 'bws-astro-components/rules';
 </Form>
 ```
 
-Inside a `<Form>`, fields with `rules` validate in the browser: messages replace
+Inside a `<Form>`, fields with `rules` (`TextInput`, `NumberInput`, `Select`) validate in the browser: messages replace
 the hint, the submit is blocked while anything is invalid and the first invalid
 field gets focus. Without JavaScript, the rules still apply as native attributes
 (`required`, `min`, `maxlength`, …).
