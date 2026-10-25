@@ -3,6 +3,7 @@ import { twMerge } from 'tailwind-merge';
 import type {
   ButtonVariant,
   ColorVariant,
+  RoundedVariant,
   SharedProps,
   Size,
 } from './types.ts';
@@ -11,17 +12,18 @@ type Props = {
   variant?: ButtonVariant;
   color?: ColorVariant;
   size?: Size;
+  rounded?: RoundedVariant;
   href?: string;
 } & SharedProps;
 
 const props = Astro.props;
 // Component-only props stay out of the spread, so they don't end up as HTML attributes.
-const { variant, color, size, class: _class, ...attrs } = props;
+const { variant, color, size, rounded, class: _class, ...attrs } = props;
 
 // Shared by every variant. Every variant has a 1px border (transparent unless outlined), so all of them are the same size.
-// Dimensions live in getButtonSize.
+// Dimensions live in getButtonSize, corner radius in getButtonRounded.
 const base =
-  'inline-flex cursor-pointer items-center justify-center rounded-md border font-medium ' +
+  'inline-flex cursor-pointer items-center justify-center border font-medium ' +
   'transition-[color,background-color,border-color,box-shadow] duration-150 ' +
   'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--btn-color) ' +
   'disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50';
@@ -92,6 +94,29 @@ function getButtonSize(size: Size) {
   }
 }
 
+function getButtonRounded(rounded: RoundedVariant) {
+  switch (rounded) {
+    case 'xs': {
+      return 'rounded-xs';
+    }
+    case 'sm': {
+      return 'rounded-sm';
+    }
+    case 'default': {
+      return 'rounded-md';
+    }
+    case 'lg': {
+      return 'rounded-lg';
+    }
+    case 'xl': {
+      return 'rounded-xl';
+    }
+    case 'full': {
+      return 'rounded-full';
+    }
+  }
+}
+
 // twMerge drops default classes that conflict with ones passed from outside,
 // so e.g. class="rounded-full" replaces rounded-md instead of fighting over CSS order.
 function getClasses() {
@@ -100,6 +125,7 @@ function getClasses() {
     getButtonColor(color ?? 'primary'),
     getClassesBasedOnVariant(variant ?? 'elevated'),
     getButtonSize(size ?? 'default'),
+    getButtonRounded(rounded ?? 'default'),
     props.class,
   );
 }
