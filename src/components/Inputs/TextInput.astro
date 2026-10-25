@@ -94,7 +94,8 @@ function getInputPadding(variant: InputVariant) {
       return label ? 'px-4 pt-5 pb-1' : 'px-4';
     }
     case 'underlined': {
-      return label ? 'pt-5 pb-1' : '';
+      // No side padding, unless something sits before the input in the prepend-inner slot.
+      return twMerge(label && 'pt-5 pb-1', hasPrepend && 'pl-3');
     }
     case 'outlined': {
       return 'px-4';
@@ -108,7 +109,7 @@ function getLabelClasses(variant: InputVariant) {
       return 'left-4 top-2';
     }
     case 'underlined': {
-      return 'left-0 top-2';
+      return hasPrepend ? 'left-3 top-2' : 'left-0 top-2';
     }
     case 'outlined': {
       // Floated onto the border; the background covers the line behind the text (override with --input-bg).
@@ -132,47 +133,54 @@ function getRestingLabelClasses(variant: InputVariant) {
 }
 
 const currentVariant = variant ?? 'filled';
+// Vuetify-style slots for content inside the field, before/after the input (icons, buttons…).
+const hasPrepend = Astro.slots.has('prepend-inner');
+const hasAppend = Astro.slots.has('append-inner');
 ---
 
 <div
   class={twMerge(
-    'flex flex-col gap-1 has-disabled:opacity-60',
+    'flex flex-col gap-1 has-[input:disabled]:opacity-60',
     getInputColor(error ? 'error' : (color ?? 'primary')),
     props.class,
   )}
 >
   <div
     class={twMerge(
-      'relative h-14',
+      'relative flex h-14',
       getFieldClasses(currentVariant),
       error && getErrorFieldClasses(currentVariant),
     )}
   >
-    <input
-      id={inputId}
-      type={type ?? 'text'}
-      placeholder={inputPlaceholder}
-      aria-invalid={error ? 'true' : undefined}
-      aria-describedby={message ? messageId : undefined}
-      class={twMerge(
-        'peer h-full w-full bg-transparent text-base text-gray-900 outline-none placeholder:text-gray-500 disabled:cursor-not-allowed',
-        getInputPadding(currentVariant),
-      )}
-      {...attrs}
-    />
-    {label && (
-      <label
-        for={inputId}
+    {hasPrepend && <slot name="prepend-inner" />}
+    <div class="relative h-full min-w-0 flex-1">
+      <input
+        id={inputId}
+        type={type ?? 'text'}
+        placeholder={inputPlaceholder}
+        aria-invalid={error ? 'true' : undefined}
+        aria-describedby={message ? messageId : undefined}
         class={twMerge(
-          'pointer-events-none absolute text-xs text-gray-600 transition-all duration-150 peer-focus:text-(--input-color)',
-          getLabelClasses(currentVariant),
-          !placeholder && getRestingLabelClasses(currentVariant),
-          error && 'text-(--input-color)',
+          'peer h-full w-full bg-transparent text-base text-gray-900 outline-none placeholder:text-gray-500 disabled:cursor-not-allowed',
+          getInputPadding(currentVariant),
         )}
-      >
-        {label}
-      </label>
-    )}
+        {...attrs}
+      />
+      {label && (
+        <label
+          for={inputId}
+          class={twMerge(
+            'pointer-events-none absolute text-xs text-gray-600 transition-all duration-150 peer-focus:text-(--input-color)',
+            getLabelClasses(currentVariant),
+            !placeholder && getRestingLabelClasses(currentVariant),
+            error && 'text-(--input-color)',
+          )}
+        >
+          {label}
+        </label>
+      )}
+    </div>
+    {hasAppend && <slot name="append-inner" />}
   </div>
   {message && (
     <p

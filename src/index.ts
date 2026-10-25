@@ -2,3 +2,4 @@
 export { default as Button } from './components/Button.astro';
 export { default as Icon } from './components/Icon.astro';
 export { default as TextInput } from './components/Inputs/TextInput.astro';
+export { default as NumberInput } from './components/Inputs/NumberInput.astro';

@@ -1,0 +1,174 @@
+---
+import ChevronDown from '@lucide/astro/icons/chevron-down';
+import ChevronUp from '@lucide/astro/icons/chevron-up';
+import Minus from '@lucide/astro/icons/minus';
+import Plus from '@lucide/astro/icons/plus';
+import type { ComponentProps } from 'astro/types';
+import { twMerge } from 'tailwind-merge';
+import type { NumberControlVariant } from '../types.ts';
+import TextInput from './TextInput.astro';
+
+type Props = Omit<ComponentProps<typeof TextInput>, 'type'> & {
+  /** Where the +/- buttons go, like Vuetify's control-variant. */
+  controlVariant?: NumberControlVariant;
+  /** Accessible name of the + button. */
+  incrementLabel?: string;
+  /** Accessible name of the − button. */
+  decrementLabel?: string;
+};
+
+const {
+  controlVariant,
+  incrementLabel,
+  decrementLabel,
+  class: _class,
+  ...props
+} = Astro.props;
+
+// The buttons find their input through aria-controls, so the id has to be known here.
+const inputId =
+  Astro.props.id ?? `number-input-${crypto.randomUUID().slice(0, 8)}`;
+const controls = controlVariant ?? 'default';
+
+// tabindex="-1": keyboard users already step with the arrow keys inside the input.
+const stepButton =
+  'flex cursor-pointer items-center justify-center text-gray-600 hover:bg-gray-900/5 hover:text-gray-900 disabled:pointer-events-none disabled:opacity-40';
+---
+
+<TextInput
+  {...props}
+  id={inputId}
+  type="number"
+  class={twMerge(
+    // Hide the browser's own spinner — the component draws its own buttons.
+    '[&_input]:[appearance:textfield] [&_input::-webkit-inner-spin-button]:appearance-none [&_input::-webkit-outer-spin-button]:appearance-none',
+    Astro.props.class,
+  )}
+>
+  {controls === 'split' && (
+    <button
+      slot="prepend-inner"
+      type="button"
+      tabindex="-1"
+      aria-label={decrementLabel ?? 'Decrease'}
+      aria-controls={inputId}
+      data-number-step="down"
+      class={twMerge(stepButton, 'w-12 border-r border-gray-300')}
+    >
+      <Minus class="size-5" aria-hidden="true" />
+    </button>
+  )}
+  {controls === 'split' && (
+    <button
+      slot="append-inner"
+      type="button"
+      tabindex="-1"
+      aria-label={incrementLabel ?? 'Increase'}
+      aria-controls={inputId}
+      data-number-step="up"
+      class={twMerge(stepButton, 'w-12 border-l border-gray-300')}
+    >
+      <Plus class="size-5" aria-hidden="true" />
+    </button>
+  )}
+  {controls === 'default' && (
+    <div slot="append-inner" class="flex flex-col border-l border-gray-300">
+      <button
+        type="button"
+        tabindex="-1"
+        aria-label={incrementLabel ?? 'Increase'}
+        aria-controls={inputId}
+        data-number-step="up"
+        class={twMerge(stepButton, 'w-10 flex-1')}
+      >
+        <ChevronUp class="size-4" aria-hidden="true" />
+      </button>
+      <button
+        type="button"
+        tabindex="-1"
+        aria-label={decrementLabel ?? 'Decrease'}
+        aria-controls={inputId}
+        data-number-step="down"
+        class={twMerge(stepButton, 'w-10 flex-1')}
+      >
+        <ChevronDown class="size-4" aria-hidden="true" />
+      </button>
+    </div>
+  )}
+</TextInput>
+
+<script>
+  // One set of delegated listeners serves every NumberInput on the page (Astro bundles this script once).
+  const STEP = '[data-number-step]';
+
+  function getInput(button: Element) {
+    const input = document.getElementById(
+      button.getAttribute('aria-controls') ?? '',
+    );
+    return input instanceof HTMLInputElement ? input : null;
+  }
+
+  // Disables a button once the value reaches min/max, or when the input can't be edited.
+  function syncButtons(input: HTMLInputElement) {
+    const value = input.valueAsNumber;
+    const buttons = document.querySelectorAll<HTMLButtonElement>(
+      `${STEP}[aria-controls="${CSS.escape(input.id)}"]`,
+    );
+    for (const button of buttons) {
+      const up = button.dataset.numberStep === 'up';
+      const limit = up ? input.max : input.min;
+      const reached =
+        limit !== '' &&
+        !Number.isNaN(value) &&
+        (up ? value >= Number(limit) : value <= Number(limit));
+      button.disabled = input.disabled || input.readOnly || reached;
+    }
+  }
+
+  function syncAll() {
+    for (const button of document.querySelectorAll(STEP)) {
+      const input = getInput(button);
+      if (input) syncButtons(input);
+    }
+  }
+
+  // Keep focus (and the field's focus styles) in the input when a button is clicked.
+  document.addEventListener('mousedown', (event) => {
+    if ((event.target as Element | null)?.closest(STEP)) event.preventDefault();
+  });
+
+  document.addEventListener('click', (event) => {
+    const button = (event.target as Element | null)?.closest(STEP);
+    const input = button && getInput(button);
+    if (!button || !input) return;
+
+    const up = button.getAttribute('data-number-step') === 'up';
+    try {
+      // Native stepping respects min, max and step.
+      if (up) input.stepUp();
+      else input.stepDown();
+    } catch {
+      // step="any" can't be stepped natively — fall back to ±1.
+      const current = Number.isNaN(input.valueAsNumber)
+        ? 0
+        : input.valueAsNumber;
+      input.value = String(current + (up ? 1 : -1));
+    }
+    // stepUp/stepDown don't fire events, but forms and scripts listening for changes need them.
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    input.dispatchEvent(new Event('change', { bubbles: true }));
+  });
+
+  document.addEventListener('input', (event) => {
+    if (
+      event.target instanceof HTMLInputElement &&
+      event.target.type === 'number'
+    ) {
+      syncButtons(event.target);
+    }
+  });
+
+  syncAll();
+  // Re-run after client-side navigation when the site uses Astro's view transitions.
+  document.addEventListener('astro:page-load', syncAll);
+</script>

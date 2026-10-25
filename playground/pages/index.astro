@@ -1,6 +1,6 @@
 ---
 import '../styles/global.css';
-import { Button, Icon, TextInput } from '../../src';
+import { Button, Icon, NumberInput, TextInput } from '../../src';
 import { Heart, MessageCircle, ArrowRight } from '../../src/icons';
 import Star from '../assets/star.svg';
 import type {
@@ -176,6 +176,43 @@ const palettes = {
             value="Read only"
             disabled
           />
+        </div>
+      ))}
+    </section>
+
+    <section class="mt-8 space-y-4">
+      <h2 class="text-lg font-semibold">NumberInput</h2>
+      {inputVariants.map((variant) => (
+        <div class="grid max-w-5xl grid-cols-3 items-start gap-4">
+          <NumberInput
+            variant={variant}
+            label={`${variant}: 0–10`}
+            min={0}
+            max={10}
+            value={9}
+            hint="Hits the max after one step"
+          />
+          <NumberInput
+            variant={variant}
+            label="Quantity (split)"
+            controlVariant="split"
+            min={1}
+            value={1}
+          />
+          <NumberInput
+            variant={variant}
+            label="Price (step 0.5, hidden)"
+            controlVariant="hidden"
+            step={0.5}
+          />
+          <NumberInput
+            variant={variant}
+            label="Guests"
+            value={42}
+            max={20}
+            error="At most 20 guests"
+          />
+          <NumberInput variant={variant} label="Disabled" value={3} disabled />
         </div>
       ))}
     </section>
