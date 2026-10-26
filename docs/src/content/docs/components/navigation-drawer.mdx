@@ -1,0 +1,111 @@
+---
+title: NavigationDrawer
+description: A side menu that slides in from any edge, like Vuetify's v-navigation-drawer.
+---
+
+import { Avatar, Button, Icon, NavigationDrawer } from 'bws-astro-components';
+import { House, LayoutGrid, Mail, Menu, Settings } from 'bws-astro-components/icons';
+import Preview from '../../../components/Preview.astro';
+
+A menu that slides in over the page — the typical mobile navigation. Like
+[`Dialog`](/components/dialog/) it's built on the native `<dialog>`: focus stays inside, the page
+behind is dimmed and doesn't scroll, Escape closes it and focus returns to the menu button.
+
+<Preview>
+  <NavigationDrawer title="Menu" closable><Button slot="activator" variant="outlined"><Icon icon={Menu} /> Menu</Button><ul class="flex flex-col gap-1"><li><a href="#location" class="flex items-center gap-3 rounded-md px-3 py-2 text-sm hover:bg-on-surface/8"><Icon icon={House} size="sm" class="text-on-surface/70" />Home</a></li><li><a href="#location" class="flex items-center gap-3 rounded-md px-3 py-2 text-sm hover:bg-on-surface/8"><Icon icon={LayoutGrid} size="sm" class="text-on-surface/70" />Components</a></li><li><a href="#location" class="flex items-center gap-3 rounded-md px-3 py-2 text-sm hover:bg-on-surface/8"><Icon icon={Mail} size="sm" class="text-on-surface/70" />Contact</a></li><li><a href="#location" class="flex items-center gap-3 rounded-md px-3 py-2 text-sm hover:bg-on-surface/8"><Icon icon={Settings} size="sm" class="text-on-surface/70" />Settings</a></li></ul><div slot="append" class="flex items-center gap-3"><Avatar text="JB" color="primary" size="sm" /><div class="min-w-0 text-sm"><p class="truncate font-medium">Jakub Banach</p><p class="truncate text-on-surface/60">jakub@example.com</p></div></div></NavigationDrawer>
+</Preview>
+
+```astro
+---
+import { Avatar, Button, Icon, NavigationDrawer } from 'bws-astro-components';
+import { House, Mail, Menu } from 'bws-astro-components/icons';
+---
+
+<NavigationDrawer title="Menu" closable>
+  <Button slot="activator" variant="outlined" aria-label="Open menu">
+    <Icon icon={Menu} /> Menu
+  </Button>
+
+  <ul class="flex flex-col gap-1">
+    <li>
+      <a href="/" class="flex items-center gap-3 rounded-md px-3 py-2 text-sm hover:bg-on-surface/8">
+        <Icon icon={House} size="sm" /> Home
+      </a>
+    </li>
+    <li>
+      <a href="/contact" class="flex items-center gap-3 rounded-md px-3 py-2 text-sm hover:bg-on-surface/8">
+        <Icon icon={Mail} size="sm" /> Contact
+      </a>
+    </li>
+  </ul>
+
+  <div slot="append" class="flex items-center gap-3">
+    <Avatar text="JB" color="primary" size="sm" /> Jakub Banach
+  </div>
+</NavigationDrawer>
+```
+
+The default slot is wrapped in a `<nav>` and scrolls when it's long; the header (`title` or the
+`prepend` slot, plus `closable`'s ×) and the `append` footer stay in place.
+
+## Location
+
+`location` sets the edge the drawer slides in from — and back out to:
+
+<Preview>
+  <Button variant="tonal" data-drawer-open="docs-drawer-left">left</Button>
+  <Button variant="tonal" data-drawer-open="docs-drawer-right">right</Button>
+  <Button variant="tonal" data-drawer-open="docs-drawer-top">top</Button>
+  <Button variant="tonal" data-drawer-open="docs-drawer-bottom">bottom</Button>
+  <NavigationDrawer id="docs-drawer-left" location="left" title='location="left"' closable><p class="px-3 py-2 text-sm text-on-surface/70">Slides in from the left — the default.</p></NavigationDrawer>
+  <NavigationDrawer id="docs-drawer-right" location="right" title='location="right"' closable><p class="px-3 py-2 text-sm text-on-surface/70">Slides in from the right.</p></NavigationDrawer>
+  <NavigationDrawer id="docs-drawer-top" location="top" title='location="top"' closable><p class="px-3 py-2 text-sm text-on-surface/70">Slides down from the top, across the whole width.</p></NavigationDrawer>
+  <NavigationDrawer id="docs-drawer-bottom" location="bottom" title='location="bottom"' closable><p class="px-3 py-2 text-sm text-on-surface/70">Slides up from the bottom, across the whole width.</p></NavigationDrawer>
+</Preview>
+
+```astro
+<NavigationDrawer location="right" title="Filters" closable>…</NavigationDrawer>
+```
+
+`left` and `right` drawers are full-height and `width` wide (`xs` 12rem, `sm` 14rem, `default`
+16rem, `lg` 20rem, `xl` 24rem, or pixels), leaving a strip of the page visible on phones. `top`
+and `bottom` drawers span the screen and are as tall as their content, at most 85% of the screen.
+
+## Opening and closing
+
+| To…                         | Use                                                          |
+| --------------------------- | ------------------------------------------------------------ |
+| open from a menu button     | the `activator` slot                                         |
+| open from anywhere          | `data-drawer-open="drawer-id"` on any element                |
+| close from inside           | `data-drawer-close`, or `closable` for a × button            |
+| close a specific drawer     | `data-drawer-close="drawer-id"`                              |
+| close when a link is clicked | on by default — `closeOnNavigate={false}` turns it off      |
+| open or close in a script   | the native `drawer.showModal()` / `drawer.close()`           |
+
+A click on the backdrop and Escape close it too, unless it's `persistent`. Closing on a link click
+matters for links within the page (`#contact`): the drawer gets out of the way of the section the
+link scrolls to.
+
+## API
+
+| Prop              | Type                                                | Default      |
+| ----------------- | --------------------------------------------------- | ------------ |
+| `location`        | `left` · `right` · `top` · `bottom`                 | `left`       |
+| `title`           | `string` — in the header                            | —            |
+| `label`           | `string` — accessible name of the navigation        | title, then `Navigation` |
+| `width`           | `xs` · `sm` · `default` · `lg` · `xl` · number (px) — for `left` / `right` | `default` |
+| `closable`        | `boolean` — a × button in the header                | `false`      |
+| `closeLabel`      | `string` — accessible name of the × button          | `Close`      |
+| `closeOnNavigate` | `boolean` — close when a link inside is clicked     | `true`       |
+| `persistent`      | `boolean` — backdrop and Escape don't close it      | `false`      |
+| `open`            | `boolean` — open on page load                       | `false`      |
+| `titleTag`        | `h2` · `h3` · `div`                                 | `h2`         |
+| `id`              | `string` — for `data-drawer-open`; generated when missing | —      |
+| `class`           | `string`                                            | —            |
+
+| Slot        | Content                                          |
+| ----------- | ------------------------------------------------ |
+| `activator` | the element that opens the drawer                |
+| `prepend`   | the header content — replaces `title`            |
+| default     | the navigation, inside a `<nav>`                 |
+| `append`    | the footer, e.g. the signed-in user              |

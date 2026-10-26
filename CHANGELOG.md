@@ -4,6 +4,19 @@ All notable changes to this project are documented here. The project follows
 [Semantic Versioning](https://semver.org): a new component or feature raises the
 minor version, a fix the patch version, and an incompatible change the major version.
 
+## [1.4.0] - 2026-10-26
+
+### Added
+
+- `NavigationDrawer` — a menu that slides in from the `left`, `right`, `top` or `bottom` edge on the
+  native `<dialog>`: `title`, `closable`, `prepend` / `append` slots and a scrolling `<nav>`;
+  opens from the `activator` slot or `data-drawer-open`, closes on the backdrop, Escape,
+  `data-drawer-close` and link clicks (`closeOnNavigate`); `width`, `persistent`, `open`.
+
+### Changed
+
+- `Dialog` and `NavigationDrawer` share one browser script for opening, closing and the scroll lock.
+
 ## [1.3.0] - 2026-10-26
 
 ### Added

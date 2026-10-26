@@ -1,0 +1,166 @@
+---
+import X from '@lucide/astro/icons/x';
+import type { HTMLAttributes } from 'astro/types';
+import { twMerge } from 'tailwind-merge';
+import type { DrawerLocation, SharedProps, Size } from './types.ts';
+
+type Props = Omit<HTMLAttributes<'dialog'>, 'class' | 'id' | 'title' | 'open'> &
+  SharedProps & {
+    /** The edge the drawer slides in from — and back out to. */
+    location?: DrawerLocation;
+    /** Title in the drawer's header; or the `prepend` slot. */
+    title?: string;
+    /** Accessible name of the navigation. Defaults to the title, then "Navigation". */
+    label?: string;
+    /** Width step or pixels, for `left` / `right`. `top` / `bottom` span the screen. */
+    width?: Size | number;
+    /** Adds a × button in the header. */
+    closable?: boolean;
+    /** Accessible name of the × button. */
+    closeLabel?: string;
+    /** Close when a link inside is clicked. */
+    closeOnNavigate?: boolean;
+    /** Clicking the backdrop or pressing Escape doesn't close the drawer. */
+    persistent?: boolean;
+    /** Open as soon as the page loads. */
+    open?: boolean;
+    /** Element for the title. */
+    titleTag?: 'h2' | 'h3' | 'div';
+  };
+
+const props = Astro.props;
+// Component-only props stay out of the spread, so they don't end up as HTML attributes.
+const {
+  location,
+  title,
+  label,
+  width,
+  closable,
+  closeLabel,
+  closeOnNavigate,
+  persistent,
+  open,
+  titleTag,
+  class: _class,
+  id: _id,
+  ...attrs
+} = props;
+
+const id = props.id ?? `drawer-${crypto.randomUUID().slice(0, 8)}`;
+const titleId = `${id}-title`;
+const TitleTag = titleTag ?? 'h2';
+const side = location ?? 'left';
+const vertical = side === 'top' || side === 'bottom';
+
+const hasActivator = Astro.slots.has('activator');
+const hasPrepend = Astro.slots.has('prepend');
+const hasAppend = Astro.slots.has('append');
+const hasHeader = title !== undefined || hasPrepend || closable;
+
+const widths: Record<Size, string> = {
+  xs: '12rem',
+  sm: '14rem',
+  default: '16rem',
+  lg: '20rem',
+  xl: '24rem',
+};
+const drawerWidth =
+  typeof width === 'number' ? `${width}px` : widths[width ?? 'default'];
+// Leaves a strip of the page visible on phones, so it's clear the drawer sits on top of it.
+const widthStyle = vertical
+  ? undefined
+  : `width:min(${drawerWidth}, 100vw - 3rem);`;
+
+// Pinned to its edge, and slid out past it while closed. @starting-style (starting:) and
+// allow-discrete (transition-discrete) animate the switch to and from display: none.
+function getLocationClasses(location: DrawerLocation) {
+  switch (location) {
+    case 'left': {
+      return 'my-0 mr-auto ml-0 h-dvh border-r -translate-x-full open:translate-x-0 starting:open:-translate-x-full';
+    }
+    case 'right': {
+      return 'my-0 mr-0 ml-auto h-dvh border-l translate-x-full open:translate-x-0 starting:open:translate-x-full';
+    }
+    case 'top': {
+      return 'mx-0 mt-0 mb-auto max-h-[85dvh] w-screen border-b -translate-y-full open:translate-y-0 starting:open:-translate-y-full';
+    }
+    case 'bottom': {
+      return 'mx-0 mt-auto mb-0 max-h-[85dvh] w-screen border-t translate-y-full open:translate-y-0 starting:open:translate-y-full';
+    }
+  }
+}
+
+const animation =
+  'transition-[translate,display,overlay] transition-discrete duration-300 ease-out ' +
+  'backdrop:bg-black/50 backdrop:opacity-0 backdrop:transition-[opacity,display,overlay] backdrop:transition-discrete backdrop:duration-300 open:backdrop:opacity-100 starting:open:backdrop:opacity-0';
+---
+
+{hasActivator && (
+  // display: contents — the wrapper only catches the click, it doesn't affect the layout.
+  <span class="contents" data-drawer-open={id}>
+    <slot name="activator" />
+  </span>
+)}
+
+<dialog
+  id={id}
+  data-modal
+  data-drawer
+  data-persistent={persistent ? '' : undefined}
+  data-close-on-navigate={closeOnNavigate === false ? undefined : ''}
+  data-open={open ? '' : undefined}
+  aria-labelledby={title ? titleId : undefined}
+  aria-label={title ? undefined : (label ?? 'Navigation')}
+  class={twMerge(
+    'max-h-none max-w-none flex-col border-0 border-on-surface/12 bg-surface p-0 text-on-surface shadow-2xl open:flex',
+    getLocationClasses(side),
+    animation,
+    props.class,
+  )}
+  style={widthStyle}
+  {...attrs}
+>
+  {hasHeader && (
+    <div class="flex min-h-14 shrink-0 items-center gap-2 border-b border-on-surface/12 px-4 py-2">
+      <div class="min-w-0 flex-1">
+        <slot name="prepend">
+          {title && (
+            <TitleTag id={titleId} class="truncate text-lg font-medium">
+              {title}
+            </TitleTag>
+          )}
+        </slot>
+      </div>
+      {closable && (
+        <button
+          type="button"
+          data-drawer-close
+          aria-label={closeLabel ?? 'Close'}
+          class="-mr-2 inline-flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-full text-on-surface/70 hover:bg-on-surface/8 hover:text-on-surface focus-visible:outline-2 focus-visible:outline-primary"
+        >
+          <X class="size-5" aria-hidden="true" />
+        </button>
+      )}
+    </div>
+  )}
+
+  <nav
+    aria-label={label ?? title ?? 'Navigation'}
+    class="min-h-0 flex-1 overflow-y-auto p-2"
+  >
+    <slot />
+  </nav>
+
+  {hasAppend && (
+    <div class="shrink-0 border-t border-on-surface/12 p-4">
+      <slot name="append" />
+    </div>
+  )}
+</dialog>
+
+<script>
+  // Opening, closing, `persistent`, closing on navigation and the scroll lock are shared with Dialog.
+  import { setupModals } from './modal.ts';
+
+  setupModals();
+</script>

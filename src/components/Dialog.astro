@@ -86,6 +86,7 @@ const animation =
 
 <dialog
   id={id}
+  data-modal
   data-dialog
   data-persistent={persistent ? '' : undefined}
   data-open={open ? '' : undefined}
@@ -137,105 +138,8 @@ const animation =
 </dialog>
 
 <script>
-  // One set of delegated listeners serves every Dialog on the page (Astro bundles this script once).
-  // The native <dialog> with showModal() keeps focus inside, makes the page behind inert, closes on
-  // Escape and returns focus to the opener — this only wires up opening, closing and `persistent`.
-  const DIALOG = 'dialog[data-dialog]';
+  // Opening, closing, `persistent` and the scroll lock are shared with NavigationDrawer.
+  import { setupModals } from './modal.ts';
 
-  // Vuetify's "can't close" nudge for persistent dialogs.
-  function bounce(dialog: HTMLDialogElement) {
-    dialog.animate([{ scale: '1' }, { scale: '1.02' }, { scale: '1' }], {
-      duration: 150,
-      easing: 'ease-out',
-    });
-  }
-
-  document.addEventListener('click', (event) => {
-    const target = event.target as Element | null;
-
-    // Openers: the activator slot, or data-dialog-open="id" anywhere on the page.
-    const opener = target?.closest<HTMLElement>('[data-dialog-open]');
-    if (opener) {
-      const dialog = document.getElementById(opener.dataset.dialogOpen ?? '');
-      if (dialog instanceof HTMLDialogElement && !dialog.open)
-        dialog.showModal();
-      return;
-    }
-
-    // data-dialog-close closes the dialog it's in (or the one it names).
-    const closer = target?.closest<HTMLElement>('[data-dialog-close]');
-    if (closer) {
-      // Through a component (<Button data-dialog-close>) the attribute is rendered as "true".
-      const named = closer.dataset.dialogClose;
-      const dialog =
-        named && named !== 'true'
-          ? document.getElementById(named)
-          : closer.closest('dialog');
-      if (dialog instanceof HTMLDialogElement) dialog.close();
-      return;
-    }
-
-    // A click on the backdrop lands on the <dialog> itself, outside its box.
-    if (target instanceof HTMLDialogElement && target.matches(DIALOG)) {
-      const box = target.getBoundingClientRect();
-      const { clientX: x, clientY: y } = event as MouseEvent;
-      const outside =
-        x < box.left || x > box.right || y < box.top || y > box.bottom;
-      if (!outside) return;
-      if (target.hasAttribute('data-persistent')) bounce(target);
-      else target.close();
-    }
-  });
-
-  // Escape fires `cancel` — persistent dialogs stay open.
-  document.addEventListener(
-    'cancel',
-    (event) => {
-      const dialog = event.target;
-      if (
-        dialog instanceof HTMLDialogElement &&
-        dialog.matches(`${DIALOG}[data-persistent]`)
-      ) {
-        event.preventDefault();
-        bounce(dialog);
-      }
-    },
-    // `cancel` doesn't bubble, but it can be caught on the way down.
-    true,
-  );
-
-  // Locks the page scroll while a modal dialog is open. The scrollbar is measured before the lock
-  // hides it: if there is one, scrollbar-gutter keeps its space so nothing shifts sideways.
-  // Overlay scrollbars (macOS by default) take no space and need no gutter.
-  const root = document.documentElement;
-
-  function updateScrollLock() {
-    const modalOpen = document.querySelector(`${DIALOG}:modal`) !== null;
-    if (modalOpen && !root.hasAttribute('data-scroll-lock')) {
-      const scrollbar = window.innerWidth - root.clientWidth;
-      root.setAttribute('data-scroll-lock', scrollbar > 0 ? 'gutter' : '');
-    } else if (!modalOpen) {
-      root.removeAttribute('data-scroll-lock');
-    }
-  }
-
-  // Watches every dialog's `open`, so dialogs opened with showModal() from your own code lock too.
-  // The callback runs before the next paint, so the page never renders without its scrollbar space.
-  new MutationObserver(updateScrollLock).observe(document, {
-    subtree: true,
-    attributes: true,
-    attributeFilter: ['open'],
-  });
-
-  function openInitial() {
-    for (const dialog of document.querySelectorAll<HTMLDialogElement>(
-      `${DIALOG}[data-open]`,
-    )) {
-      if (!dialog.open) dialog.showModal();
-    }
-  }
-
-  openInitial();
-  // Re-run after client-side navigation when the site uses Astro's view transitions.
-  document.addEventListener('astro:page-load', openInitial);
+  setupModals();
 </script>

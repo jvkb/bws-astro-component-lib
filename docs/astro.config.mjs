@@ -27,7 +27,10 @@ export default defineConfig({
                 'components/icon',
               ],
             },
-            { label: 'Overlays', items: ['components/dialog'] },
+            {
+              label: 'Overlays',
+              items: ['components/dialog', 'components/navigation-drawer'],
+            },
             {
               label: 'Forms',
               items: [

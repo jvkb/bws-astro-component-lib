@@ -8,6 +8,7 @@ import {
   Dialog,
   Form,
   Icon,
+  NavigationDrawer,
   NumberInput,
   Select,
   TextInput,
@@ -16,12 +17,24 @@ import {
 } from '../../src';
 import { required } from '../../src/rules';
 import { contactRules } from '../forms/contact';
-import { Heart, MessageCircle, ArrowRight, Check, User } from '../../src/icons';
+import {
+  Heart,
+  MessageCircle,
+  ArrowRight,
+  Check,
+  User,
+  House,
+  LayoutGrid,
+  Mail,
+  Menu,
+  Settings,
+} from '../../src/icons';
 import Star from '../assets/star.svg';
 import photo from '../assets/avatar.png';
 import type {
   ButtonVariant,
   ColorVariant,
+  DrawerLocation,
   InputVariant,
   RoundedVariant,
   Size,
@@ -58,6 +71,13 @@ const cities = [
   'Lublin',
   'Katowice',
   'Białystok',
+];
+const drawerLocations: DrawerLocation[] = ['left', 'right', 'top', 'bottom'];
+const navItems = [
+  { title: 'Home', href: '#', icon: House },
+  { title: 'Components', href: '#', icon: LayoutGrid },
+  { title: 'Contact', href: '#contact-form', icon: Mail },
+  { title: 'Settings', href: '#', icon: Settings },
 ];
 const cardVariants: Variant[] = ['elevated', 'flat', 'outlined', 'tonal'];
 const chipVariants: ButtonVariant[] = [
@@ -627,6 +647,54 @@ const palettes = {
           Close
         </Button>
       </Dialog>
+    </section>
+
+    <section class="mt-8 space-y-4">
+      <h2 class="text-lg font-semibold">NavigationDrawer</h2>
+      <div class="flex flex-wrap items-center gap-3">
+        <NavigationDrawer title="Menu" closable>
+          <Button slot="activator" variant="outlined" aria-label="Open menu">
+            <Icon icon={Menu} /> Menu
+          </Button>
+          <ul class="flex flex-col gap-1">
+            {navItems.map((item) => (
+              <li>
+                <a
+                  href={item.href}
+                  class="flex items-center gap-3 rounded-md px-3 py-2 text-sm hover:bg-on-surface/8"
+                >
+                  <Icon icon={item.icon} size="sm" class="text-on-surface/70" />
+                  {item.title}
+                </a>
+              </li>
+            ))}
+          </ul>
+          <div slot="append" class="flex items-center gap-3">
+            <Avatar text="JB" color="primary" size="sm" />
+            <div class="min-w-0 text-sm">
+              <p class="truncate font-medium">Jakub Banach</p>
+              <p class="truncate text-on-surface/60">jakub@example.com</p>
+            </div>
+          </div>
+        </NavigationDrawer>
+        {drawerLocations.map((location) => (
+          <Button variant="tonal" data-drawer-open={`drawer-${location}`}>
+            {location}
+          </Button>
+        ))}
+      </div>
+      {drawerLocations.map((location) => (
+        <NavigationDrawer
+          id={`drawer-${location}`}
+          location={location}
+          title={`location="${location}"`}
+          closable
+        >
+          <p class="px-3 py-2 text-sm text-on-surface/70">
+            Slides in from the {location} edge and back out the same way.
+          </p>
+        </NavigationDrawer>
+      ))}
     </section>
 
     <section class="mt-8 space-y-4">

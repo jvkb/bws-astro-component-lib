@@ -13,6 +13,10 @@ Starlight documentation site.
   `border-on-surface/38`, `text-(--x-on-color)` on solid fills. See `src/styles/index.css`.
 - Shared styles live in `src/components/Inputs/field.ts` (inputs) and `src/components/chip.ts`.
 - Client scripts: one delegated `<script>` per component, working for every instance on the page.
+  Shared browser code goes in a TS module (e.g. `src/components/modal.ts`) that exports a function
+  the scripts call. Never rely on a bare side-effect import (`import './x.ts'`): `package.json`
+  declares the TS modules side-effect free, so production builds drop it. Test such changes on
+  `pnpm build` + `astro preview`, not only in dev.
 
 ## Every change that ships
 
