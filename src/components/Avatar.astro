@@ -1,0 +1,209 @@
+---
+import type { ImageMetadata } from 'astro';
+import type { ComponentProps, HTMLAttributes } from 'astro/types';
+import { Image } from 'astro:assets';
+import { twMerge } from 'tailwind-merge';
+import Icon from './Icon.astro';
+import type {
+  ButtonVariant,
+  ColorVariant,
+  RoundedVariant,
+  SharedProps,
+  Size,
+} from './types.ts';
+
+type Props = Omit<HTMLAttributes<'span'>, 'class' | 'id' | 'style'> &
+  SharedProps & {
+    /** A URL, or an image imported in Astro (optimized with astro:assets). */
+    image?: string | ImageMetadata;
+    /** Alternative text of the image. Empty by default — set `label` to name the avatar instead. */
+    alt?: string;
+    /** Text shown when there's no image (e.g. initials) — and under the image, if it fails to load. */
+    text?: string;
+    /** Icon shown when there's no image or text; any icon `<Icon>` accepts. */
+    icon?: ComponentProps<typeof Icon>['icon'];
+    /** Size step or pixels. */
+    size?: Size | number;
+    variant?: ButtonVariant;
+    /** Without a color the avatar is neutral. */
+    color?: ColorVariant;
+    rounded?: RoundedVariant;
+    /** Accessible name, e.g. the person's full name. Without it the avatar is read as its content. */
+    label?: string;
+    /** Extra inline styles, added after the avatar's own size. */
+    style?: string;
+  };
+
+const props = Astro.props;
+// Component-only props stay out of the spread, so they don't end up as HTML attributes.
+const {
+  image,
+  alt,
+  text,
+  icon,
+  size,
+  variant,
+  color,
+  rounded,
+  label,
+  class: _class,
+  style,
+  ...attrs
+} = props;
+
+const pixels: Record<Size, number> = {
+  xs: 24,
+  sm: 32,
+  default: 40,
+  lg: 48,
+  xl: 56,
+};
+const px = typeof size === 'number' ? size : pixels[size ?? 'default'];
+
+function getAvatarColor(color: ColorVariant | undefined) {
+  switch (color) {
+    case 'primary': {
+      return '[--avatar-color:var(--color-primary)] [--avatar-on-color:var(--color-on-primary)]';
+    }
+    case 'secondary': {
+      return '[--avatar-color:var(--color-secondary)] [--avatar-on-color:var(--color-on-secondary)]';
+    }
+    case 'success': {
+      return '[--avatar-color:var(--color-success)] [--avatar-on-color:var(--color-on-success)]';
+    }
+    case 'warning': {
+      return '[--avatar-color:var(--color-warning)] [--avatar-on-color:var(--color-on-warning)]';
+    }
+    case 'info': {
+      return '[--avatar-color:var(--color-info)] [--avatar-on-color:var(--color-on-info)]';
+    }
+    case 'error': {
+      return '[--avatar-color:var(--color-error)] [--avatar-on-color:var(--color-on-error)]';
+    }
+    case undefined: {
+      return '[--avatar-color:var(--color-on-surface)] [--avatar-on-color:var(--color-surface)]';
+    }
+  }
+}
+
+// Same idea as Button and Chip: variants describe the shape, the color comes from --avatar-color.
+function getClassesBasedOnVariant(variant: ButtonVariant) {
+  switch (variant) {
+    case 'tonal': {
+      return 'border-transparent bg-(--avatar-color)/12 text-(--avatar-color)';
+    }
+    case 'flat': {
+      return 'border-transparent bg-(--avatar-color) text-(--avatar-on-color)';
+    }
+    case 'elevated': {
+      return 'border-transparent bg-(--avatar-color) text-(--avatar-on-color) shadow-md';
+    }
+    case 'outlined': {
+      return 'border-(--avatar-color) text-(--avatar-color)';
+    }
+    case 'text': {
+      return 'border-transparent text-(--avatar-color)';
+    }
+  }
+}
+
+function getAvatarRounded(rounded: RoundedVariant) {
+  switch (rounded) {
+    case 'xs': {
+      return 'rounded-xs';
+    }
+    case 'sm': {
+      return 'rounded-sm';
+    }
+    case 'default': {
+      return 'rounded-md';
+    }
+    case 'lg': {
+      return 'rounded-lg';
+    }
+    case 'xl': {
+      return 'rounded-xl';
+    }
+    case 'full': {
+      return 'rounded-full';
+    }
+  }
+}
+
+// The size is inline, so any pixel value works; text and icons scale with it.
+const sizeStyle = `width:${px}px;height:${px}px;font-size:${Math.round(px * 0.4)}px;`;
+const imageClass = 'absolute inset-0 size-full object-cover';
+---
+
+<span
+  data-avatar
+  role={label ? 'img' : undefined}
+  aria-label={label}
+  class={twMerge(
+    'relative inline-flex shrink-0 items-center justify-center overflow-hidden border align-middle leading-none font-medium select-none',
+    getAvatarColor(color),
+    getClassesBasedOnVariant(variant ?? 'tonal'),
+    getAvatarRounded(rounded ?? 'full'),
+    props.class,
+  )}
+  style={style ? `${sizeStyle}${style}` : sizeStyle}
+  {...attrs}
+>
+  {/* Content in Vuetify's order: slot, otherwise icon or text, with the image on top. */}
+  <slot>
+    {text ? (
+      <span aria-hidden={label ? 'true' : undefined}>{text}</span>
+    ) : (
+      icon && <Icon icon={icon} size={Math.round(px * 0.55)} />
+    )}
+  </slot>
+  {image &&
+    (typeof image === 'string' ? (
+      <img
+        src={image}
+        alt={alt ?? ''}
+        class={imageClass}
+        loading="lazy"
+        decoding="async"
+      />
+    ) : (
+      <Image
+        src={image}
+        alt={alt ?? ''}
+        width={px}
+        densities={[1, 2]}
+        class={imageClass}
+      />
+    ))}
+</span>
+
+<script>
+  // A broken image would cover the text or icon with the browser's broken-image icon — remove it, so
+  // the content underneath shows instead. One listener serves every Avatar on the page.
+  const IMAGE = '[data-avatar] img';
+
+  document.addEventListener(
+    'error',
+    (event) => {
+      if (
+        event.target instanceof HTMLImageElement &&
+        event.target.matches(IMAGE)
+      ) {
+        event.target.remove();
+      }
+    },
+    // `error` doesn't bubble, but it can be caught on the way down.
+    true,
+  );
+
+  // Images that failed before this script ran: decode() rejects for them.
+  function removeFailed() {
+    for (const image of document.querySelectorAll<HTMLImageElement>(IMAGE)) {
+      if (image.complete) image.decode().catch(() => image.remove());
+    }
+  }
+
+  removeFailed();
+  // Re-run after client-side navigation when the site uses Astro's view transitions.
+  document.addEventListener('astro:page-load', removeFailed);
+</script>

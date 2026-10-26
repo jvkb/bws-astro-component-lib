@@ -17,6 +17,7 @@ export default defineConfig({
         {
           label: 'Components',
           items: [
+            'components/avatar',
             'components/button',
             'components/card',
             'components/chip',

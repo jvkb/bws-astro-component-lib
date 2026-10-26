@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import {
+  Avatar,
   Button,
   Chip,
   ChipGroup,
@@ -13,8 +14,9 @@ import {
 } from '../../src';
 import { required } from '../../src/rules';
 import { contactRules } from '../forms/contact';
-import { Heart, MessageCircle, ArrowRight, Check } from '../../src/icons';
+import { Heart, MessageCircle, ArrowRight, Check, User } from '../../src/icons';
 import Star from '../assets/star.svg';
+import photo from '../assets/avatar.png';
 import type {
   ButtonVariant,
   ColorVariant,
@@ -504,6 +506,48 @@ const palettes = {
           </Button>
         </Card>
         <Card text="Only body text — no header, no actions." variant="flat" />
+      </div>
+    </section>
+
+    <section class="mt-8 space-y-4">
+      <h2 class="text-lg font-semibold">Avatar</h2>
+      <div class="flex flex-wrap items-center gap-3">
+        <Avatar image={photo} alt="" label="Jakub Banach" />
+        <Avatar
+          image="/does-not-exist.png"
+          text="JB"
+          color="primary"
+          label="Broken image falls back to initials"
+        />
+        <Avatar text="JB" color="primary" />
+        <Avatar text="AK" color="secondary" variant="flat" />
+        <Avatar icon={User} color="success" />
+        <Avatar icon={User} variant="outlined" />
+        <Avatar text="MN" color="info" rounded="lg" />
+        <Avatar text="99+" color="error" variant="flat" size="sm" />
+      </div>
+      <div class="flex flex-wrap items-center gap-3">
+        {sizes.map((size) => (
+          <Avatar size={size} text="JB" color="primary" variant="flat" />
+        ))}
+        <Avatar size={72} image={photo} alt="" />
+      </div>
+      <div class="flex flex-wrap items-center gap-3">
+        <Chip color="primary">
+          <Avatar
+            slot="prepend"
+            size={24}
+            text="JB"
+            color="primary"
+            variant="flat"
+            class="-ml-2"
+          />
+          Jakub Banach
+        </Chip>
+        <Chip closable>
+          <Avatar slot="prepend" size={24} image={photo} alt="" class="-ml-2" />
+          With a photo
+        </Chip>
       </div>
     </section>
 

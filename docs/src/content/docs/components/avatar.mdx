@@ -1,0 +1,116 @@
+---
+title: Avatar
+description: Pictures, initials or icons in a circle or rounded square, like Vuetify's v-avatar.
+---
+
+import { Avatar, Chip } from 'bws-astro-components';
+import { User } from 'bws-astro-components/icons';
+import photo from '../../../assets/avatar.png';
+import Preview from '../../../components/Preview.astro';
+
+<Preview>
+  <Avatar image={photo} label="Jakub Banach" />
+  <Avatar text="JB" color="primary" />
+  <Avatar text="AK" color="secondary" variant="flat" />
+  <Avatar icon={User} color="success" />
+  <Avatar icon={User} variant="outlined" />
+  <Avatar text="MN" color="info" rounded="lg" />
+</Preview>
+
+```astro
+---
+import { Avatar } from 'bws-astro-components';
+import { User } from 'bws-astro-components/icons';
+import photo from '../assets/jakub.jpg';
+---
+
+<Avatar image={photo} label="Jakub Banach" />
+<Avatar text="JB" color="primary" />
+<Avatar icon={User} color="success" />
+```
+
+## Content
+
+An avatar shows, in this order: an `image` on top, otherwise an `icon`, otherwise `text` — or
+anything you put in the default slot.
+
+- `image` takes a URL or an image imported in Astro. Imported images are optimized with
+  `astro:assets`: resized to the avatar's size, with a 2× version for sharp screens.
+- With both `image` and `text`, the text sits under the image. If the image fails to load, it's
+  removed and the text shows instead:
+
+<Preview>
+  <Avatar image="/missing-photo.jpg" text="JB" color="primary" label="Jakub Banach" />
+</Preview>
+
+```astro
+<Avatar image={user.photoUrl} text="JB" color="primary" label="Jakub Banach" />
+```
+
+## Sizes
+
+<Preview>
+  <Avatar size="xs" text="JB" color="primary" variant="flat" />
+  <Avatar size="sm" text="JB" color="primary" variant="flat" />
+  <Avatar size="default" text="JB" color="primary" variant="flat" />
+  <Avatar size="lg" text="JB" color="primary" variant="flat" />
+  <Avatar size="xl" text="JB" color="primary" variant="flat" />
+  <Avatar size={72} image={photo} />
+</Preview>
+
+The steps are `xs` 24px, `sm` 32px, `default` 40px, `lg` 48px and `xl` 56px; a number sets
+pixels. Text and icons scale with the size.
+
+## Variants and colors
+
+Variants and colors work like on [`Button`](/components/button/) and [`Chip`](/components/chip/):
+`tonal` (default) is a light tint, `flat` and `elevated` are solid, `outlined` has a border.
+Without a `color` the avatar is neutral.
+
+<Preview>
+  <Avatar text="JB" color="primary" variant="tonal" />
+  <Avatar text="JB" color="primary" variant="flat" />
+  <Avatar text="JB" color="primary" variant="elevated" />
+  <Avatar text="JB" color="primary" variant="outlined" />
+  <Avatar text="JB" variant="tonal" />
+  <Avatar text="99+" color="error" variant="flat" size="sm" />
+</Preview>
+
+## In a chip
+
+Use the chip's `prepend` slot:
+
+<Preview>
+  <Chip color="primary"><Avatar slot="prepend" size={24} text="JB" color="primary" variant="flat" class="-ml-2" />Jakub Banach</Chip>
+  <Chip closable><Avatar slot="prepend" size={24} image={photo} class="-ml-2" />With a photo</Chip>
+</Preview>
+
+```astro
+<Chip color="primary">
+  <Avatar slot="prepend" size={24} text="JB" color="primary" variant="flat" class="-ml-2" />
+  Jakub Banach
+</Chip>
+```
+
+## Accessibility
+
+Give the avatar a `label` with the person's name — it's announced as an image with that name
+(`role="img"`), instead of reading out initials like "J B". Use `alt` only when the image itself
+shows something the label doesn't describe.
+
+## API
+
+| Prop      | Type                                                    | Default   |
+| --------- | ------------------------------------------------------- | --------- |
+| `image`   | `string` (URL) or an imported image                     | —         |
+| `alt`     | `string` — alternative text of the image                | `''`      |
+| `text`    | `string` — e.g. initials                                | —         |
+| `icon`    | icon component (as for [`Icon`](/components/icon/))     | —         |
+| `size`    | `xs` · `sm` · `default` · `lg` · `xl` · number (px)     | `default` |
+| `variant` | `tonal` · `flat` · `elevated` · `outlined` · `text`     | `tonal`   |
+| `color`   | `primary` · `secondary` · `success` · `warning` · `info` · `error` | — (neutral) |
+| `rounded` | `xs` · `sm` · `default` · `lg` · `xl` · `full`          | `full`    |
+| `label`   | `string` — accessible name                              | —         |
+| `class`, `style` | `string` — `style` is added after the size       | —         |
+
+**Slot:** default — custom content instead of `icon` / `text`.

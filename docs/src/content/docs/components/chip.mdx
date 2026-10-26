@@ -3,7 +3,7 @@ title: Chip
 description: Small pills for tags, statuses and filters — static, links or closable.
 ---
 
-import { Chip } from 'bws-astro-components';
+import { Avatar, Chip } from 'bws-astro-components';
 import { ArrowRight, Check, Heart } from 'bws-astro-components/icons';
 import Preview from '../../../components/Preview.astro';
 
@@ -56,20 +56,15 @@ Without a `color` the chip is neutral. For selectable chips, see [ChipGroup](/co
 </Preview>
 
 Icons follow the chip's text size. Use the `prepend` / `append` slots for anything else, e.g. an
-avatar:
+[`Avatar`](/components/avatar/):
 
 <Preview>
-  <Chip color="primary"><span slot="prepend" class="-ml-2 inline-flex size-6 items-center justify-center rounded-full bg-primary text-[0.625rem] text-on-primary">JB</span>Jakub Banach</Chip>
+  <Chip color="primary"><Avatar slot="prepend" size={24} text="JB" color="primary" variant="flat" class="-ml-2" />Jakub Banach</Chip>
 </Preview>
 
 ```astro
 <Chip color="primary">
-  <span
-    slot="prepend"
-    class="-ml-2 inline-flex size-6 items-center justify-center rounded-full bg-primary text-[0.625rem] text-on-primary"
-  >
-    JB
-  </span>
+  <Avatar slot="prepend" size={24} text="JB" color="primary" variant="flat" class="-ml-2" />
   Jakub Banach
 </Chip>
 ```

@@ -4,6 +4,14 @@ All notable changes to this project are documented here. The project follows
 [Semantic Versioning](https://semver.org): a new component or feature raises the
 minor version, a fix the patch version, and an incompatible change the major version.
 
+## [1.1.0] - 2026-10-26
+
+### Added
+
+- `Avatar` — an image, icon or text (e.g. initials) in a circle or rounded square; size steps or
+  pixels, `variant`, `color`, `rounded` and an accessible `label`. Imported images are optimized
+  with `astro:assets`, and a broken image falls back to the text underneath.
+
 ## [1.0.0] - 2026-10-26
 
 First versioned release.
