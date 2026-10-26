@@ -140,7 +140,7 @@ function getRestingLabelClasses(variant: InputVariant) {
       aria-disabled={disabled ? 'true' : undefined}
       data-focus
       class={twMerge(
-        'flex h-full min-w-0 flex-1 cursor-pointer items-center text-base text-gray-900 outline-none aria-disabled:cursor-not-allowed',
+        'flex h-full min-w-0 flex-1 cursor-pointer items-center text-base text-on-surface outline-none aria-disabled:cursor-not-allowed',
         getInputPadding(currentVariant, Boolean(label), false),
         // Room for the chevron.
         'pr-10',
@@ -150,7 +150,7 @@ function getRestingLabelClasses(variant: InputVariant) {
         {selected?.title}
       </span>
       {placeholder && (
-        <span class="truncate text-gray-500 group-data-filled/field:hidden">
+        <span class="truncate text-on-surface/50 group-data-filled/field:hidden">
           {placeholder}
         </span>
       )}
@@ -160,7 +160,7 @@ function getRestingLabelClasses(variant: InputVariant) {
       <span
         id={labelId}
         class={twMerge(
-          'pointer-events-none absolute text-xs text-gray-600 transition-all duration-150 group-focus-within/field:text-(--input-color)',
+          'pointer-events-none absolute text-xs text-on-surface/70 transition-all duration-150 group-focus-within/field:text-(--input-color)',
           getLabelClasses(currentVariant, false),
           !placeholder && getRestingLabelClasses(currentVariant),
           'group-data-invalid/field:text-(--input-color)',
@@ -173,7 +173,7 @@ function getRestingLabelClasses(variant: InputVariant) {
     <ChevronDown
       aria-hidden="true"
       class={twMerge(
-        'pointer-events-none absolute top-1/2 size-5 -translate-y-1/2 text-gray-600 transition-transform group-data-open/field:rotate-180',
+        'pointer-events-none absolute top-1/2 size-5 -translate-y-1/2 text-on-surface/70 transition-transform group-data-open/field:rotate-180',
         currentVariant === 'underlined' ? 'right-0' : 'right-3',
       )}
     />
@@ -183,7 +183,7 @@ function getRestingLabelClasses(variant: InputVariant) {
       role="listbox"
       hidden
       aria-labelledby={label ? labelId : undefined}
-      class="fixed top-0 left-0 z-50 max-h-72 overflow-y-auto rounded-md bg-white py-1 shadow-lg ring-1 ring-gray-900/10"
+      class="fixed top-0 left-0 z-50 max-h-72 overflow-y-auto rounded-md bg-surface py-1 shadow-lg ring-1 ring-on-surface/12"
     >
       {options.map((option, index) => (
         <li
@@ -192,7 +192,7 @@ function getRestingLabelClasses(variant: InputVariant) {
           data-value={option.value}
           aria-selected={option === selected ? 'true' : 'false'}
           aria-disabled={option.disabled ? 'true' : undefined}
-          class="cursor-pointer px-4 py-2.5 text-base text-gray-900 hover:bg-gray-100 data-active:bg-gray-100 aria-disabled:cursor-not-allowed aria-disabled:opacity-50 aria-selected:bg-(--input-color)/10 aria-selected:text-(--input-color)"
+          class="cursor-pointer px-4 py-2.5 text-base text-on-surface hover:bg-on-surface/8 data-active:bg-on-surface/8 aria-disabled:cursor-not-allowed aria-disabled:opacity-50 aria-selected:bg-(--input-color)/10 aria-selected:text-(--input-color)"
         >
           {option.title}
         </li>
@@ -206,7 +206,7 @@ function getRestingLabelClasses(variant: InputVariant) {
       data-hint={hint}
       aria-live={validated ? 'polite' : undefined}
       class={twMerge(
-        'text-xs text-gray-600 group-data-invalid/field:text-error',
+        'text-xs text-on-surface/70 group-data-invalid/field:text-error',
         currentVariant !== 'underlined' && 'px-4',
         // Reserve the line, so the layout doesn't jump when an error appears.
         validated && 'min-h-4',

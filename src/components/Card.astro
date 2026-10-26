@@ -17,7 +17,7 @@ type Props = Omit<HTMLAttributes<'div'>, 'class' | 'id' | 'title'> &
     /** Body text; use the default slot for any other content. */
     text?: string;
     variant?: Variant;
-    /** Without a color the card is neutral (white / gray). */
+    /** Without a color the card is neutral (the theme's surface). */
     color?: ColorVariant;
     rounded?: RoundedVariant;
     /** Element for the title — pick the heading level that fits the page outline. */
@@ -48,22 +48,22 @@ const hasActions = Astro.slots.has('actions');
 function getCardColor(color: ColorVariant) {
   switch (color) {
     case 'primary': {
-      return '[--card-color:var(--color-primary)]';
+      return '[--card-color:var(--color-primary)] [--card-on-color:var(--color-on-primary)]';
     }
     case 'secondary': {
-      return '[--card-color:var(--color-secondary)]';
+      return '[--card-color:var(--color-secondary)] [--card-on-color:var(--color-on-secondary)]';
     }
     case 'success': {
-      return '[--card-color:var(--color-success)]';
+      return '[--card-color:var(--color-success)] [--card-on-color:var(--color-on-success)]';
     }
     case 'warning': {
-      return '[--card-color:var(--color-warning)]';
+      return '[--card-color:var(--color-warning)] [--card-on-color:var(--color-on-warning)]';
     }
     case 'info': {
-      return '[--card-color:var(--color-info)]';
+      return '[--card-color:var(--color-info)] [--card-on-color:var(--color-on-info)]';
     }
     case 'error': {
-      return '[--card-color:var(--color-error)]';
+      return '[--card-color:var(--color-error)] [--card-on-color:var(--color-on-error)]';
     }
   }
 }
@@ -74,21 +74,23 @@ function getClassesBasedOnVariant(variant: Variant, hasColor: boolean) {
   switch (variant) {
     case 'elevated': {
       return hasColor
-        ? 'bg-(--card-color) text-white shadow-md'
-        : 'bg-white shadow-md';
+        ? 'bg-(--card-color) text-(--card-on-color) shadow-md'
+        : 'bg-surface shadow-md [--input-bg:var(--color-surface)]';
     }
     case 'flat': {
-      return hasColor ? 'bg-(--card-color) text-white' : 'bg-white';
+      return hasColor
+        ? 'bg-(--card-color) text-(--card-on-color)'
+        : 'bg-surface [--input-bg:var(--color-surface)]';
     }
     case 'outlined': {
       return hasColor
         ? 'border border-(--card-color) text-(--card-color)'
-        : 'border border-gray-200 bg-white';
+        : 'border border-on-surface/12 bg-surface [--input-bg:var(--color-surface)]';
     }
     case 'tonal': {
       return hasColor
         ? 'bg-(--card-color)/12 text-(--card-color)'
-        : 'bg-gray-900/5';
+        : 'bg-on-surface/5';
     }
   }
 }
@@ -119,7 +121,7 @@ function getCardRounded(rounded: RoundedVariant) {
 
 <div
   class={twMerge(
-    'flex flex-col text-gray-900',
+    'flex flex-col text-on-surface',
     color && getCardColor(color),
     getClassesBasedOnVariant(variant ?? 'elevated', color !== undefined),
     getCardRounded(rounded ?? 'default'),

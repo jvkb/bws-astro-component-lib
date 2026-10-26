@@ -13,25 +13,25 @@ export const chipBase =
 export function getChipColor(color: ColorVariant | undefined) {
   switch (color) {
     case 'primary': {
-      return '[--chip-color:var(--color-primary)]';
+      return '[--chip-color:var(--color-primary)] [--chip-on-color:var(--color-on-primary)]';
     }
     case 'secondary': {
-      return '[--chip-color:var(--color-secondary)]';
+      return '[--chip-color:var(--color-secondary)] [--chip-on-color:var(--color-on-secondary)]';
     }
     case 'success': {
-      return '[--chip-color:var(--color-success)]';
+      return '[--chip-color:var(--color-success)] [--chip-on-color:var(--color-on-success)]';
     }
     case 'warning': {
-      return '[--chip-color:var(--color-warning)]';
+      return '[--chip-color:var(--color-warning)] [--chip-on-color:var(--color-on-warning)]';
     }
     case 'info': {
-      return '[--chip-color:var(--color-info)]';
+      return '[--chip-color:var(--color-info)] [--chip-on-color:var(--color-on-info)]';
     }
     case 'error': {
-      return '[--chip-color:var(--color-error)]';
+      return '[--chip-color:var(--color-error)] [--chip-on-color:var(--color-on-error)]';
     }
     case undefined: {
-      return '[--chip-color:var(--color-gray-700)]';
+      return '[--chip-color:var(--color-on-surface)] [--chip-on-color:var(--color-surface)]';
     }
   }
 }
@@ -43,10 +43,10 @@ export function getChipVariantClasses(variant: ButtonVariant) {
       return 'border-transparent bg-(--chip-color)/12 text-(--chip-color)';
     }
     case 'flat': {
-      return 'border-transparent bg-(--chip-color) text-white';
+      return 'border-transparent bg-(--chip-color) text-(--chip-on-color)';
     }
     case 'elevated': {
-      return 'border-transparent bg-(--chip-color) text-white shadow-sm';
+      return 'border-transparent bg-(--chip-color) text-(--chip-on-color) shadow-sm';
     }
     case 'outlined': {
       return 'border-(--chip-color) text-(--chip-color)';

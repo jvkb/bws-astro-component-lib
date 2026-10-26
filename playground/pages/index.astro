@@ -9,6 +9,7 @@ import {
   NumberInput,
   Select,
   TextInput,
+  ThemeScript,
 } from '../../src';
 import { required } from '../../src/rules';
 import { contactRules } from '../forms/contact';
@@ -111,9 +112,64 @@ const palettes = {
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Playground</title>
+    <ThemeScript />
   </head>
   <body class="p-8">
-    <h1 class="text-2xl font-bold text-primary">bws-astro-components</h1>
+    <div class="flex flex-wrap items-center justify-between gap-4">
+      <h1 class="text-2xl font-bold text-primary">bws-astro-components</h1>
+      <div class="flex gap-2" role="group" aria-label="Theme">
+        <Button size="sm" variant="outlined" data-set-theme="light">
+          Light
+        </Button>
+        <Button size="sm" variant="outlined" data-set-theme="dark">
+          Dark
+        </Button>
+        <Button size="sm" variant="outlined" data-set-theme="system">
+          System
+        </Button>
+      </div>
+    </div>
+
+    <section class="mt-8 space-y-4">
+      <h2 class="text-lg font-semibold">Themes</h2>
+      <div
+        data-theme="dark"
+        class="grid max-w-5xl grid-cols-3 gap-4 rounded-lg p-6"
+      >
+        <Card
+          title='data-theme="dark"'
+          subtitle="A dark section, whatever the page theme"
+          text="Every component inside follows it."
+        >
+          <Fragment slot="actions">
+            <Button variant="text">Cancel</Button>
+            <Button>Save</Button>
+          </Fragment>
+        </Card>
+        <div class="space-y-2">
+          <TextInput
+            label="Email"
+            variant="outlined"
+            hint="Outlined label on the section background"
+          />
+          <Select label="City" items={cities} />
+          <ChipGroup
+            items={['Astro', 'Vue', 'React']}
+            value="Astro"
+            color="success"
+            filter
+          />
+        </div>
+        <Card
+          data-theme="light"
+          title='data-theme="light"'
+          subtitle="Nested back to light"
+          text="Themes nest both ways."
+        >
+          <Chip slot="actions" color="info" text="info" />
+        </Card>
+      </div>
+    </section>
 
     <section class="mt-8 space-y-6">
       <h2 class="text-lg font-semibold">Palette</h2>
@@ -124,7 +180,7 @@ const palettes = {
             {shades.map(([step, bg]) => (
               <div>
                 <div class:list={['h-12 rounded-md', bg]} />
-                <p class="mt-1 text-xs text-gray-600">{step}</p>
+                <p class="mt-1 text-xs text-on-background/70">{step}</p>
               </div>
             ))}
           </div>
@@ -137,7 +193,7 @@ const palettes = {
       <div class="grid grid-cols-[repeat(6,max-content)] items-center gap-3">
         {colors.map((color) => (
           <>
-            <p class="text-sm text-gray-600">{color}</p>
+            <p class="text-sm text-on-background/70">{color}</p>
             {variants.map((variant) => (
               <Button color={color} variant={variant}>
                 {variant}
@@ -323,7 +379,7 @@ const palettes = {
         />
         <div
           id="overflow-demo"
-          class="flex h-40 items-end overflow-hidden rounded-md border border-dashed border-gray-400 p-3"
+          class="flex h-40 items-end overflow-hidden rounded-md border border-dashed border-on-background/40 p-3"
         >
           <Select
             class="w-full"
@@ -397,7 +453,7 @@ const palettes = {
 
     <section class="mt-8 mb-16 space-y-4">
       <h2 class="text-lg font-semibold">Card</h2>
-      <div class="grid max-w-5xl grid-cols-3 gap-4 rounded-lg bg-gray-100 p-6">
+      <div class="grid max-w-5xl grid-cols-3 gap-4 rounded-lg bg-on-background/5 p-6">
         {cardVariants.map((variant) => (
           <Card
             variant={variant}
@@ -456,7 +512,7 @@ const palettes = {
       <div class="grid w-max grid-cols-[repeat(6,max-content)] items-center gap-3">
         {chipColors.map((color) => (
           <>
-            <p class="text-sm text-gray-600">{color ?? 'no color'}</p>
+            <p class="text-sm text-on-background/70">{color ?? 'no color'}</p>
             {chipVariants.map((variant) => (
               <Chip color={color} variant={variant} text={variant} />
             ))}
@@ -491,7 +547,7 @@ const palettes = {
         <Chip color="primary">
           <span
             slot="prepend"
-            class="-ml-2 inline-flex size-6 items-center justify-center rounded-full bg-primary text-[0.625rem] text-white"
+            class="-ml-2 inline-flex size-6 items-center justify-center rounded-full bg-primary text-[0.625rem] text-on-primary"
           >
             JB
           </span>
@@ -505,7 +561,7 @@ const palettes = {
         <Chip closable color="error" text="Can't remove me" data-keep />
         <Chip closable color="success" variant="flat" text="Vuetify" />
       </div>
-      <p id="chip-log" class="text-sm text-gray-600"></p>
+      <p id="chip-log" class="text-sm text-on-background/70"></p>
 
       <h3 class="pt-4 font-semibold">ChipGroup</h3>
       <div class="grid max-w-5xl grid-cols-2 gap-6">
@@ -580,6 +636,16 @@ const palettes = {
           document.getElementById('form-result')!.textContent =
             `Valid, would send: ${JSON.stringify(data)}`;
         });
+    </script>
+    <script>
+      import { setTheme, type Theme } from '../../src/theme';
+
+      document.addEventListener('click', (event) => {
+        const button = (event.target as Element).closest<HTMLElement>(
+          '[data-set-theme]',
+        );
+        if (button) setTheme(button.dataset.setTheme as Theme);
+      });
     </script>
   </body>
 </html>

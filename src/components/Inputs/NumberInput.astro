@@ -32,7 +32,7 @@ const controls = controlVariant ?? 'default';
 
 // tabindex="-1": keyboard users already step with the arrow keys inside the input.
 const stepButton =
-  'flex cursor-pointer items-center justify-center text-gray-600 hover:bg-gray-900/5 hover:text-gray-900 disabled:pointer-events-none disabled:opacity-40';
+  'flex cursor-pointer items-center justify-center text-on-surface/70 hover:bg-on-surface/8 hover:text-on-surface disabled:pointer-events-none disabled:opacity-40';
 ---
 
 <TextInput
@@ -53,7 +53,7 @@ const stepButton =
       aria-label={decrementLabel ?? 'Decrease'}
       aria-controls={inputId}
       data-number-step="down"
-      class={twMerge(stepButton, 'w-12 border-r border-gray-300')}
+      class={twMerge(stepButton, 'w-12 border-r border-on-surface/20')}
     >
       <Minus class="size-5" aria-hidden="true" />
     </button>
@@ -66,13 +66,16 @@ const stepButton =
       aria-label={incrementLabel ?? 'Increase'}
       aria-controls={inputId}
       data-number-step="up"
-      class={twMerge(stepButton, 'w-12 border-l border-gray-300')}
+      class={twMerge(stepButton, 'w-12 border-l border-on-surface/20')}
     >
       <Plus class="size-5" aria-hidden="true" />
     </button>
   )}
   {controls === 'default' && (
-    <div slot="append-inner" class="flex flex-col border-l border-gray-300">
+    <div
+      slot="append-inner"
+      class="flex flex-col border-l border-on-surface/20"
+    >
       <button
         type="button"
         tabindex="-1"

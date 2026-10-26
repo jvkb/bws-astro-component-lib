@@ -102,10 +102,10 @@ const currentVariant = variant ?? 'tonal';
 function getSelectedVariantClasses(variant: ButtonVariant) {
   switch (variant) {
     case 'flat': {
-      return 'peer-checked:border-transparent peer-checked:bg-(--chip-color) peer-checked:text-white peer-checked:hover:bg-(--chip-color)/90';
+      return 'peer-checked:border-transparent peer-checked:bg-(--chip-color) peer-checked:text-(--chip-on-color) peer-checked:hover:bg-(--chip-color)/90';
     }
     case 'elevated': {
-      return 'peer-checked:border-transparent peer-checked:bg-(--chip-color) peer-checked:text-white peer-checked:shadow-sm peer-checked:hover:bg-(--chip-color)/90';
+      return 'peer-checked:border-transparent peer-checked:bg-(--chip-color) peer-checked:text-(--chip-on-color) peer-checked:shadow-sm peer-checked:hover:bg-(--chip-color)/90';
     }
     case 'tonal': {
       return 'peer-checked:border-transparent peer-checked:bg-(--chip-color)/12 peer-checked:text-(--chip-color) peer-checked:hover:bg-(--chip-color)/20';
@@ -122,22 +122,22 @@ function getSelectedVariantClasses(variant: ButtonVariant) {
 function getSelectedColor(color: ColorVariant) {
   switch (color) {
     case 'primary': {
-      return 'peer-checked:[--chip-color:var(--color-primary)]';
+      return 'peer-checked:[--chip-color:var(--color-primary)] peer-checked:[--chip-on-color:var(--color-on-primary)]';
     }
     case 'secondary': {
-      return 'peer-checked:[--chip-color:var(--color-secondary)]';
+      return 'peer-checked:[--chip-color:var(--color-secondary)] peer-checked:[--chip-on-color:var(--color-on-secondary)]';
     }
     case 'success': {
-      return 'peer-checked:[--chip-color:var(--color-success)]';
+      return 'peer-checked:[--chip-color:var(--color-success)] peer-checked:[--chip-on-color:var(--color-on-success)]';
     }
     case 'warning': {
-      return 'peer-checked:[--chip-color:var(--color-warning)]';
+      return 'peer-checked:[--chip-color:var(--color-warning)] peer-checked:[--chip-on-color:var(--color-on-warning)]';
     }
     case 'info': {
-      return 'peer-checked:[--chip-color:var(--color-info)]';
+      return 'peer-checked:[--chip-color:var(--color-info)] peer-checked:[--chip-on-color:var(--color-on-info)]';
     }
     case 'error': {
-      return 'peer-checked:[--chip-color:var(--color-error)]';
+      return 'peer-checked:[--chip-color:var(--color-error)] peer-checked:[--chip-on-color:var(--color-on-error)]';
     }
   }
 }
@@ -161,7 +161,7 @@ function getSelectedColor(color: ColorVariant) {
     class="min-w-0"
   >
     {label && (
-      <legend class="mb-2 text-sm font-medium text-gray-700 group-data-invalid/field:text-error">
+      <legend class="mb-2 text-sm font-medium text-on-surface/80 group-data-invalid/field:text-error">
         {label}
       </legend>
     )}
@@ -211,7 +211,7 @@ function getSelectedColor(color: ColorVariant) {
       data-hint={hint}
       aria-live={validated ? 'polite' : undefined}
       class={twMerge(
-        'text-xs text-gray-600 group-data-invalid/field:text-error',
+        'text-xs text-on-surface/70 group-data-invalid/field:text-error',
         // Reserve the line, so the layout doesn't jump when an error appears.
         validated && 'min-h-4',
       )}

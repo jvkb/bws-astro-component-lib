@@ -29,13 +29,13 @@ export function getInputColor(color: ColorVariant) {
 export function getFieldClasses(variant: InputVariant) {
   switch (variant) {
     case 'filled': {
-      return 'rounded-t-md border-b border-gray-500 bg-gray-100 hover:border-gray-900 hover:bg-gray-200 after:absolute after:inset-x-0 after:-bottom-px after:h-0.5 after:scale-x-0 after:bg-(--input-color) after:transition-transform after:duration-200 focus-within:after:scale-x-100';
+      return 'rounded-t-md border-b border-on-surface/50 bg-on-surface/6 hover:border-on-surface/87 hover:bg-on-surface/10 after:absolute after:inset-x-0 after:-bottom-px after:h-0.5 after:scale-x-0 after:bg-(--input-color) after:transition-transform after:duration-200 focus-within:after:scale-x-100';
     }
     case 'underlined': {
-      return 'border-b border-gray-500 hover:border-gray-900 after:absolute after:inset-x-0 after:-bottom-px after:h-0.5 after:scale-x-0 after:bg-(--input-color) after:transition-transform after:duration-200 focus-within:after:scale-x-100';
+      return 'border-b border-on-surface/50 hover:border-on-surface/87 after:absolute after:inset-x-0 after:-bottom-px after:h-0.5 after:scale-x-0 after:bg-(--input-color) after:transition-transform after:duration-200 focus-within:after:scale-x-100';
     }
     case 'outlined': {
-      return 'rounded-md border border-gray-400 hover:border-gray-900 focus-within:border-(--input-color) focus-within:ring-1 focus-within:ring-(--input-color) focus-within:ring-inset';
+      return 'rounded-md border border-on-surface/38 hover:border-on-surface/87 focus-within:border-(--input-color) focus-within:ring-1 focus-within:ring-(--input-color) focus-within:ring-inset';
     }
   }
 }
@@ -64,8 +64,9 @@ export function getLabelClasses(variant: InputVariant, hasPrepend: boolean) {
       return hasPrepend ? 'left-3 top-2' : 'left-0 top-2';
     }
     case 'outlined': {
-      // Floated onto the border; the background covers the line behind the text (override with --input-bg).
-      return 'left-3 top-0 -translate-y-1/2 bg-[var(--input-bg,white)] px-1';
+      // Floated onto the border; the background covers the line behind the text. It's the page background
+      // by default, Card sets its surface — set --input-bg yourself on other backgrounds.
+      return 'left-3 top-0 -translate-y-1/2 bg-[var(--input-bg,var(--color-background))] px-1';
     }
   }
 }

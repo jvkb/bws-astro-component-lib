@@ -34,3 +34,31 @@
   --color-secondary-900: #6c2500;
   --color-secondary-950: #421300;
 }
+
+/*
+ * Brand colors for the dark theme: navy primary would be unreadable on a dark background, so
+ * both brand colors get a lighter shade with dark text on top. They're restated for light too,
+ * so a data-theme="light" section inside a dark one gets the original colors back.
+ */
+[data-theme='dark'] {
+  --color-primary: #a4c4f7; /* primary-300 */
+  --color-on-primary: #112443; /* primary-950 */
+  --color-secondary: #f17b4a; /* secondary-400 */
+  --color-on-secondary: #421300; /* secondary-950 */
+}
+
+@media (prefers-color-scheme: dark) {
+  [data-theme='system'] {
+    --color-primary: #a4c4f7;
+    --color-on-primary: #112443;
+    --color-secondary: #f17b4a;
+    --color-on-secondary: #421300;
+  }
+}
+
+[data-theme='light'] {
+  --color-primary: #2b4570;
+  --color-on-primary: #ffffff;
+  --color-secondary: #dc5f26;
+  --color-on-secondary: #ffffff;
+}

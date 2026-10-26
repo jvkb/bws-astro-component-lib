@@ -54,10 +54,10 @@ const base =
 function getClassesBasedOnVariant(variant: ButtonVariant) {
   switch (variant) {
     case 'flat': {
-      return 'border-transparent bg-(--btn-color) text-white hover:bg-(--btn-color)/90 active:bg-(--btn-color)/80';
+      return 'border-transparent bg-(--btn-color) text-(--btn-on-color) hover:bg-(--btn-color)/90 active:bg-(--btn-color)/80';
     }
     case 'elevated': {
-      return 'border-transparent bg-(--btn-color) text-white shadow-md hover:bg-(--btn-color)/90 hover:shadow-lg active:bg-(--btn-color)/80 active:shadow-sm';
+      return 'border-transparent bg-(--btn-color) text-(--btn-on-color) shadow-md hover:bg-(--btn-color)/90 hover:shadow-lg active:bg-(--btn-color)/80 active:shadow-sm';
     }
     case 'outlined': {
       return 'border-(--btn-color) text-(--btn-color) hover:bg-(--btn-color)/8 active:bg-(--btn-color)/16';
@@ -74,22 +74,22 @@ function getClassesBasedOnVariant(variant: ButtonVariant) {
 function getButtonColor(color: ColorVariant) {
   switch (color) {
     case 'primary': {
-      return '[--btn-color:var(--color-primary)]';
+      return '[--btn-color:var(--color-primary)] [--btn-on-color:var(--color-on-primary)]';
     }
     case 'secondary': {
-      return '[--btn-color:var(--color-secondary)]';
+      return '[--btn-color:var(--color-secondary)] [--btn-on-color:var(--color-on-secondary)]';
     }
     case 'success': {
-      return '[--btn-color:var(--color-success)]';
+      return '[--btn-color:var(--color-success)] [--btn-on-color:var(--color-on-success)]';
     }
     case 'warning': {
-      return '[--btn-color:var(--color-warning)]';
+      return '[--btn-color:var(--color-warning)] [--btn-on-color:var(--color-on-warning)]';
     }
     case 'info': {
-      return '[--btn-color:var(--color-info)]';
+      return '[--btn-color:var(--color-info)] [--btn-on-color:var(--color-on-info)]';
     }
     case 'error': {
-      return '[--btn-color:var(--color-error)]';
+      return '[--btn-color:var(--color-error)] [--btn-on-color:var(--color-on-error)]';
     }
   }
 }

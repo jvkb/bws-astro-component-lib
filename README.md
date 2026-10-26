@@ -58,16 +58,8 @@ Any CSS color format works (hex, `rgb()`, `oklch()`), and tools like
 ### Optional status colors
 
 Components with a `color` prop (e.g. `<Button color="error">`) also accept
-`success`, `warning`, `info` and `error`. These come with defaults from the
-Tailwind palette (white text on them passes WCAG AA); override any of them in
-the same `@theme` block:
-
-| Variable          | Default     |
-| ----------------- | ----------- |
-| `--color-success` | `green-700` |
-| `--color-warning` | `amber-700` |
-| `--color-info`    | `sky-700`   |
-| `--color-error`   | `red-600`   |
+`success`, `warning`, `info` and `error`. They come with defaults from the
+Tailwind palette for both themes — see [Themes](#themes) to change them.
 
 Then use the components:
 
@@ -79,6 +71,88 @@ import { Button } from 'bws-astro-components';
 
 <Button>Click</Button>
 ```
+
+## Themes
+
+Like Vuetify, components don't use fixed grays but theme roles, so they work
+on light and dark pages:
+
+| Role                                          | Used for                                                                                             |
+| --------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `background` / `on-background`                | page background and text                                                                             |
+| `surface` / `on-surface`                      | cards, menus, fields — muted text, borders and field backgrounds are `on-surface` at reduced opacity |
+| `on-primary`, `on-secondary`, `on-success`, … | text on solid color fills (flat buttons, selected chips)                                             |
+
+They're regular Tailwind colors, so your own markup can use them too
+(`bg-background`, `text-on-surface/70`, …).
+
+### Switching themes
+
+Set `data-theme` to `light`, `dark` or `system` (follows the OS). On `<html>` it
+themes the page; on any element it themes just that part — themes nest both ways:
+
+```astro
+<footer data-theme="dark">…</footer>
+```
+
+An element with `data-theme` gets the theme's background and text color.
+
+For a theme switch, put `ThemeScript` in `<head>` — it restores the visitor's
+choice before the page paints, so a dark page doesn't flash white — and change
+the theme with the helpers:
+
+```astro
+---
+import { ThemeScript } from 'bws-astro-components';
+---
+
+<head>
+  <ThemeScript defaultTheme="system" />
+</head>
+
+<script>
+  import { setTheme, toggleTheme } from 'bws-astro-components/theme';
+  // setTheme('dark') — sets <html data-theme> and saves it to localStorage
+  // toggleTheme()    — light ↔ dark
+</script>
+```
+
+`setTheme` fires a `theme:change` event on `<html>`; `getTheme()` and
+`getResolvedTheme()` (with `system` resolved) read the current theme.
+
+### Customizing themes
+
+Each role has a value per theme in `--light-*` and `--dark-*` variables.
+Override any of them in your CSS:
+
+```css
+:root {
+  --dark-background: #0f1115;
+  --dark-surface: #1a1d24;
+  --light-success: #15803d;
+}
+```
+
+Variables: `background`, `on-background`, `surface`, `on-surface` and
+`success`, `warning`, `info`, `error` with their `on-*` pairs. Status colors are
+dark with white text in the light theme and light with dark text in the dark one.
+
+**Brand colors** come from your `@theme` and stay the same in both themes. A
+dark `primary` is hard to read on a dark background, so give the dark theme its
+own shade (and restate the light one, if light sections can sit inside dark ones):
+
+```css
+[data-theme='dark'] {
+  --color-primary: #a4c4f7;
+  --color-on-primary: #112443;
+}
+[data-theme='light'] {
+  --color-primary: #2b4570;
+  --color-on-primary: #ffffff;
+}
+```
+
+`--color-on-primary` / `--color-on-secondary` default to white.
 
 ## Icons
 

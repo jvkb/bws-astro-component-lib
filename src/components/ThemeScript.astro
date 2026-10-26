@@ -1,0 +1,24 @@
+---
+import type { Theme } from '../theme.ts';
+
+type Props = {
+  /** Theme used until the visitor picks one with setTheme(). */
+  defaultTheme?: Theme;
+};
+
+const { defaultTheme = 'light' } = Astro.props;
+---
+
+{/*
+ * Put it in <head>. Runs inline, before the page paints, so a saved dark theme
+ * doesn't flash light first. The key matches THEME_STORAGE_KEY in theme.ts.
+ */}
+<script is:inline define:vars={{ defaultTheme }}>
+  let theme = defaultTheme;
+  try {
+    theme = localStorage.getItem('theme') || defaultTheme;
+  } catch {
+    // Storage unavailable — keep the default.
+  }
+  document.documentElement.dataset.theme = theme;
+</script>

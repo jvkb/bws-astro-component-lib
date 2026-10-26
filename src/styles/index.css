@@ -12,12 +12,140 @@
 @source '../components';
 
 /*
- * Status colors with defaults from the Tailwind palette, picked so white text
- * on them meets WCAG AA (4.5:1). Override them in the project's @theme block.
+ * Theme roles, like Vuetify's theme colors. Components use these instead of fixed grays,
+ * so they follow the active theme: muted text, borders and field backgrounds are on-surface
+ * at reduced opacity. `static` keeps the variables in the CSS even when no utility uses them.
  */
-@theme {
-  --color-success: oklch(52.7% 0.154 150.069); /* green-700 */
-  --color-warning: oklch(55.5% 0.163 48.998); /* amber-700 */
-  --color-info: oklch(50% 0.134 242.749); /* sky-700 */
-  --color-error: oklch(57.7% 0.245 27.325); /* red-600 */
+@theme static {
+  --color-background: var(--light-background);
+  --color-on-background: var(--light-on-background);
+  --color-surface: var(--light-surface);
+  --color-on-surface: var(--light-on-surface);
+
+  /* Text and icons on solid brand fills (flat buttons, selected chips, colored cards). */
+  --color-on-primary: oklch(100% 0 0);
+  --color-on-secondary: oklch(100% 0 0);
+
+  --color-success: var(--light-success);
+  --color-on-success: var(--light-on-success);
+  --color-warning: var(--light-warning);
+  --color-on-warning: var(--light-on-warning);
+  --color-info: var(--light-info);
+  --color-on-info: var(--light-on-info);
+  --color-error: var(--light-error);
+  --color-on-error: var(--light-on-error);
+}
+
+@layer base {
+  /*
+   * The values of both themes. Override any of them in your own CSS:
+   *   :root { --dark-surface: #1e1e2e; }
+   */
+  :root {
+    --light-background: oklch(100% 0 0);
+    --light-on-background: oklch(21% 0.034 264.665); /* gray-900 */
+    --light-surface: oklch(100% 0 0);
+    --light-on-surface: oklch(21% 0.034 264.665);
+    /* Status colors dark enough for white text (WCAG AA, 4.5:1). */
+    --light-success: oklch(52.7% 0.154 150.069); /* green-700 */
+    --light-on-success: oklch(100% 0 0);
+    --light-warning: oklch(55.5% 0.163 48.998); /* amber-700 */
+    --light-on-warning: oklch(100% 0 0);
+    --light-info: oklch(50% 0.134 242.749); /* sky-700 */
+    --light-on-info: oklch(100% 0 0);
+    --light-error: oklch(57.7% 0.245 27.325); /* red-600 */
+    --light-on-error: oklch(100% 0 0);
+
+    --dark-background: oklch(16% 0.006 264);
+    --dark-on-background: oklch(96% 0.004 264);
+    --dark-surface: oklch(22% 0.008 264);
+    --dark-on-surface: oklch(96% 0.004 264);
+    /* Lighter status colors, readable as text on dark surfaces, with dark text on top of them. */
+    --dark-success: oklch(79.2% 0.209 151.711); /* green-400 */
+    --dark-on-success: oklch(21% 0.034 264.665);
+    --dark-warning: oklch(82.8% 0.189 84.429); /* amber-400 */
+    --dark-on-warning: oklch(21% 0.034 264.665);
+    --dark-info: oklch(74.6% 0.16 232.661); /* sky-400 */
+    --dark-on-info: oklch(21% 0.034 264.665);
+    --dark-error: oklch(70.4% 0.191 22.216); /* red-400 */
+    --dark-on-error: oklch(21% 0.034 264.665);
+  }
+
+  /*
+   * data-theme="light" | "dark" | "system" on <html> or any element switches the theme for that
+   * subtree (like Vuetify's v-theme-provider) — themes nest both ways. Without it, the page is light.
+   */
+  [data-theme] {
+    background-color: var(--color-background);
+    color: var(--color-on-background);
+  }
+
+  [data-theme='light'] {
+    color-scheme: light;
+    --color-background: var(--light-background);
+    --color-on-background: var(--light-on-background);
+    --color-surface: var(--light-surface);
+    --color-on-surface: var(--light-on-surface);
+    --color-success: var(--light-success);
+    --color-on-success: var(--light-on-success);
+    --color-warning: var(--light-warning);
+    --color-on-warning: var(--light-on-warning);
+    --color-info: var(--light-info);
+    --color-on-info: var(--light-on-info);
+    --color-error: var(--light-error);
+    --color-on-error: var(--light-on-error);
+  }
+
+  [data-theme='dark'] {
+    color-scheme: dark;
+    --color-background: var(--dark-background);
+    --color-on-background: var(--dark-on-background);
+    --color-surface: var(--dark-surface);
+    --color-on-surface: var(--dark-on-surface);
+    --color-success: var(--dark-success);
+    --color-on-success: var(--dark-on-success);
+    --color-warning: var(--dark-warning);
+    --color-on-warning: var(--dark-on-warning);
+    --color-info: var(--dark-info);
+    --color-on-info: var(--dark-on-info);
+    --color-error: var(--dark-error);
+    --color-on-error: var(--dark-on-error);
+  }
+
+  /* "system" follows the OS setting. CSS can't share the block above, so it's repeated. */
+  @media (prefers-color-scheme: dark) {
+    [data-theme='system'] {
+      color-scheme: dark;
+      --color-background: var(--dark-background);
+      --color-on-background: var(--dark-on-background);
+      --color-surface: var(--dark-surface);
+      --color-on-surface: var(--dark-on-surface);
+      --color-success: var(--dark-success);
+      --color-on-success: var(--dark-on-success);
+      --color-warning: var(--dark-warning);
+      --color-on-warning: var(--dark-on-warning);
+      --color-info: var(--dark-info);
+      --color-on-info: var(--dark-on-info);
+      --color-error: var(--dark-error);
+      --color-on-error: var(--dark-on-error);
+    }
+  }
+
+  @media (prefers-color-scheme: light) {
+    [data-theme='system'] {
+      color-scheme: light;
+      --color-background: var(--light-background);
+      --color-on-background: var(--light-on-background);
+      --color-surface: var(--light-surface);
+      --color-on-surface: var(--light-on-surface);
+      --color-success: var(--light-success);
+      --color-on-success: var(--light-on-success);
+      --color-warning: var(--light-warning);
+      --color-on-warning: var(--light-on-warning);
+      --color-info: var(--light-info);
+      --color-on-info: var(--light-on-info);
+      --color-error: var(--light-error);
+      --color-on-error: var(--light-on-error);
+    }
+  }
 }

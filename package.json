@@ -17,6 +17,7 @@
     ".": "./src/index.ts",
     "./icons": "./src/icons.ts",
     "./rules": "./src/rules.ts",
+    "./theme": "./src/theme.ts",
     "./components/*": "./src/components/*",
     "./styles.css": "./src/styles/index.css",
     "./package.json": "./package.json"
