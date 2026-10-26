@@ -1,0 +1,127 @@
+---
+import type { HTMLAttributes } from 'astro/types';
+import { twMerge } from 'tailwind-merge';
+import { type Rule, toInputAttributes } from '../../rules.ts';
+import type { ColorVariant, SharedProps } from '../types.ts';
+import { getInputColor } from './field.ts';
+
+type Props = Omit<
+  HTMLAttributes<'input'>,
+  'class' | 'id' | 'color' | 'type' | 'role'
+> &
+  SharedProps & {
+    /** Text next to the switch; use the default slot for richer content (e.g. a link). */
+    label?: string;
+    /** Color of the switch when it's on. */
+    color?: ColorVariant;
+    /** Material 3 look: a wide track with the thumb inside. */
+    inset?: boolean;
+    /** Helper text under the switch. */
+    hint?: string;
+    /** Error message, e.g. from server-side validation. When set, the switch starts out invalid. */
+    error?: string;
+    /** Validation rules from `bws-astro-components/rules` — `required` means it must be on. */
+    rules?: Rule[];
+  };
+
+const props = Astro.props;
+// Component-only props stay out of the spread, so they don't end up as HTML attributes.
+const {
+  label,
+  color,
+  inset,
+  hint,
+  error,
+  rules,
+  class: _class,
+  id: _id,
+  ...attrs
+} = props;
+
+const inputId = props.id ?? `switch-${crypto.randomUUID().slice(0, 8)}`;
+const messageId = `${inputId}-message`;
+const message = error ?? hint;
+// Switches with rules (or a server error that should clear once changed) are picked up by Form's script.
+const validated = rules !== undefined || error !== undefined;
+// Only `required` applies to a checkbox natively — it then has to be checked.
+const inputAttrs = {
+  ...(toInputAttributes(rules ?? []).required ? { required: true } : {}),
+  ...attrs,
+};
+
+// What the default slot actually renders: MDX can pass an empty one, which would hide the label prop.
+const slotted = Astro.slots.has('default')
+  ? (await Astro.slots.render('default')).trim()
+  : '';
+const hasLabel = slotted !== '' || label !== undefined;
+
+// The visible switch follows the hidden checkbox: the track is its sibling (peer-checked:), the
+// thumb sits inside the track ([.peer:checked~*_&]:).
+const track = inset
+  ? 'h-8 w-13 border-2 border-on-surface/50 bg-on-surface/8 peer-checked:border-(--input-color) peer-checked:bg-(--input-color)'
+  : 'h-3.5 w-9 bg-on-surface/30 peer-checked:bg-(--input-color)/50';
+const thumb = inset
+  ? 'left-1.5 size-4 bg-on-surface/50 [.peer:checked~*_&]:left-[1.375rem] [.peer:checked~*_&]:size-6 [.peer:checked~*_&]:bg-surface'
+  : '-left-0.5 size-5 bg-surface shadow-md ring-1 ring-on-surface/12 [.peer:checked~*_&]:left-[1.125rem] [.peer:checked~*_&]:bg-(--input-color) [.peer:checked~*_&]:ring-0';
+---
+
+<div
+  data-field
+  data-invalid={error ? '' : undefined}
+  class={twMerge(
+    'group/field flex flex-col gap-1 data-invalid:[--input-color:var(--color-error)]',
+    getInputColor(color ?? 'primary'),
+    props.class,
+  )}
+>
+  <label class="inline-flex w-fit cursor-pointer items-center gap-3 select-none has-[input:disabled]:cursor-not-allowed has-[input:disabled]:opacity-60">
+    <input
+      id={inputId}
+      type="checkbox"
+      role="switch"
+      aria-invalid={error ? 'true' : undefined}
+      aria-describedby={message || validated ? messageId : undefined}
+      data-rules={validated ? JSON.stringify(rules ?? []) : undefined}
+      data-touched={error ? '' : undefined}
+      class="peer sr-only"
+      {...inputAttrs}
+    />
+    <span
+      aria-hidden="true"
+      class={twMerge(
+        'relative inline-block shrink-0 rounded-full transition-colors duration-150',
+        // The input is visually hidden, so the track shows its focus.
+        'peer-focus-visible:outline-2 peer-focus-visible:outline-offset-4 peer-focus-visible:outline-(--input-color)',
+        'group-data-invalid/field:[.peer:not(:checked)~&]:bg-error/30',
+        track,
+      )}
+    >
+      <span
+        class={twMerge(
+          'absolute top-1/2 -translate-y-1/2 rounded-full transition-all duration-150',
+          thumb,
+        )}
+      ></span>
+    </span>
+    {hasLabel && (
+      <span class="text-sm text-on-surface group-data-invalid/field:text-error">
+        {slotted ? <Fragment set:html={slotted} /> : label}
+      </span>
+    )}
+  </label>
+
+  {(message || validated) && (
+    <p
+      id={messageId}
+      data-hint={hint}
+      aria-live={validated ? 'polite' : undefined}
+      class={twMerge(
+        'text-xs text-on-surface/70 group-data-invalid/field:text-error',
+        // Reserve the line, so the layout doesn't jump when an error appears.
+        validated && 'min-h-4',
+      )}
+    >
+      {message}
+    </p>
+  )}
+</div>

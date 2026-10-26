@@ -62,6 +62,14 @@ const { validateOn, ...attrs } = Astro.props;
         .map((input) => input.value)
         .join(',');
     }
+    // A checkbox's value is there whether it's checked or not — it only counts when checked
+    // (like in FormData), so `required` means "must be checked", e.g. a Switch.
+    if (
+      field instanceof HTMLInputElement &&
+      (field.type === 'checkbox' || field.type === 'radio')
+    ) {
+      return field.checked ? field.value : '';
+    }
     return field.value;
   }
 

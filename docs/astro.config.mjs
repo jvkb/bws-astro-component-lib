@@ -44,6 +44,7 @@ export default defineConfig({
                 'components/number-input',
                 'components/select',
                 'components/chip-group',
+                'components/switch',
               ],
             },
           ],

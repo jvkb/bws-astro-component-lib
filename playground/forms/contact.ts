@@ -34,6 +34,7 @@ export const contactRules = {
     minLength(10, 'Co najmniej 10 znaków'),
     maxLength(500, 'Maksymalnie 500 znaków'),
   ],
+  terms: [required('Zaakceptuj regulamin')],
   services: [required('Wybierz co najmniej jedną usługę')],
   country: [required('Wybierz kraj')],
   guests: [

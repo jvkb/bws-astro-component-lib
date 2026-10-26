@@ -4,6 +4,17 @@ All notable changes to this project are documented here. The project follows
 [Semantic Versioning](https://semver.org): a new component or feature raises the
 minor version, a fix the patch version, and an incompatible change the major version.
 
+## [1.6.0] - 2026-10-26
+
+### Added
+
+- `Switch` — an on/off toggle on a native checkbox (`role="switch"`), no JavaScript: `label` or a
+  slot, `color`, `inset` (Material 3 look), `hint`, `error`, `rules` (`required` means on).
+
+### Fixed
+
+- `Form` treats an unchecked checkbox as empty, so `required` works on checkboxes.
+
 ## [1.5.0] - 2026-10-26
 
 ### Added

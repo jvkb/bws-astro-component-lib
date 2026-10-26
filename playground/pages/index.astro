@@ -12,6 +12,7 @@ import {
   NavigationDrawer,
   NumberInput,
   Select,
+  Switch,
   TextInput,
   Textarea,
   ThemeScript,
@@ -464,6 +465,27 @@ const palettes = {
       </div>
     </section>
 
+    <section class="mt-8 space-y-4">
+      <h2 class="text-lg font-semibold">Switch</h2>
+      <div class="grid max-w-3xl grid-cols-2 gap-x-8 gap-y-2">
+        <Switch label="Notifications" checked />
+        <Switch label="Notifications (inset)" inset checked />
+        <Switch label="Off" />
+        <Switch label="Off (inset)" inset />
+        <Switch label="Secondary" color="secondary" checked />
+        <Switch label="Success, inset" color="success" inset checked />
+        <Switch label="Disabled" disabled checked />
+        <Switch label="Disabled, inset" inset disabled />
+        <Switch label="Dark mode" hint="Applies to every page" />
+        <Switch>
+          I've read the{' '}
+          <a href="#" class="text-primary underline">
+            privacy policy
+          </a>
+        </Switch>
+      </div>
+    </section>
+
     <section class="mt-8 mb-16 space-y-4">
       <h2 class="text-lg font-semibold">Form</h2>
       <Form
@@ -521,6 +543,12 @@ const palettes = {
           value="admin"
           rules={[required()]}
           error="Ten login jest już zajęty"
+        />
+        <Switch
+          class="col-span-2"
+          name="terms"
+          label="Akceptuję regulamin"
+          rules={contactRules.terms}
         />
         <div class="col-span-2 flex gap-4">
           <Button type="submit">Wyślij</Button>

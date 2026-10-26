@@ -1,0 +1,85 @@
+---
+title: Switch
+description: An on/off toggle on a native checkbox, like Vuetify's v-switch.
+---
+
+import { Switch } from 'bws-astro-components';
+import Preview from '../../../components/Preview.astro';
+
+A native `<input type="checkbox" role="switch">` with a switch look — no JavaScript. It submits
+with forms, resets, works with Space and Tab, and screen readers announce it as an on/off switch.
+
+<Preview layout="grid">
+  <Switch label="Notifications" checked />
+  <Switch label="Notifications (inset)" inset checked />
+  <Switch label="Off" />
+  <Switch label="Off (inset)" inset />
+</Preview>
+
+```astro
+---
+import { Switch } from 'bws-astro-components';
+---
+
+<Switch name="notifications" label="Notifications" checked />
+<Switch name="notifications" label="Notifications" inset />
+```
+
+The default look is Vuetify's: a slim track with a thumb overhanging it. `inset` is the Material 3
+look: a wide track with the thumb inside, growing when it's on.
+
+## Colors and states
+
+<Preview layout="grid">
+  <Switch label="Secondary" color="secondary" checked />
+  <Switch label="Success, inset" color="success" inset checked />
+  <Switch label="Disabled" disabled checked />
+  <Switch label="Dark mode" hint="Applies to every page" />
+</Preview>
+
+`color` is the color of the switch when it's on.
+
+## Label with a link
+
+The default slot replaces `label` with richer content:
+
+<Preview>
+  <Switch>I've read the <a href="#label-with-a-link" class="text-primary underline">privacy policy</a></Switch>
+</Preview>
+
+```astro
+<Switch name="privacy">
+  I've read the <a href="/privacy" class="text-primary underline">privacy policy</a>
+</Switch>
+```
+
+## In a form
+
+A switch submits its `value` (`on` by default) only when it's on — like any checkbox. In a
+[`Form`](/components/form/), `required` means it has to be on, e.g. to accept terms:
+
+```astro
+<Form method="post">
+  <Switch name="terms" label="I accept the terms" rules={[required('Accept the terms')]} />
+  <Button type="submit">Send</Button>
+</Form>
+```
+
+On the server, `validateForm` sees an unchecked switch as empty, so the same rule applies.
+
+## API
+
+| Prop       | Type                                                   | Default   |
+| ---------- | ------------------------------------------------------ | --------- |
+| `label`    | `string`                                               | —         |
+| `color`    | `primary` · `secondary` · `success` · `warning` · `info` · `error` | `primary` |
+| `inset`    | `boolean` — Material 3 look                            | `false`   |
+| `checked`  | `boolean` — on initially                               | `false`   |
+| `name`, `value` | `string` — what the form submits (`value` defaults to `on`) | — |
+| `hint`     | `string`                                               | —         |
+| `error`    | `string` — starts out invalid                          | —         |
+| `rules`    | [validation rules](/guides/validation/) — `required` means on | —  |
+| `disabled` | `boolean`                                              | `false`   |
+| `id`, `class` | `string` — `class` goes to the wrapper              | —         |
+
+Any other attribute goes to the `<input>`. **Slot:** default — the label, replacing `label`.
