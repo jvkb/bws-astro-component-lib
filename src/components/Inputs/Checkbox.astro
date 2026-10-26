@@ -19,7 +19,7 @@ type Props = Omit<HTMLAttributes<'input'>, 'class' | 'id' | 'color' | 'type'> &
     hint?: string;
     /** Error message, e.g. from server-side validation. When set, the checkbox starts out invalid. */
     error?: string;
-    /** Validation rules from `bws-astro-components/rules` — `required` means it must be checked. */
+    /** Validation rules from `bws-astro-ui/rules` — `required` means it must be checked. */
     rules?: Rule[];
   };
 

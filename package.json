@@ -1,10 +1,10 @@
 {
-  "name": "bws-astro-components",
+  "name": "bws-astro-ui",
   "version": "1.11.0",
-  "description": "Reusable Astro components styled with Tailwind CSS.",
+  "description": "BWS Astro UI — Vuetify-inspired Astro components styled with Tailwind CSS v4.",
   "type": "module",
   "license": "MIT",
-  "author": "Jakub Banach",
+  "author": "Jakub Banach (https://banachwebsolutions.com)",
   "keywords": [
     "astro-component",
     "withastro",

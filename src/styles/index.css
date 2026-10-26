@@ -2,7 +2,7 @@
  * Imported by consumers right after Tailwind:
  *
  *   @import 'tailwindcss';
- *   @import 'bws-astro-components/styles.css';
+ *   @import 'bws-astro-ui/styles.css';
  *
  * Brand colors (--color-primary-*, --color-secondary-*) are not defined here —
  * the consuming project provides them in its own @theme block (see README).

@@ -1,4 +1,4 @@
-# bws-astro-components
+# BWS Astro UI (`bws-astro-ui`)
 
 Astro component library styled with Tailwind CSS v4, inspired by Vuetify. Published to npm as
 `.astro` source files (no build step); `playground/` is for quick checks, `docs/` is the

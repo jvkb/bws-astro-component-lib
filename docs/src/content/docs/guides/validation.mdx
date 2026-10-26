@@ -20,8 +20,8 @@ import {
   NumberInput,
   Select,
   TextInput,
-} from 'bws-astro-components';
-import { email, max, required } from 'bws-astro-components/rules';
+} from 'bws-astro-ui';
+import { email, max, required } from 'bws-astro-ui/rules';
 ---
 
 <Form method="post">
@@ -97,7 +97,7 @@ import {
   defineRule,
   email,
   required,
-} from 'bws-astro-components/rules';
+} from 'bws-astro-ui/rules';
 
 defineRule('nip', (value) => isValidNip(value));
 
@@ -129,7 +129,7 @@ runs the same rules on submitted data, in an Astro Action, an endpoint or the pa
 
 ```astro title="src/pages/contact.astro"
 ---
-import { validateForm } from 'bws-astro-components/rules';
+import { validateForm } from 'bws-astro-ui/rules';
 import { contactRules } from '../forms/contact';
 
 let errors: Record<string, string> = {};

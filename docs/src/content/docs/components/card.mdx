@@ -3,8 +3,8 @@ title: Card
 description: A container with a title, subtitle, body and actions, like Vuetify's v-card.
 ---
 
-import { Button, Card, Icon } from 'bws-astro-components';
-import { Heart } from 'bws-astro-components/icons';
+import { Button, Card, Icon } from 'bws-astro-ui';
+import { Heart } from 'bws-astro-ui/icons';
 import Preview from '../../../components/Preview.astro';
 
 Each part — title, subtitle, body and actions — is a prop for plain text or a slot for anything
@@ -26,7 +26,7 @@ else. Parts you leave out aren't rendered.
 
 ```astro
 ---
-import { Button, Card } from 'bws-astro-components';
+import { Button, Card } from 'bws-astro-ui';
 ---
 
 <Card

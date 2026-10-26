@@ -120,7 +120,7 @@ First versioned release.
 
 - `Button` — `elevated`, `flat`, `tonal`, `outlined` and `text` variants; `color`, `size`,
   `rounded` and `block`; renders a link with `href`.
-- `Icon` — Lucide icons (`bws-astro-components/icons`) or imported `.svg` files, with size steps
+- `Icon` — Lucide icons (`bws-astro-ui/icons`) or imported `.svg` files, with size steps
   and an accessible `label`.
 - `Card` — title, subtitle, body and actions as props or slots; `variant`, `color`, `rounded`.
 - `Chip` — variants, colors, sizes, icons, link chips and closable chips (`chip:close` event).
@@ -130,7 +130,7 @@ First versioned release.
   `prepend-inner` / `append-inner` slots.
 - `NumberInput` — step buttons (`default`, `split`, `hidden`) respecting `min`, `max` and `step`.
 - `Select` — accessible dropdown (WAI-ARIA combobox) positioned with Floating UI; `location`.
-- `Form` and validation rules (`bws-astro-components/rules`) shared by the browser and the server
+- `Form` and validation rules (`bws-astro-ui/rules`) shared by the browser and the server
   (`validateForm`).
 - Light/dark themes: theme roles, `data-theme` (`light`, `dark`, `system`), `ThemeScript` and
-  `setTheme` / `toggleTheme` (`bws-astro-components/theme`).
+  `setTheme` / `toggleTheme` (`bws-astro-ui/theme`).

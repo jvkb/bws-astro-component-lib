@@ -11,7 +11,7 @@ type Props = Omit<
   StrictAttributes | 'width' | 'height'
 > &
   Pick<LucideProps, StrictAttributes> & {
-    /** A Lucide icon (`bws-astro-components/icons`) or an imported `.svg` file. */
+    /** A Lucide icon (`bws-astro-ui/icons`) or an imported `.svg` file. */
     icon: LucideIcon | SvgComponent;
     /** Size step or pixels. Without it the icon follows the current font size (1em), e.g. inside a Button. */
     size?: Size | number;

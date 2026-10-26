@@ -3,8 +3,8 @@ title: Icon
 description: Lucide icons and your own SVG files, rendered as inline SVG.
 ---
 
-import { Button, Icon } from 'bws-astro-components';
-import { Heart, MessageCircle, Star } from 'bws-astro-components/icons';
+import { Button, Icon } from 'bws-astro-ui';
+import { Heart, MessageCircle, Star } from 'bws-astro-ui/icons';
 import Preview from '../../../components/Preview.astro';
 
 [Lucide](https://lucide.dev/icons) ships with the library. Icons are rendered to inline SVG when the
@@ -22,8 +22,8 @@ page is built — no JavaScript, and only the icons you use end up in the HTML.
 
 ```astro
 ---
-import { Icon } from 'bws-astro-components';
-import { Heart, Star } from 'bws-astro-components/icons';
+import { Icon } from 'bws-astro-ui';
+import { Heart, Star } from 'bws-astro-ui/icons';
 import Logo from '../assets/logo.svg';
 ---
 
@@ -58,7 +58,7 @@ Without a `label` the icon is decorative and hidden from screen readers (`aria-h
 
 ## Where icons come from
 
-- `bws-astro-components/icons` exports every Lucide icon. Names like `Link`, `Image` or `Menu` would
+- `bws-astro-ui/icons` exports every Lucide icon. Names like `Link`, `Image` or `Menu` would
   clash with components, so icons have their own entry point.
 - Any `.svg` file imported in Astro works as an icon too.
 - In your own components, deep imports are faster in development:

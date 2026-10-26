@@ -8,7 +8,7 @@
 @import 'tailwindcss/theme.css' layer(theme);
 @import 'tailwindcss/preflight.css' layer(base);
 @import 'tailwindcss/utilities.css' layer(utilities);
-@import 'bws-astro-components/styles.css';
+@import 'bws-astro-ui/styles.css';
 
 @theme {
   /* Brand colors, the same as the playground. */

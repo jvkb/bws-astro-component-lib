@@ -1,4 +1,4 @@
-# bws-astro-components
+# BWS Astro UI
 
 Vuetify-inspired Astro components styled with Tailwind CSS v4: buttons, cards, chips, inputs,
 select, form validation and light/dark themes.
@@ -9,14 +9,14 @@ examples and the full API of every component.
 ## Quick start
 
 ```bash
-pnpm add bws-astro-components
+pnpm add bws-astro-ui
 ```
 
 Requires Astro 7+ and Tailwind CSS 4+ (`@tailwindcss/vite`). In your global stylesheet:
 
 ```css
 @import 'tailwindcss';
-@import 'bws-astro-components/styles.css';
+@import 'bws-astro-ui/styles.css';
 
 @theme {
   --color-primary: #2b4570;
@@ -26,7 +26,7 @@ Requires Astro 7+ and Tailwind CSS 4+ (`@tailwindcss/vite`). In your global styl
 
 ```astro
 ---
-import { Button, Card } from 'bws-astro-components';
+import { Button, Card } from 'bws-astro-ui';
 ---
 
 <Card title="Hello" text="Your first card.">

@@ -1,4 +1,4 @@
-// All Lucide icons, e.g. `import { Heart } from 'bws-astro-components/icons'`.
+// All Lucide icons, e.g. `import { Heart } from 'bws-astro-ui/icons'`.
 // Kept off the main entry point — names like Link, Image or Menu would clash with components.
 export * from '@lucide/astro';
 

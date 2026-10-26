@@ -3,7 +3,7 @@ title: Pagination
 description: Links to the pages of a list, with ellipses for long ranges, like Vuetify's v-pagination.
 ---
 
-import { Pagination } from 'bws-astro-components';
+import { Pagination } from 'bws-astro-ui';
 import Preview from '../../../components/Preview.astro';
 
 <Preview layout="stack" class="max-w-none">
@@ -14,7 +14,7 @@ import Preview from '../../../components/Preview.astro';
 
 ```astro
 ---
-import { Pagination } from 'bws-astro-components';
+import { Pagination } from 'bws-astro-ui';
 ---
 
 <Pagination page={3} length={10} href="/blog/{page}" />
@@ -34,7 +34,7 @@ pass the current page and the last one.
 ---
 import type { GetStaticPaths } from 'astro';
 import { getCollection } from 'astro:content';
-import { Pagination } from 'bws-astro-components';
+import { Pagination } from 'bws-astro-ui';
 
 export const getStaticPaths = (async ({ paginate }) => {
   const posts = await getCollection('blog');

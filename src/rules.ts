@@ -101,7 +101,7 @@ function passes(rule: Rule, value: string) {
       const check = customRules.get(rule.name);
       if (!check) {
         console.warn(
-          `[bws-astro-components] Unknown rule "${rule.name}" — register it with defineRule().`,
+          `[bws-astro-ui] Unknown rule "${rule.name}" — register it with defineRule().`,
         );
         return true;
       }

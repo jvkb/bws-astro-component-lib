@@ -3,8 +3,8 @@ title: Dialog
 description: Modal dialogs on the native dialog element, like Vuetify's v-dialog.
 ---
 
-import { Button, Dialog, Form, TextInput } from 'bws-astro-components';
-import { required } from 'bws-astro-components/rules';
+import { Button, Dialog, Form, TextInput } from 'bws-astro-ui';
+import { required } from 'bws-astro-ui/rules';
 import Preview from '../../../components/Preview.astro';
 
 Built on the native `<dialog>`: focus stays inside while it's open, the page behind can't be used
@@ -17,7 +17,7 @@ top of the page — no `z-index`, and parents with `overflow` or `transform` can
 
 ```astro
 ---
-import { Button, Dialog } from 'bws-astro-components';
+import { Button, Dialog } from 'bws-astro-ui';
 ---
 
 <Dialog title="Delete the project?" text="This removes the project and its files." width="sm">
