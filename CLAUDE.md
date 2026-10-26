@@ -19,6 +19,8 @@ Starlight documentation site.
 1. Export new components from `src/index.ts`.
 2. Add a docs page in `docs/src/content/docs/` (live examples, props, slots, events) and add it to
    the sidebar in `docs/astro.config.mjs`. Add an example to the playground.
+   In MDX keep a component and its text children on one line (`<Button>Next <Icon … /></Button>`):
+   text on its own line becomes a `<p>`. MDX is excluded from Prettier for that reason.
 3. Bump the version (`pnpm version:minor` for a new component or feature, `version:patch` for a
    fix, `version:major` for a breaking change) and add an entry to `CHANGELOG.md` under that
    version.

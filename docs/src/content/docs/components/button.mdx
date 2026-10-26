@@ -68,24 +68,12 @@ works without defining shades.
 </Preview>
 
 <Preview>
-  <Button rounded="xs" variant="tonal">
-    xs
-  </Button>
-  <Button rounded="sm" variant="tonal">
-    sm
-  </Button>
-  <Button rounded="default" variant="tonal">
-    default
-  </Button>
-  <Button rounded="lg" variant="tonal">
-    lg
-  </Button>
-  <Button rounded="xl" variant="tonal">
-    xl
-  </Button>
-  <Button rounded="full" variant="tonal">
-    full
-  </Button>
+  <Button rounded="xs" variant="tonal">xs</Button>
+  <Button rounded="sm" variant="tonal">sm</Button>
+  <Button rounded="default" variant="tonal">default</Button>
+  <Button rounded="lg" variant="tonal">lg</Button>
+  <Button rounded="xl" variant="tonal">xl</Button>
+  <Button rounded="full" variant="tonal">full</Button>
 </Preview>
 
 ```astro
@@ -100,12 +88,8 @@ works without defining shades.
 Put an [`Icon`](/components/icon/) inside — without a `size` it follows the button's text size.
 
 <Preview>
-  <Button>
-    Next <Icon icon={ArrowRight} />
-  </Button>
-  <Button variant="outlined" color="secondary">
-    <Icon icon={Download} /> Download
-  </Button>
+  <Button>Next <Icon icon={ArrowRight} /></Button>
+  <Button variant="outlined" color="secondary"><Icon icon={Download} /> Download</Button>
 </Preview>
 
 ```astro
@@ -123,9 +107,7 @@ import { ArrowRight } from 'bws-astro-components/icons';
 
 <Preview>
   <Button href="#links-forms-and-disabled-buttons">Link</Button>
-  <Button type="submit" variant="tonal">
-    Submit
-  </Button>
+  <Button type="submit" variant="tonal">Submit</Button>
   <Button disabled>Disabled</Button>
 </Preview>
 

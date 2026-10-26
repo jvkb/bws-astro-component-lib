@@ -3,3 +3,6 @@ playground/dist
 .astro
 docs/dist
 docs/.astro
+
+# Prettier reflows JSX in MDX onto separate lines, which MDX then wraps in <p> — keep MDX as written.
+*.mdx
