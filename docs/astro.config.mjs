@@ -33,6 +33,7 @@ export default defineConfig({
                 'components/dialog',
                 'components/menu',
                 'components/navigation-drawer',
+                'components/tooltip',
               ],
             },
             {

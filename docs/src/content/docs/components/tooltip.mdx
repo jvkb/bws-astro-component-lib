@@ -1,0 +1,83 @@
+---
+title: Tooltip
+description: Short hints on hover and keyboard focus, positioned with Floating UI, like Vuetify's v-tooltip.
+---
+
+import { Button, Icon, Tooltip } from 'bws-astro-components';
+import { Download } from 'bws-astro-components/icons';
+import Preview from '../../../components/Preview.astro';
+
+A short hint that appears when the pointer rests on an element or it gets keyboard focus. Like
+[`Menu`](/components/menu/), it's positioned with Floating UI and sits in the browser's top layer.
+
+<Preview>
+  <Tooltip text="Download the report"><Button slot="activator" variant="text" aria-label="Download" class="px-2"><Icon icon={Download} size="default" /></Button></Tooltip>
+  <Tooltip text="Saves a draft you can finish later"><Button slot="activator" variant="tonal">Save draft</Button></Tooltip>
+</Preview>
+
+```astro
+---
+import { Button, Icon, Tooltip } from 'bws-astro-components';
+import { Download } from 'bws-astro-components/icons';
+---
+
+<Tooltip text="Download the report">
+  <Button slot="activator" variant="text" aria-label="Download">
+    <Icon icon={Download} />
+  </Button>
+</Tooltip>
+```
+
+The activator gets `aria-describedby`, so screen readers read the tooltip as its description. A
+tooltip adds information — an icon-only button still needs its own `aria-label`.
+
+## Location
+
+<Preview>
+  <Tooltip text='location="top"' location="top"><Button slot="activator" variant="tonal">top</Button></Tooltip>
+  <Tooltip text='location="bottom"' location="bottom"><Button slot="activator" variant="tonal">bottom</Button></Tooltip>
+  <Tooltip text='location="left"' location="left"><Button slot="activator" variant="tonal">left</Button></Tooltip>
+  <Tooltip text='location="right"' location="right"><Button slot="activator" variant="tonal">right</Button></Tooltip>
+</Preview>
+
+`location` takes any Floating UI placement — `top` (default), `bottom`, `left`, `right`, also with
+`-start` / `-end`. The tooltip flips when there isn't room and stays on screen.
+
+## Rich content
+
+<Preview>
+  <Tooltip location="bottom"><Button slot="activator" variant="outlined">Search</Button><strong class="font-semibold">Shortcut</strong> — press <kbd class="rounded bg-surface/20 px-1">⌘K</kbd></Tooltip>
+</Preview>
+
+```astro
+<Tooltip location="bottom">
+  <Button slot="activator">Search</Button>
+  <strong>Shortcut</strong> — press <kbd>⌘K</kbd>
+</Tooltip>
+```
+
+Long text wraps at 20rem.
+
+## Behavior
+
+- It shows after the pointer rests on the activator for `openDelay` (200 ms), so it doesn't flash
+  while the pointer passes over, and hides `closeDelay` (100 ms) after it leaves.
+- The pointer can move onto the tooltip without it hiding — e.g. to select its text.
+- Keyboard focus shows it right away; Escape hides it without moving focus.
+- Touch screens have no hover, so a tap doesn't flash it — keep essential information out of
+  tooltips.
+
+## API
+
+| Prop         | Type                                         | Default |
+| ------------ | -------------------------------------------- | ------- |
+| `text`       | `string`                                     | —       |
+| `location`   | a Floating UI placement                      | `top`   |
+| `openDelay`  | `number` — milliseconds                      | `200`   |
+| `closeDelay` | `number` — milliseconds                      | `100`   |
+| `id`, `class` | `string` — for the tooltip element          | —       |
+
+| Slot        | Content                                     |
+| ----------- | ------------------------------------------- |
+| `activator` | the element the tooltip describes           |
+| default     | rich content, replacing `text`              |

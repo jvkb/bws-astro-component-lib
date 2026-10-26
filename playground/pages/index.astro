@@ -17,6 +17,7 @@ import {
   TextInput,
   Textarea,
   ThemeScript,
+  Tooltip,
 } from '../../src';
 import { required } from '../../src/rules';
 import { contactRules } from '../forms/contact';
@@ -34,6 +35,7 @@ import {
   LogOut,
   ChevronDown,
   UserRound,
+  Download,
 } from '../../src/icons';
 import Star from '../assets/star.svg';
 import photo from '../assets/avatar.png';
@@ -43,6 +45,7 @@ import type {
   DrawerLocation,
   MenuItem,
   MenuPlacement,
+  TooltipPlacement,
   InputVariant,
   RoundedVariant,
   Size,
@@ -91,6 +94,12 @@ const productItems: MenuItem[] = [
   { title: 'Websites', href: '#' },
   { title: 'Online shops', href: '#' },
   { title: 'SEO', href: '#' },
+];
+const tooltipPlacements: TooltipPlacement[] = [
+  'top',
+  'bottom',
+  'left',
+  'right',
 ];
 const menuPlacements: MenuPlacement[] = [
   'bottom-end',
@@ -744,6 +753,53 @@ const palettes = {
           Close
         </Button>
       </Dialog>
+    </section>
+
+    <section class="mt-8 space-y-4">
+      <h2 class="text-lg font-semibold">Tooltip</h2>
+      <div class="flex flex-wrap items-center gap-3">
+        {tooltipPlacements.map((location) => (
+          <Tooltip text={`location="${location}"`} location={location}>
+            <Button slot="activator" variant="tonal">
+              {location}
+            </Button>
+          </Tooltip>
+        ))}
+        <Tooltip text="Download the report">
+          <Button
+            slot="activator"
+            variant="text"
+            aria-label="Download"
+            class="px-2"
+          >
+            <Icon icon={Download} size="default" />
+          </Button>
+        </Tooltip>
+        <Tooltip location="bottom">
+          <Button slot="activator" variant="outlined">
+            Rich content
+          </Button>
+          <strong class="font-semibold">Shortcut</strong> — press{' '}
+          <kbd class="rounded bg-surface/20 px-1">⌘K</kbd> to search
+        </Tooltip>
+        <Tooltip text="A long tooltip wraps to several lines instead of running off the screen, because it's at most 20rem wide.">
+          <Button slot="activator" variant="text">
+            Long text
+          </Button>
+        </Tooltip>
+        <Tooltip text="Opens in a new tab">
+          <a slot="activator" href="#" class="text-primary underline">
+            A link
+          </a>
+        </Tooltip>
+        <div class="h-10 overflow-hidden rounded-md border border-dashed border-on-background/40 px-2 py-1">
+          <Tooltip text="Not clipped by overflow: hidden" location="bottom">
+            <Button slot="activator" size="sm" variant="text">
+              In overflow: hidden
+            </Button>
+          </Tooltip>
+        </div>
+      </div>
     </section>
 
     <section class="mt-8 space-y-4">

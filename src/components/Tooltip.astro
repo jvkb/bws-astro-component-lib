@@ -1,0 +1,193 @@
+---
+import type { HTMLAttributes } from 'astro/types';
+import { twMerge } from 'tailwind-merge';
+import type { SharedProps, TooltipPlacement } from './types.ts';
+
+type Props = Omit<HTMLAttributes<'div'>, 'class' | 'id' | 'role'> &
+  SharedProps & {
+    /** The tooltip's text; use the default slot for richer content. */
+    text?: string;
+    /** Where the tooltip appears next to its activator; it flips when there isn't room. */
+    location?: TooltipPlacement;
+    /** Milliseconds the pointer rests on the activator before the tooltip shows. */
+    openDelay?: number;
+    /** Milliseconds before the tooltip hides once the pointer leaves. */
+    closeDelay?: number;
+  };
+
+const props = Astro.props;
+// Component-only props stay out of the spread, so they don't end up as HTML attributes.
+const {
+  text,
+  location,
+  openDelay,
+  closeDelay,
+  class: _class,
+  id: _id,
+  ...attrs
+} = props;
+
+const id = props.id ?? `tooltip-${crypto.randomUUID().slice(0, 8)}`;
+
+// What the default slot actually renders: MDX can pass an empty one, which would hide the text prop.
+const slotted = Astro.slots.has('default')
+  ? (await Astro.slots.render('default')).trim()
+  : '';
+
+// Fades and scales in and out (open: covers :popover-open).
+const animation =
+  'opacity-0 scale-95 transition-[opacity,scale,display,overlay] transition-discrete duration-150 ease-out open:opacity-100 open:scale-100 starting:open:opacity-0 starting:open:scale-95';
+---
+
+{/* display: contents — the wrapper only catches hover and focus, it doesn't affect the layout. */}
+<span class="contents" data-tooltip-activator={id}>
+  <slot name="activator" />
+</span>
+
+{/* A manual popover sits in the top layer: no z-index, and no parent's overflow clips it. */}
+<div
+  id={id}
+  role="tooltip"
+  popover="manual"
+  data-tooltip
+  data-location={location ?? 'top'}
+  data-open-delay={openDelay ?? 200}
+  data-close-delay={closeDelay ?? 100}
+  class={twMerge(
+    // Inverted colors: dark on a light page, light on a dark one.
+    'inset-auto m-0 max-w-xs rounded-md border-0 bg-on-surface px-2.5 py-1.5 text-xs leading-snug text-surface shadow-md',
+    animation,
+    props.class,
+  )}
+  {...attrs}
+>
+  {slotted ? <Fragment set:html={slotted} /> : text}
+</div>
+
+<script>
+  // One set of delegated listeners serves every Tooltip on the page (Astro bundles this script once).
+  // Follows WCAG 1.4.13: shows on hover and keyboard focus, stays while the pointer is over the
+  // tooltip itself, and Escape hides it without moving focus.
+  import type { Placement } from '@floating-ui/dom';
+  import { anchor } from './floating.ts';
+
+  const ACTIVATOR = '[data-tooltip-activator]';
+  const TOOLTIP = '[data-tooltip]';
+  const stops = new WeakMap<HTMLElement, () => void>();
+  const timers = new WeakMap<HTMLElement, ReturnType<typeof setTimeout>>();
+
+  const getTooltip = (wrapper: Element) =>
+    document.getElementById(
+      (wrapper as HTMLElement).dataset.tooltipActivator ?? '',
+    );
+  // The wrapper is display: contents, so the slotted element is what's on screen.
+  const getTrigger = (tooltip: HTMLElement) =>
+    document.querySelector<HTMLElement>(
+      `${ACTIVATOR}[data-tooltip-activator="${CSS.escape(tooltip.id)}"]`,
+    )?.firstElementChild as HTMLElement | null | undefined;
+  const isOpen = (tooltip: HTMLElement) => tooltip.matches(':popover-open');
+
+  // The tooltip, if the element is its activator (or inside it) or the tooltip itself.
+  function tooltipFor(element: EventTarget | null) {
+    if (!(element instanceof Element)) return null;
+    const wrapper = element.closest(ACTIVATOR);
+    if (wrapper) return getTooltip(wrapper);
+    return element.closest<HTMLElement>(TOOLTIP);
+  }
+
+  // The activator comes from a slot, so the link to its description is added here.
+  function initTriggers() {
+    for (const wrapper of document.querySelectorAll(ACTIVATOR)) {
+      const tooltip = getTooltip(wrapper);
+      const trigger = wrapper.firstElementChild;
+      if (!tooltip || !trigger) continue;
+      const ids = (trigger.getAttribute('aria-describedby') ?? '')
+        .split(' ')
+        .filter(Boolean);
+      if (!ids.includes(tooltip.id)) {
+        trigger.setAttribute(
+          'aria-describedby',
+          [...ids, tooltip.id].join(' '),
+        );
+      }
+    }
+  }
+
+  function show(tooltip: HTMLElement) {
+    clearTimeout(timers.get(tooltip));
+    const trigger = getTrigger(tooltip);
+    if (isOpen(tooltip) || !trigger) return;
+    // One tooltip at a time.
+    for (const other of document.querySelectorAll<HTMLElement>(
+      `${TOOLTIP}:popover-open`,
+    )) {
+      hide(other);
+    }
+    tooltip.showPopover();
+    const { stop } = anchor(trigger, tooltip, {
+      placement: (tooltip.dataset.location ?? 'top') as Placement,
+      gap: 8,
+    });
+    stops.set(tooltip, stop);
+  }
+
+  function hide(tooltip: HTMLElement) {
+    clearTimeout(timers.get(tooltip));
+    if (!isOpen(tooltip)) return;
+    stops.get(tooltip)?.();
+    stops.delete(tooltip);
+    tooltip.hidePopover();
+  }
+
+  function later(tooltip: HTMLElement, action: () => void, delay: number) {
+    clearTimeout(timers.get(tooltip));
+    timers.set(tooltip, setTimeout(action, delay));
+  }
+
+  // Touch has no hover — a tap would only flash the tooltip. Keyboard focus still shows it.
+  document.addEventListener('pointerover', (event) => {
+    const tooltip = tooltipFor(event.target);
+    if (!tooltip || event.pointerType === 'touch') return;
+    // Over the tooltip itself: keep it (it can be hovered, e.g. to select its text).
+    if (isOpen(tooltip)) clearTimeout(timers.get(tooltip));
+    else later(tooltip, () => show(tooltip), Number(tooltip.dataset.openDelay));
+  });
+
+  document.addEventListener('pointerout', (event) => {
+    const tooltip = tooltipFor(event.target);
+    if (!tooltip || event.pointerType === 'touch') return;
+    // Still over the same activator or tooltip.
+    if (tooltipFor(event.relatedTarget) === tooltip) return;
+    // A focused activator keeps its tooltip (e.g. after a tap on a touch screen).
+    if (getTrigger(tooltip)?.matches(':focus-visible')) return;
+    later(tooltip, () => hide(tooltip), Number(tooltip.dataset.closeDelay));
+  });
+
+  // Keyboard users get the tooltip when they tab to the activator.
+  document.addEventListener('focusin', (event) => {
+    const target = event.target as Element | null;
+    const wrapper = target?.closest(ACTIVATOR);
+    const tooltip = wrapper && getTooltip(wrapper);
+    if (tooltip && target?.matches(':focus-visible')) show(tooltip);
+  });
+
+  document.addEventListener('focusout', (event) => {
+    const wrapper = (event.target as Element | null)?.closest(ACTIVATOR);
+    const tooltip = wrapper && getTooltip(wrapper);
+    if (tooltip) hide(tooltip);
+  });
+
+  // Escape hides tooltips without moving focus.
+  document.addEventListener('keydown', (event) => {
+    if (event.key !== 'Escape') return;
+    for (const tooltip of document.querySelectorAll<HTMLElement>(
+      `${TOOLTIP}:popover-open`,
+    )) {
+      hide(tooltip);
+    }
+  });
+
+  initTriggers();
+  // Re-run after client-side navigation when the site uses Astro's view transitions.
+  document.addEventListener('astro:page-load', initTriggers);
+</script>

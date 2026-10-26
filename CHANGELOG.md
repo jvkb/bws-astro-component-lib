@@ -4,6 +4,18 @@ All notable changes to this project are documented here. The project follows
 [Semantic Versioning](https://semver.org): a new component or feature raises the
 minor version, a fix the patch version, and an incompatible change the major version.
 
+## [1.8.0] - 2026-10-26
+
+### Added
+
+- `Tooltip` — a hint on hover and keyboard focus, positioned with Floating UI in the top layer:
+  `text` or rich content, any `location`, `openDelay` / `closeDelay`. Linked with
+  `aria-describedby`, hoverable and dismissible with Escape (WCAG 1.4.13).
+
+### Changed
+
+- `Menu` and `Tooltip` share one Floating UI positioning helper.
+
 ## [1.7.0] - 2026-10-26
 
 ### Added

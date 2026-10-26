@@ -150,15 +150,8 @@ const animation =
 <script>
   // One set of delegated listeners serves every Menu on the page (Astro bundles this script once).
   // Follows the WAI-ARIA menu button pattern; Floating UI keeps the menu next to its activator.
-  import {
-    autoUpdate,
-    computePosition,
-    flip,
-    offset,
-    shift,
-    size,
-    type Placement,
-  } from '@floating-ui/dom';
+  import type { Placement } from '@floating-ui/dom';
+  import { anchor } from './floating.ts';
 
   const ACTIVATOR = '[data-menu-activator]';
   const MENU = '[data-menu]';
@@ -199,57 +192,6 @@ const animation =
     }
   }
 
-  // Positions the menu with Floating UI and keeps it there while scrolling or resizing.
-  // Resolves once the first position is applied (the menu is hidden until then).
-  function position(menu: HTMLElement, trigger: HTMLElement) {
-    // Hidden until the first position is known, so it doesn't flash in the corner.
-    menu.style.visibility = 'hidden';
-    const update = () =>
-      computePosition(trigger, menu, {
-        strategy: 'fixed',
-        placement: (menu.dataset.location ?? 'bottom-start') as Placement,
-        middleware: [
-          offset(4),
-          flip({ padding: 8 }),
-          shift({ padding: 8 }),
-          size({
-            padding: 8,
-            apply({ availableHeight }) {
-              menu.style.maxHeight = `${Math.max(availableHeight, 120)}px`;
-            },
-          }),
-        ],
-      }).then(({ x, y, placement }) => {
-        // Grow out of the activator's side.
-        const side = placement.split('-')[0];
-        const origin = {
-          top: 'bottom',
-          bottom: 'top',
-          left: 'right',
-          right: 'left',
-        }[side];
-        Object.assign(menu.style, {
-          left: `${x}px`,
-          top: `${y}px`,
-          transformOrigin: origin,
-          visibility: '',
-        });
-        menu.dataset.placement = placement;
-      });
-    return new Promise<void>((resolve) => {
-      let first = true;
-      stopUpdates.set(
-        menu,
-        autoUpdate(trigger, menu, () =>
-          update().then(() => {
-            if (first) resolve();
-            first = false;
-          }),
-        ),
-      );
-    });
-  }
-
   async function open(menu: HTMLElement, focus?: 'first' | 'last') {
     const trigger = getTrigger(menu);
     if (!trigger) return;
@@ -262,8 +204,14 @@ const animation =
     if (!isOpen(menu)) {
       menu.showPopover();
       trigger.setAttribute('aria-expanded', 'true');
+      // Floating UI keeps the menu next to the activator while it's open.
+      const { ready, stop } = anchor(trigger, menu, {
+        placement: (menu.dataset.location ?? 'bottom-start') as Placement,
+        fitHeight: true,
+      });
+      stopUpdates.set(menu, stop);
       // An invisible element can't take focus — wait until the menu is placed and shown.
-      await position(menu, trigger);
+      await ready;
     }
     const items = getItems(menu);
     if (focus) (focus === 'first' ? items[0] : items.at(-1))?.focus();

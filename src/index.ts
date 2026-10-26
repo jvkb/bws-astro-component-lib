@@ -16,3 +16,4 @@ export { default as NavigationDrawer } from './components/NavigationDrawer.astro
 export { default as Menu } from './components/Menu.astro';
 export { default as Switch } from './components/Inputs/Switch.astro';
 export { default as Checkbox } from './components/Inputs/Checkbox.astro';
+export { default as Tooltip } from './components/Tooltip.astro';

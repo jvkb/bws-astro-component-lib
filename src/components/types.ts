@@ -15,6 +15,8 @@ export type MenuLocation = 'auto' | 'bottom' | 'top';
 export type DrawerLocation = 'left' | 'right' | 'top' | 'bottom';
 /** Where a Menu opens next to its activator — any Floating UI placement, e.g. `bottom-start`. */
 export type MenuPlacement = Placement;
+/** Where a Tooltip appears next to its activator — any Floating UI placement, e.g. `top`. */
+export type TooltipPlacement = Placement;
 /** A Menu entry: a link (`href`), an action (`value`) or a divider. */
 export type MenuItem =
   | {
