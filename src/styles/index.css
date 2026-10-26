@@ -80,6 +80,18 @@
     background-color: var(--color-background);
     color: var(--color-on-background);
   }
+
+  /*
+   * Set by Dialog's script while a modal dialog is open: the page behind doesn't scroll. With a
+   * classic scrollbar (`gutter`), its space is kept, so the page doesn't shift sideways.
+   */
+  :root[data-scroll-lock] {
+    overflow: hidden;
+  }
+
+  :root[data-scroll-lock='gutter'] {
+    scrollbar-gutter: stable;
+  }
 }
 
 /*

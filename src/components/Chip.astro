@@ -73,6 +73,10 @@ const {
 };
 
 const Tag = attrs.href !== undefined ? 'a' : 'span';
+// What the default slot actually renders: MDX can pass an empty one, which would hide the text prop.
+const slotted = Astro.slots.has('default')
+  ? (await Astro.slots.render('default')).trim()
+  : '';
 const interactive = attrs.href !== undefined;
 
 const currentVariant = variant ?? 'tonal';
@@ -95,7 +99,7 @@ const currentVariant = variant ?? 'tonal';
     {prependIcon && <Icon icon={prependIcon} class="-ml-0.5" />}
   </slot>
   <span class="truncate">
-    <slot>{text}</slot>
+    {slotted ? <Fragment set:html={slotted} /> : text}
   </span>
   <slot name="append">
     {appendIcon && <Icon icon={appendIcon} class="-mr-0.5" />}

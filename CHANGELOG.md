@@ -4,6 +4,20 @@ All notable changes to this project are documented here. The project follows
 [Semantic Versioning](https://semver.org): a new component or feature raises the
 minor version, a fix the patch version, and an incompatible change the major version.
 
+## [1.3.0] - 2026-10-26
+
+### Added
+
+- `Dialog` — modal dialog on the native `<dialog>`: title, text and actions like `Card`; opens from
+  the `activator` slot or `data-dialog-open`, closes with `data-dialog-close`, `closable`, the
+  backdrop or Escape; `persistent`, `width`, `fullscreen`, `open`. Page scroll is locked while it's
+  open — keeping the scrollbar's space, so the page doesn't shift — with open/close animations.
+
+### Fixed
+
+- `Card`, `Chip` and `Avatar` show their `text` prop when an MDX page passes them an empty default
+  slot (e.g. a component written on one line with only named slots).
+
 ## [1.2.0] - 2026-10-26
 
 ### Added

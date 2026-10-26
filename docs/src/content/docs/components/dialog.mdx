@@ -1,0 +1,137 @@
+---
+title: Dialog
+description: Modal dialogs on the native dialog element, like Vuetify's v-dialog.
+---
+
+import { Button, Dialog, Form, TextInput } from 'bws-astro-components';
+import { required } from 'bws-astro-components/rules';
+import Preview from '../../../components/Preview.astro';
+
+Built on the native `<dialog>`: focus stays inside while it's open, the page behind can't be used
+or scrolled, Escape closes it and focus returns to the button that opened it. It always sits on
+top of the page — no `z-index`, and parents with `overflow` or `transform` can't clip it.
+
+<Preview>
+  <Dialog title="Delete the project?" text="This removes the project and its files. It can't be undone." width="sm"><Button slot="activator" color="error" variant="tonal">Delete…</Button><Fragment slot="actions"><Button variant="text" data-dialog-close>Cancel</Button><Button color="error" data-dialog-close>Delete</Button></Fragment></Dialog>
+</Preview>
+
+```astro
+---
+import { Button, Dialog } from 'bws-astro-components';
+---
+
+<Dialog title="Delete the project?" text="This removes the project and its files." width="sm">
+  <Button slot="activator" color="error" variant="tonal">Delete…</Button>
+  <Fragment slot="actions">
+    <Button variant="text" data-dialog-close>Cancel</Button>
+    <Button color="error" data-dialog-close>Delete</Button>
+  </Fragment>
+</Dialog>
+```
+
+The content works like a [`Card`](/components/card/): `title`, `text` and an `actions` slot, or
+anything in the default slot. A long body scrolls while the title and actions stay in place.
+
+## Opening and closing
+
+| To…                       | Use                                                                 |
+| ------------------------- | ------------------------------------------------------------------- |
+| open from a button next to it | the `activator` slot                                            |
+| open from anywhere        | `data-dialog-open="dialog-id"` on any element                       |
+| close from inside         | `data-dialog-close` on any element in the dialog, or `closable` for a × button |
+| close a specific dialog   | `data-dialog-close="dialog-id"`                                     |
+| open on page load         | the `open` prop                                                     |
+| open or close in a script | the native `dialog.showModal()` / `dialog.close()`                  |
+
+A click on the backdrop and Escape close the dialog too.
+
+<Preview>
+  <Button variant="tonal" data-dialog-open="docs-terms">Read the terms</Button>
+  <Dialog id="docs-terms" title="Terms of service" width="lg" closable>{Array.from({ length: 10 }, (_, i) => <p class="mb-3">{i + 1}. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec odio. Praesent libero. Sed cursus ante dapibus diam. Sed nisi. Nulla quis sem at nibh elementum imperdiet.</p>)}<Button slot="actions" data-dialog-close>Close</Button></Dialog>
+</Preview>
+
+```astro
+<Button data-dialog-open="terms">Read the terms</Button>
+
+<Dialog id="terms" title="Terms of service" width="lg" closable>
+  <p>…</p>
+  <Button slot="actions" data-dialog-close>Close</Button>
+</Dialog>
+```
+
+The native `close` event fires on the dialog when it closes:
+
+```js
+document.getElementById('terms').addEventListener('close', () => {
+  // …
+});
+```
+
+## Persistent
+
+With `persistent`, the backdrop and Escape don't close the dialog — it gives a small bounce
+instead, and only your buttons (or the × of `closable`) close it.
+
+<Preview>
+  <Dialog title="Accept the terms" text="Only the button closes this dialog." persistent closable><Button slot="activator" variant="outlined">Persistent</Button><Button slot="actions" data-dialog-close>I agree</Button></Dialog>
+</Preview>
+
+## Forms in a dialog
+
+A [`Form`](/components/form/) with `method="dialog"` closes the dialog when it's submitted — and
+only once every field is valid:
+
+<Preview>
+  <Dialog title="Contact us" closable width="sm"><Button slot="activator" variant="flat" color="secondary">Contact</Button><Form method="dialog" class="flex flex-col gap-1"><TextInput name="name" label="Name" rules={[required()]} /><TextInput name="email" type="email" label="Email" rules={[required()]} /><div class="flex justify-end gap-2 pt-2"><Button variant="text" data-dialog-close>Cancel</Button><Button type="submit">Send</Button></div></Form></Dialog>
+</Preview>
+
+```astro
+<Dialog title="Contact us" closable width="sm">
+  <Button slot="activator">Contact</Button>
+  <Form method="dialog">
+    <TextInput name="name" label="Name" rules={[required()]} />
+    <Button type="submit">Send</Button>
+  </Form>
+</Dialog>
+```
+
+## Size
+
+`width` takes a step — `xs` 20rem, `sm` 24rem, `default` 32rem, `lg` 42rem, `xl` 56rem — or
+pixels, and never gets wider than the screen. `fullscreen` fills the whole screen, which suits
+phones.
+
+<Preview>
+  <Dialog title="Fullscreen" fullscreen closable><Button slot="activator" variant="text">Open fullscreen</Button><p>Takes the whole screen.</p></Dialog>
+</Preview>
+
+## Page scroll
+
+While a dialog is open, the page behind it doesn't scroll. If the page has a classic scrollbar,
+its space is kept (`scrollbar-gutter`), so the content doesn't shift sideways when the scrollbar
+disappears. This also applies to dialogs opened with `dialog.showModal()` from your own code.
+
+## API
+
+| Prop         | Type                                                | Default   |
+| ------------ | --------------------------------------------------- | --------- |
+| `title`      | `string`                                            | —         |
+| `text`       | `string` — body text                                | —         |
+| `width`      | `xs` · `sm` · `default` · `lg` · `xl` · number (px) | `default` |
+| `fullscreen` | `boolean`                                           | `false`   |
+| `persistent` | `boolean` — backdrop and Escape don't close it      | `false`   |
+| `closable`   | `boolean` — a × button in the corner                | `false`   |
+| `closeLabel` | `string` — accessible name of the × button          | `Close`   |
+| `open`       | `boolean` — open on page load                       | `false`   |
+| `titleTag`   | `h2` · `h3` · `h4` · `div`                          | `h2`      |
+| `id`         | `string` — for `data-dialog-open`; generated when missing | —   |
+| `class`      | `string`                                            | —         |
+
+Any other attribute goes to the `<dialog>`.
+
+| Slot        | Content                                     |
+| ----------- | ------------------------------------------- |
+| `activator` | the element that opens the dialog           |
+| `title`     | replaces `title`                            |
+| default     | the body — replaces `text`                  |
+| `actions`   | buttons at the bottom                       |

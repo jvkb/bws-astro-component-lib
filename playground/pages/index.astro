@@ -5,6 +5,7 @@ import {
   Button,
   Chip,
   ChipGroup,
+  Dialog,
   Form,
   Icon,
   NumberInput,
@@ -542,6 +543,90 @@ const palettes = {
         </Card>
         <Card text="Only body text — no header, no actions." variant="flat" />
       </div>
+    </section>
+
+    <section class="mt-8 space-y-4">
+      <h2 class="text-lg font-semibold">Dialog</h2>
+      <div class="flex flex-wrap items-center gap-3">
+        <Dialog
+          id="delete-dialog"
+          title="Delete the project?"
+          text="This removes the project and its files. It can't be undone."
+          width="sm"
+        >
+          <Button slot="activator" color="error" variant="tonal">
+            Delete…
+          </Button>
+          <Fragment slot="actions">
+            <Button variant="text" data-dialog-close>
+              Cancel
+            </Button>
+            <Button color="error" data-dialog-close>
+              Delete
+            </Button>
+          </Fragment>
+        </Dialog>
+
+        <Dialog
+          title="Accept the terms"
+          text="This dialog is persistent: the backdrop and Escape don't close it — only the buttons do."
+          persistent
+          closable
+        >
+          <Button slot="activator" variant="outlined">
+            Persistent
+          </Button>
+          <Button slot="actions" data-dialog-close>
+            I agree
+          </Button>
+        </Dialog>
+
+        <Button variant="tonal" data-dialog-open="terms-dialog">
+          Opened by id (long content)
+        </Button>
+
+        <Dialog title="Contact us" closable width="sm">
+          <Button slot="activator" variant="flat" color="secondary">
+            With a form
+          </Button>
+          <Form method="dialog" class="flex flex-col gap-1">
+            <TextInput name="name" label="Name" rules={[required()]} />
+            <Textarea
+              name="message"
+              label="Message"
+              rows={3}
+              rules={[required()]}
+            />
+            <div class="flex justify-end gap-2 pt-2">
+              <Button variant="text" data-dialog-close>
+                Cancel
+              </Button>
+              <Button type="submit">Send</Button>
+            </div>
+          </Form>
+        </Dialog>
+
+        <Dialog title="Fullscreen" fullscreen closable>
+          <Button slot="activator" variant="text">
+            Fullscreen
+          </Button>
+          <p>Takes the whole screen — useful on phones.</p>
+        </Dialog>
+      </div>
+
+      <Dialog id="terms-dialog" title="Terms of service" width="lg" closable>
+        {Array.from({ length: 12 }, (_, i) => (
+          <p class="mb-3">
+            {i + 1}. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+            Integer nec odio. Praesent libero. Sed cursus ante dapibus diam. Sed
+            nisi. Nulla quis sem at nibh elementum imperdiet. Duis sagittis
+            ipsum.
+          </p>
+        ))}
+        <Button slot="actions" data-dialog-close>
+          Close
+        </Button>
+      </Dialog>
     </section>
 
     <section class="mt-8 space-y-4">

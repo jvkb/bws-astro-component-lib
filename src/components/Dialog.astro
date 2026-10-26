@@ -1,0 +1,241 @@
+---
+import X from '@lucide/astro/icons/x';
+import type { HTMLAttributes } from 'astro/types';
+import { twMerge } from 'tailwind-merge';
+import type { SharedProps, Size } from './types.ts';
+
+type Props = Omit<HTMLAttributes<'dialog'>, 'class' | 'id' | 'title' | 'open'> &
+  SharedProps & {
+    /** Title text; use the `title` slot for richer content. */
+    title?: string;
+    /** Body text; use the default slot for any other content. */
+    text?: string;
+    /** Width step or pixels. It never gets wider than the screen. */
+    width?: Size | number;
+    /** Fill the whole screen. */
+    fullscreen?: boolean;
+    /** Clicking the backdrop or pressing Escape doesn't close the dialog. */
+    persistent?: boolean;
+    /** Adds a × button in the corner. */
+    closable?: boolean;
+    /** Accessible name of the × button. */
+    closeLabel?: string;
+    /** Open as soon as the page loads. */
+    open?: boolean;
+    /** Element for the title. */
+    titleTag?: 'h2' | 'h3' | 'h4' | 'div';
+  };
+
+const props = Astro.props;
+// Component-only props stay out of the spread, so they don't end up as HTML attributes.
+const {
+  title,
+  text,
+  width,
+  fullscreen,
+  persistent,
+  closable,
+  closeLabel,
+  open,
+  titleTag,
+  class: _class,
+  id: _id,
+  ...attrs
+} = props;
+
+const id = props.id ?? `dialog-${crypto.randomUUID().slice(0, 8)}`;
+const titleId = `${id}-title`;
+const TitleTag = titleTag ?? 'h2';
+
+const hasActivator = Astro.slots.has('activator');
+const hasTitle = title !== undefined || Astro.slots.has('title');
+// What the default slot actually renders: MDX can pass an empty one, which would hide the text prop.
+const slotted = Astro.slots.has('default')
+  ? (await Astro.slots.render('default')).trim()
+  : '';
+const hasBody = text !== undefined || slotted !== '';
+const hasActions = Astro.slots.has('actions');
+
+const widths: Record<Size, string> = {
+  xs: '20rem',
+  sm: '24rem',
+  default: '32rem',
+  lg: '42rem',
+  xl: '56rem',
+};
+const maxWidth =
+  typeof width === 'number' ? `${width}px` : widths[width ?? 'default'];
+// Inline, so any pixel width works; min() keeps a margin on small screens.
+const widthStyle = fullscreen
+  ? undefined
+  : `width:min(${maxWidth}, 100vw - 2rem);`;
+
+// Fades and scales in and out. @starting-style (starting:) and allow-discrete (transition-discrete)
+// animate the switch to and from display: none; browsers without them just show and hide it.
+const animation =
+  'opacity-0 scale-95 transition-[opacity,scale,display,overlay] transition-discrete duration-200 ease-out open:opacity-100 open:scale-100 starting:open:opacity-0 starting:open:scale-95 ' +
+  'backdrop:bg-black/50 backdrop:opacity-0 backdrop:transition-[opacity,display,overlay] backdrop:transition-discrete backdrop:duration-200 open:backdrop:opacity-100 starting:open:backdrop:opacity-0';
+---
+
+{hasActivator && (
+  // display: contents — the wrapper only catches the click, it doesn't affect the layout.
+  <span class="contents" data-dialog-open={id}>
+    <slot name="activator" />
+  </span>
+)}
+
+<dialog
+  id={id}
+  data-dialog
+  data-persistent={persistent ? '' : undefined}
+  data-open={open ? '' : undefined}
+  aria-labelledby={hasTitle ? titleId : undefined}
+  class={twMerge(
+    'm-auto flex-col border-0 bg-surface p-0 text-on-surface shadow-2xl open:flex',
+    fullscreen
+      ? 'h-dvh max-h-none w-screen max-w-none rounded-none'
+      : 'max-h-[calc(100dvh-2rem)] max-w-none rounded-xl',
+    animation,
+    props.class,
+  )}
+  style={widthStyle}
+  {...attrs}
+>
+  {closable && (
+    <button
+      type="button"
+      data-dialog-close
+      aria-label={closeLabel ?? 'Close'}
+      class="absolute top-3 right-3 inline-flex size-9 cursor-pointer items-center justify-center rounded-full text-on-surface/70 hover:bg-on-surface/8 hover:text-on-surface focus-visible:outline-2 focus-visible:outline-primary"
+    >
+      <X class="size-5" aria-hidden="true" />
+    </button>
+  )}
+  {hasTitle && (
+    <div class:list={['px-6 pt-6 pb-2', closable && 'pr-14']}>
+      <TitleTag id={titleId} class="text-xl leading-snug font-medium">
+        <slot name="title">{title}</slot>
+      </TitleTag>
+    </div>
+  )}
+  {hasBody && (
+    // The body scrolls when it's long; title and actions stay in place.
+    <div
+      class:list={[
+        'min-h-0 flex-1 overflow-y-auto px-6 pb-4 text-sm leading-relaxed text-on-surface/80',
+        hasTitle ? 'pt-2' : 'pt-6',
+      ]}
+    >
+      {slotted ? <Fragment set:html={slotted} /> : text}
+    </div>
+  )}
+  {hasActions && (
+    <div class="flex flex-wrap items-center justify-end gap-2 px-4 pt-2 pb-4">
+      <slot name="actions" />
+    </div>
+  )}
+</dialog>
+
+<script>
+  // One set of delegated listeners serves every Dialog on the page (Astro bundles this script once).
+  // The native <dialog> with showModal() keeps focus inside, makes the page behind inert, closes on
+  // Escape and returns focus to the opener — this only wires up opening, closing and `persistent`.
+  const DIALOG = 'dialog[data-dialog]';
+
+  // Vuetify's "can't close" nudge for persistent dialogs.
+  function bounce(dialog: HTMLDialogElement) {
+    dialog.animate([{ scale: '1' }, { scale: '1.02' }, { scale: '1' }], {
+      duration: 150,
+      easing: 'ease-out',
+    });
+  }
+
+  document.addEventListener('click', (event) => {
+    const target = event.target as Element | null;
+
+    // Openers: the activator slot, or data-dialog-open="id" anywhere on the page.
+    const opener = target?.closest<HTMLElement>('[data-dialog-open]');
+    if (opener) {
+      const dialog = document.getElementById(opener.dataset.dialogOpen ?? '');
+      if (dialog instanceof HTMLDialogElement && !dialog.open)
+        dialog.showModal();
+      return;
+    }
+
+    // data-dialog-close closes the dialog it's in (or the one it names).
+    const closer = target?.closest<HTMLElement>('[data-dialog-close]');
+    if (closer) {
+      // Through a component (<Button data-dialog-close>) the attribute is rendered as "true".
+      const named = closer.dataset.dialogClose;
+      const dialog =
+        named && named !== 'true'
+          ? document.getElementById(named)
+          : closer.closest('dialog');
+      if (dialog instanceof HTMLDialogElement) dialog.close();
+      return;
+    }
+
+    // A click on the backdrop lands on the <dialog> itself, outside its box.
+    if (target instanceof HTMLDialogElement && target.matches(DIALOG)) {
+      const box = target.getBoundingClientRect();
+      const { clientX: x, clientY: y } = event as MouseEvent;
+      const outside =
+        x < box.left || x > box.right || y < box.top || y > box.bottom;
+      if (!outside) return;
+      if (target.hasAttribute('data-persistent')) bounce(target);
+      else target.close();
+    }
+  });
+
+  // Escape fires `cancel` — persistent dialogs stay open.
+  document.addEventListener(
+    'cancel',
+    (event) => {
+      const dialog = event.target;
+      if (
+        dialog instanceof HTMLDialogElement &&
+        dialog.matches(`${DIALOG}[data-persistent]`)
+      ) {
+        event.preventDefault();
+        bounce(dialog);
+      }
+    },
+    // `cancel` doesn't bubble, but it can be caught on the way down.
+    true,
+  );
+
+  // Locks the page scroll while a modal dialog is open. The scrollbar is measured before the lock
+  // hides it: if there is one, scrollbar-gutter keeps its space so nothing shifts sideways.
+  // Overlay scrollbars (macOS by default) take no space and need no gutter.
+  const root = document.documentElement;
+
+  function updateScrollLock() {
+    const modalOpen = document.querySelector(`${DIALOG}:modal`) !== null;
+    if (modalOpen && !root.hasAttribute('data-scroll-lock')) {
+      const scrollbar = window.innerWidth - root.clientWidth;
+      root.setAttribute('data-scroll-lock', scrollbar > 0 ? 'gutter' : '');
+    } else if (!modalOpen) {
+      root.removeAttribute('data-scroll-lock');
+    }
+  }
+
+  // Watches every dialog's `open`, so dialogs opened with showModal() from your own code lock too.
+  // The callback runs before the next paint, so the page never renders without its scrollbar space.
+  new MutationObserver(updateScrollLock).observe(document, {
+    subtree: true,
+    attributes: true,
+    attributeFilter: ['open'],
+  });
+
+  function openInitial() {
+    for (const dialog of document.querySelectorAll<HTMLDialogElement>(
+      `${DIALOG}[data-open]`,
+    )) {
+      if (!dialog.open) dialog.showModal();
+    }
+  }
+
+  openInitial();
+  // Re-run after client-side navigation when the site uses Astro's view transitions.
+  document.addEventListener('astro:page-load', openInitial);
+</script>

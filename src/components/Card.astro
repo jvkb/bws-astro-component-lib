@@ -42,7 +42,11 @@ const TitleTag = titleTag ?? 'div';
 const hasTitle = title !== undefined || Astro.slots.has('title');
 const hasSubtitle = subtitle !== undefined || Astro.slots.has('subtitle');
 const hasHeader = hasTitle || hasSubtitle;
-const hasBody = text !== undefined || Astro.slots.has('default');
+// What the default slot actually renders: MDX can pass an empty one, which would hide the text prop.
+const slotted = Astro.slots.has('default')
+  ? (await Astro.slots.render('default')).trim()
+  : '';
+const hasBody = text !== undefined || slotted !== '';
 const hasActions = Astro.slots.has('actions');
 
 function getCardColor(color: ColorVariant) {
@@ -150,7 +154,7 @@ function getCardRounded(rounded: RoundedVariant) {
         hasHeader ? 'pt-2' : 'pt-4',
       )}
     >
-      <slot>{text}</slot>
+      {slotted ? <Fragment set:html={slotted} /> : text}
     </div>
   )}
   {hasActions && (

@@ -133,6 +133,10 @@ function getAvatarRounded(rounded: RoundedVariant) {
 // The size is inline, so any pixel value works; text and icons scale with it.
 const sizeStyle = `width:${px}px;height:${px}px;font-size:${Math.round(px * 0.4)}px;`;
 const imageClass = 'absolute inset-0 size-full object-cover';
+// What the default slot actually renders: MDX can pass an empty one, which would hide the text prop.
+const slotted = Astro.slots.has('default')
+  ? (await Astro.slots.render('default')).trim()
+  : '';
 ---
 
 <span
@@ -150,13 +154,13 @@ const imageClass = 'absolute inset-0 size-full object-cover';
   {...attrs}
 >
   {/* Content in Vuetify's order: slot, otherwise icon or text, with the image on top. */}
-  <slot>
-    {text ? (
-      <span aria-hidden={label ? 'true' : undefined}>{text}</span>
-    ) : (
-      icon && <Icon icon={icon} size={Math.round(px * 0.55)} />
-    )}
-  </slot>
+  {slotted ? (
+    <Fragment set:html={slotted} />
+  ) : text ? (
+    <span aria-hidden={label ? 'true' : undefined}>{text}</span>
+  ) : (
+    icon && <Icon icon={icon} size={Math.round(px * 0.55)} />
+  )}
   {image &&
     (typeof image === 'string' ? (
       <img
