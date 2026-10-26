@@ -1,0 +1,78 @@
+---
+title: Breadcrumbs
+description: The path to the current page, with optional structured data for search engines, like Vuetify's v-breadcrumbs.
+---
+
+import { Breadcrumbs } from 'bws-astro-components';
+import { ChevronRight, House } from 'bws-astro-components/icons';
+import Preview from '../../../components/Preview.astro';
+
+<Preview layout="stack" class="max-w-none">
+  <Breadcrumbs items={[{ title: 'Home', href: '#' }, { title: 'Components', href: '#' }, { title: 'Breadcrumbs' }]} />
+  <Breadcrumbs items={[{ title: 'Home', href: '#' }, { title: 'Components', href: '#' }, { title: 'Breadcrumbs' }]} divider={ChevronRight} color="primary" />
+  <Breadcrumbs items={[{ title: 'Home', href: '#', icon: House }, { title: 'Archive (unavailable)', href: '#', disabled: true }, { title: 'Post' }]} divider="›" />
+</Preview>
+
+```astro
+---
+import { Breadcrumbs } from 'bws-astro-components';
+import { ChevronRight } from 'bws-astro-components/icons';
+---
+
+<Breadcrumbs
+  items={[
+    { title: 'Home', href: '/' },
+    { title: 'Blog', href: '/blog' },
+    { title: 'Astro tips' },
+  ]}
+/>
+
+<Breadcrumbs items={…} divider={ChevronRight} color="primary" />
+```
+
+The last item is the current page: it's plain text marked with `aria-current="page"`. The others are
+links, unless they're `disabled` or have no `href`. The whole thing is a `<nav>` with an ordered
+list, and the dividers are hidden from screen readers.
+
+## Items and dividers
+
+| Item field | Description                                   |
+| ---------- | --------------------------------------------- |
+| `title`    | the text                                      |
+| `href`     | makes the item a link (not on the last item)  |
+| `icon`     | any icon `<Icon>` accepts, before the text    |
+| `disabled` | shown as text, not a link                     |
+
+`divider` takes text (`/` by default, `›`, `·`…) or an icon component like `ChevronRight`. Without
+a `color`, links are muted text that darkens on hover; with one, they take that color.
+
+## Structured data
+
+With `schema`, the component also adds schema.org `BreadcrumbList` structured data (JSON-LD), which
+search engines like Google use to show the path in search results instead of a bare URL:
+
+```astro
+<Breadcrumbs items={items} schema />
+```
+
+Search engines need full addresses, so relative links are resolved against `site` from your Astro
+config — set it, or the build uses `http://localhost:4321`:
+
+```js title="astro.config.mjs"
+export default defineConfig({
+  site: 'https://example.com',
+});
+```
+
+Use `schema` on one breadcrumb trail per page.
+
+## API
+
+| Prop      | Type                                                    | Default      |
+| --------- | ------------------------------------------------------- | ------------ |
+| `items`   | breadcrumb items (see [Items](#items-and-dividers))     | required     |
+| `divider` | `string` or an icon component                           | `/`          |
+| `color`   | link color: `primary` · `secondary` · `success` · `warning` · `info` · `error` | muted text |
+| `label`   | `string` — accessible name of the `<nav>`               | `Breadcrumb` |
+| `schema`  | `boolean` — add JSON-LD structured data                 | `false`      |
+| `id`, `class` | `string`                                            | —            |

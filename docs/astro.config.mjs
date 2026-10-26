@@ -29,11 +29,14 @@ export default defineConfig({
             },
             { label: 'Feedback', items: ['components/alert'] },
             {
+              label: 'Navigation',
+              items: ['components/breadcrumbs', 'components/navigation-drawer'],
+            },
+            {
               label: 'Overlays',
               items: [
                 'components/dialog',
                 'components/menu',
-                'components/navigation-drawer',
                 'components/tooltip',
               ],
             },

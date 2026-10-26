@@ -3,6 +3,7 @@ import '../styles/global.css';
 import {
   Alert,
   Avatar,
+  Breadcrumbs,
   Button,
   Checkbox,
   Chip,
@@ -37,10 +38,12 @@ import {
   ChevronDown,
   UserRound,
   Download,
+  ChevronRight,
 } from '../../src/icons';
 import Star from '../assets/star.svg';
 import photo from '../assets/avatar.png';
 import type {
+  BreadcrumbItem,
   ButtonVariant,
   ColorVariant,
   DrawerLocation,
@@ -95,6 +98,11 @@ const productItems: MenuItem[] = [
   { title: 'Websites', href: '#' },
   { title: 'Online shops', href: '#' },
   { title: 'SEO', href: '#' },
+];
+const breadcrumbs: BreadcrumbItem[] = [
+  { title: 'Home', href: '/' },
+  { title: 'Components', href: '/components' },
+  { title: 'Breadcrumbs' },
 ];
 const alertVariants: ButtonVariant[] = [
   'tonal',
@@ -761,6 +769,21 @@ const palettes = {
           Close
         </Button>
       </Dialog>
+    </section>
+
+    <section class="mt-8 space-y-4">
+      <h2 class="text-lg font-semibold">Breadcrumbs</h2>
+      <Breadcrumbs items={breadcrumbs} />
+      <Breadcrumbs items={breadcrumbs} divider={ChevronRight} color="primary" />
+      <Breadcrumbs
+        items={[
+          { title: 'Home', href: '/', icon: House },
+          { title: 'Archive (unavailable)', href: '/archive', disabled: true },
+          { title: 'Post' },
+        ]}
+        divider="›"
+      />
+      <Breadcrumbs id="breadcrumbs-with-schema" items={breadcrumbs} schema />
     </section>
 
     <section class="mt-8 space-y-4">

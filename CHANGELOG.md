@@ -4,6 +4,14 @@ All notable changes to this project are documented here. The project follows
 [Semantic Versioning](https://semver.org): a new component or feature raises the
 minor version, a fix the patch version, and an incompatible change the major version.
 
+## [1.10.0] - 2026-10-26
+
+### Added
+
+- `Breadcrumbs` — the path to the current page in a `<nav>` with an ordered list: items with links,
+  icons and disabled states, `aria-current="page"` on the last one, a text or icon `divider`, link
+  `color`, and optional schema.org `BreadcrumbList` structured data (`schema`).
+
 ## [1.9.0] - 2026-10-26
 
 ### Added

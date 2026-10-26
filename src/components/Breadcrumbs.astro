@@ -1,0 +1,145 @@
+---
+import type { ComponentProps, HTMLAttributes } from 'astro/types';
+import { twMerge } from 'tailwind-merge';
+import Icon from './Icon.astro';
+import type { BreadcrumbItem, ColorVariant, SharedProps } from './types.ts';
+
+type Props = Omit<HTMLAttributes<'nav'>, 'class' | 'id'> &
+  SharedProps & {
+    /** The path to the current page; the last item is the current page. */
+    items: BreadcrumbItem[];
+    /** Between items: text (`/` by default) or an icon. */
+    divider?: string | ComponentProps<typeof Icon>['icon'];
+    /** Color of the links; without it they're muted text. */
+    color?: ColorVariant;
+    /** Accessible name of the navigation. */
+    label?: string;
+    /**
+     * Also add schema.org BreadcrumbList structured data (JSON-LD), so search engines can show the
+     * path in results. Relative links are resolved against `site` from the Astro config.
+     */
+    schema?: boolean;
+  };
+
+const props = Astro.props;
+// Component-only props stay out of the spread, so they don't end up as HTML attributes.
+const {
+  items,
+  divider,
+  color,
+  label,
+  schema,
+  class: _class,
+  id: _id,
+  ...attrs
+} = props;
+
+const lastIndex = items.length - 1;
+
+function getLinkColor(color: ColorVariant | undefined) {
+  switch (color) {
+    case 'primary': {
+      return 'text-primary';
+    }
+    case 'secondary': {
+      return 'text-secondary';
+    }
+    case 'success': {
+      return 'text-success';
+    }
+    case 'warning': {
+      return 'text-warning';
+    }
+    case 'info': {
+      return 'text-info';
+    }
+    case 'error': {
+      return 'text-error';
+    }
+    case undefined: {
+      return 'text-on-surface/70 hover:text-on-surface';
+    }
+  }
+}
+
+// schema.org BreadcrumbList. The current page may have no href — it's the page being rendered.
+const base = Astro.site ?? Astro.url;
+const structuredData = schema && {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: items.map((item, index) => ({
+    '@type': 'ListItem',
+    position: index + 1,
+    name: item.title,
+    item: new URL(item.href ?? Astro.url.pathname, base).href,
+  })),
+};
+// `<` escaped, so a title can't close the <script> early.
+const json =
+  structuredData && JSON.stringify(structuredData).replaceAll('<', '\\u003c');
+---
+
+<nav
+  id={props.id}
+  aria-label={label ?? 'Breadcrumb'}
+  class={twMerge('text-sm', props.class)}
+  {...attrs}
+>
+  <ol class="flex flex-wrap items-center gap-x-2 gap-y-1">
+    {items.map((item, index) => {
+      const current = index === lastIndex;
+      const content = (
+        <>
+          {item.icon && <Icon icon={item.icon} size="sm" />}
+          {item.title}
+        </>
+      );
+      const itemClass = 'inline-flex items-center gap-1.5 rounded-sm';
+      return (
+        <li class="inline-flex items-center gap-2">
+          {index > 0 && (
+            // Hidden from screen readers — the list already says where each item starts.
+            <span aria-hidden="true" class="text-on-surface/50">
+              {divider === undefined || typeof divider === 'string' ? (
+                (divider ?? '/')
+              ) : (
+                <Icon icon={divider} size="sm" />
+              )}
+            </span>
+          )}
+          {current ? (
+            <span
+              aria-current="page"
+              class={twMerge(itemClass, 'font-medium text-on-surface')}
+            >
+              {content}
+            </span>
+          ) : item.href && !item.disabled ? (
+            <a
+              href={item.href}
+              class={twMerge(
+                itemClass,
+                getLinkColor(color),
+                'underline-offset-4 transition-colors hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current',
+              )}
+            >
+              {content}
+            </a>
+          ) : (
+            <span
+              class={twMerge(
+                itemClass,
+                'text-on-surface/70',
+                item.disabled && 'opacity-50',
+              )}
+            >
+              {content}
+            </span>
+          )}
+        </li>
+      );
+    })}
+  </ol>
+</nav>
+
+{json && <script is:inline type="application/ld+json" set:html={json} />}
