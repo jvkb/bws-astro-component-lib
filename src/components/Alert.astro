@@ -1,0 +1,256 @@
+---
+import CircleAlert from '@lucide/astro/icons/circle-alert';
+import CircleCheck from '@lucide/astro/icons/circle-check';
+import Info from '@lucide/astro/icons/info';
+import TriangleAlert from '@lucide/astro/icons/triangle-alert';
+import X from '@lucide/astro/icons/x';
+import type { ComponentProps, HTMLAttributes } from 'astro/types';
+import { twMerge } from 'tailwind-merge';
+import Icon from './Icon.astro';
+import type {
+  AlertBorder,
+  AlertType,
+  ButtonVariant,
+  ColorVariant,
+  RoundedVariant,
+  SharedProps,
+} from './types.ts';
+
+type Props = Omit<HTMLAttributes<'div'>, 'class' | 'id' | 'title'> &
+  SharedProps & {
+    /** Sets the color and icon in one go. */
+    type?: AlertType;
+    /** Title text; or the `title` slot. */
+    title?: string;
+    /** Body text; or the default slot. */
+    text?: string;
+    variant?: ButtonVariant;
+    /** Overrides the type's color. Without a type or color the alert is neutral. */
+    color?: ColorVariant;
+    /** Overrides the type's icon; `false` hides it. */
+    icon?: ComponentProps<typeof Icon>['icon'] | false;
+    /** A thick accent border on one edge. */
+    border?: AlertBorder;
+    /** A larger icon, for alerts that need more attention. */
+    prominent?: boolean;
+    rounded?: RoundedVariant;
+    /** Adds a × button that removes the alert (cancel it through the `alert:close` event). */
+    closable?: boolean;
+    /** Accessible name of the × button. */
+    closeLabel?: string;
+  };
+
+const props = Astro.props;
+// Component-only props stay out of the spread, so they don't end up as HTML attributes.
+const {
+  type,
+  title,
+  text,
+  variant,
+  color,
+  icon,
+  border,
+  prominent,
+  rounded,
+  closable,
+  closeLabel,
+  class: _class,
+  id: _id,
+  ...attrs
+} = props;
+
+const typeIcons = {
+  success: CircleCheck,
+  info: Info,
+  warning: TriangleAlert,
+  error: CircleAlert,
+};
+const shownIcon =
+  icon === false ? undefined : (icon ?? (type && typeIcons[type]));
+const currentVariant = variant ?? 'tonal';
+
+// Warnings and errors are announced right away; other alerts politely.
+const role = type === 'warning' || type === 'error' ? 'alert' : 'status';
+
+// What the default slot actually renders: MDX can pass an empty one, which would hide the text prop.
+const slotted = Astro.slots.has('default')
+  ? (await Astro.slots.render('default')).trim()
+  : '';
+const hasTitle = title !== undefined || Astro.slots.has('title');
+const hasText = text !== undefined || slotted !== '';
+
+function getAlertColor(color: ColorVariant | undefined) {
+  switch (color) {
+    case 'primary': {
+      return '[--alert-color:var(--color-primary)] [--alert-on-color:var(--color-on-primary)]';
+    }
+    case 'secondary': {
+      return '[--alert-color:var(--color-secondary)] [--alert-on-color:var(--color-on-secondary)]';
+    }
+    case 'success': {
+      return '[--alert-color:var(--color-success)] [--alert-on-color:var(--color-on-success)]';
+    }
+    case 'warning': {
+      return '[--alert-color:var(--color-warning)] [--alert-on-color:var(--color-on-warning)]';
+    }
+    case 'info': {
+      return '[--alert-color:var(--color-info)] [--alert-on-color:var(--color-on-info)]';
+    }
+    case 'error': {
+      return '[--alert-color:var(--color-error)] [--alert-on-color:var(--color-on-error)]';
+    }
+    case undefined: {
+      return '[--alert-color:var(--color-on-surface)] [--alert-on-color:var(--color-surface)]';
+    }
+  }
+}
+
+// Same idea as Button and Chip: variants describe the shape, the color comes from --alert-color.
+// On tinted variants the text is the color mixed with a quarter of the theme's text color, so even
+// light brand colors reach WCAG AA (4.5:1) on their own tint, in both themes.
+function getClassesBasedOnVariant(variant: ButtonVariant) {
+  switch (variant) {
+    case 'tonal': {
+      return 'border-transparent bg-(--alert-color)/12 text-[color-mix(in_oklab,var(--alert-color)_75%,var(--color-on-surface))]';
+    }
+    case 'flat': {
+      return 'border-transparent bg-(--alert-color) text-(--alert-on-color)';
+    }
+    case 'elevated': {
+      return 'border-transparent bg-(--alert-color) text-(--alert-on-color) shadow-md';
+    }
+    case 'outlined': {
+      return 'border-(--alert-color) text-[color-mix(in_oklab,var(--alert-color)_75%,var(--color-on-surface))]';
+    }
+    case 'text': {
+      return 'border-transparent text-[color-mix(in_oklab,var(--alert-color)_75%,var(--color-on-surface))]';
+    }
+  }
+}
+
+// The accent border: only that edge is colored — the alert's color, or a lighter line on solid variants.
+function getBorderClasses(border: AlertBorder, variant: ButtonVariant) {
+  const solid = variant === 'flat' || variant === 'elevated';
+  switch (border) {
+    case 'start': {
+      return solid
+        ? 'border-s-4 border-s-(--alert-on-color)/40'
+        : 'border-s-4 border-s-(--alert-color)';
+    }
+    case 'end': {
+      return solid
+        ? 'border-e-4 border-e-(--alert-on-color)/40'
+        : 'border-e-4 border-e-(--alert-color)';
+    }
+    case 'top': {
+      return solid
+        ? 'border-t-4 border-t-(--alert-on-color)/40'
+        : 'border-t-4 border-t-(--alert-color)';
+    }
+    case 'bottom': {
+      return solid
+        ? 'border-b-4 border-b-(--alert-on-color)/40'
+        : 'border-b-4 border-b-(--alert-color)';
+    }
+  }
+}
+
+function getAlertRounded(rounded: RoundedVariant) {
+  switch (rounded) {
+    case 'xs': {
+      return 'rounded-xs';
+    }
+    case 'sm': {
+      return 'rounded-sm';
+    }
+    case 'default': {
+      return 'rounded-md';
+    }
+    case 'lg': {
+      return 'rounded-lg';
+    }
+    case 'xl': {
+      return 'rounded-xl';
+    }
+    case 'full': {
+      return 'rounded-full';
+    }
+  }
+}
+---
+
+<div
+  role={role}
+  data-alert
+  class={twMerge(
+    'flex items-start gap-3 border p-4',
+    getAlertColor(color ?? type),
+    getClassesBasedOnVariant(currentVariant),
+    border && getBorderClasses(border, currentVariant),
+    getAlertRounded(rounded ?? 'default'),
+    props.class,
+  )}
+  {...attrs}
+>
+  <slot name="prepend">
+    {shownIcon && (
+      <Icon
+        icon={shownIcon}
+        size={prominent ? 40 : 24}
+        class={prominent ? 'self-center' : undefined}
+      />
+    )}
+  </slot>
+
+  <div class:list={['min-w-0 flex-1', prominent && 'self-center']}>
+    {hasTitle && (
+      <div class="text-base leading-6 font-semibold">
+        <slot name="title">{title}</slot>
+      </div>
+    )}
+    {hasText && (
+      <div
+        class:list={[
+          'text-sm leading-6',
+          // Body text in the theme's text color on tinted variants, for contrast.
+          (currentVariant === 'tonal' ||
+            currentVariant === 'outlined' ||
+            currentVariant === 'text') &&
+            hasTitle &&
+            'text-on-surface/80',
+        ]}
+      >
+        {slotted ? <Fragment set:html={slotted} /> : text}
+      </div>
+    )}
+  </div>
+
+  <slot name="append" />
+
+  {closable && (
+    <button
+      type="button"
+      data-alert-close
+      aria-label={closeLabel ?? 'Close'}
+      class="-my-1 -me-1 inline-flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-full opacity-70 hover:bg-current/12 hover:opacity-100 focus-visible:outline-2 focus-visible:outline-current"
+    >
+      <X class="size-4.5" aria-hidden="true" />
+    </button>
+  )}
+</div>
+
+<script>
+  // One delegated listener serves every closable Alert on the page (Astro bundles this script once).
+  document.addEventListener('click', (event) => {
+    const button = (event.target as Element | null)?.closest(
+      '[data-alert-close]',
+    );
+    const alert = button?.closest<HTMLElement>('[data-alert]');
+    if (!alert) return;
+    // Cancelable, so a page can keep the alert (or remove it itself).
+    const allowed = alert.dispatchEvent(
+      new CustomEvent('alert:close', { bubbles: true, cancelable: true }),
+    );
+    if (allowed) alert.remove();
+  });
+</script>

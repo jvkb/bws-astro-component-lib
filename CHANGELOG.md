@@ -4,6 +4,15 @@ All notable changes to this project are documented here. The project follows
 [Semantic Versioning](https://semver.org): a new component or feature raises the
 minor version, a fix the patch version, and an incompatible change the major version.
 
+## [1.9.0] - 2026-10-26
+
+### Added
+
+- `Alert` — success, info, warning and error messages: `type` sets the color and icon; `title`,
+  `text` and slots, `variant`, `color`, `icon`, an accent `border`, `prominent`, `closable` with an
+  `alert:close` event. Warnings and errors get `role="alert"`, the rest `role="status"`; text on
+  tinted variants meets WCAG AA in both themes.
+
 ## [1.8.0] - 2026-10-26
 
 ### Added

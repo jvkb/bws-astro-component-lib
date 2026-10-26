@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import {
+  Alert,
   Avatar,
   Button,
   Checkbox,
@@ -94,6 +95,13 @@ const productItems: MenuItem[] = [
   { title: 'Websites', href: '#' },
   { title: 'Online shops', href: '#' },
   { title: 'SEO', href: '#' },
+];
+const alertVariants: ButtonVariant[] = [
+  'tonal',
+  'flat',
+  'elevated',
+  'outlined',
+  'text',
 ];
 const tooltipPlacements: TooltipPlacement[] = [
   'top',
@@ -753,6 +761,75 @@ const palettes = {
           Close
         </Button>
       </Dialog>
+    </section>
+
+    <section class="mt-8 space-y-4">
+      <h2 class="text-lg font-semibold">Alert</h2>
+      <div class="grid max-w-5xl grid-cols-2 gap-3">
+        <Alert
+          type="success"
+          title="Payment received"
+          text="We've sent the receipt to your email."
+        />
+        <Alert
+          type="info"
+          title="New version"
+          text="Version 2.0 brings dark mode and a new editor."
+        />
+        <Alert
+          type="warning"
+          title="Your trial ends soon"
+          text="Upgrade within 3 days to keep your projects."
+        />
+        <Alert
+          type="error"
+          title="Couldn't save"
+          text="Check your connection and try again."
+        />
+      </div>
+      <div class="grid max-w-5xl grid-cols-2 gap-3">
+        {alertVariants.map((variant) => (
+          <Alert type="info" variant={variant} text={`variant="${variant}"`} />
+        ))}
+        <Alert text="Neutral — no type or color." />
+      </div>
+      <div class="grid max-w-5xl grid-cols-2 gap-3">
+        <Alert type="warning" border="start" text='border="start"' />
+        <Alert
+          type="success"
+          border="top"
+          variant="outlined"
+          text='border="top", outlined'
+        />
+        <Alert
+          type="error"
+          border="start"
+          variant="flat"
+          text='border="start", flat'
+        />
+        <Alert
+          type="info"
+          prominent
+          title="Prominent"
+          text="A larger icon for alerts that need more attention."
+        />
+      </div>
+      <div class="grid max-w-5xl grid-cols-2 gap-3">
+        <Alert
+          type="info"
+          closable
+          title="Closable"
+          text="Click × to dismiss this alert."
+        />
+        <Alert type="error" title="Upload failed">
+          The file is larger than 10 MB.
+          <Button slot="append" size="sm" variant="flat" color="error">
+            Try again
+          </Button>
+        </Alert>
+        <Alert color="secondary" icon={Heart} text="Custom color and icon." />
+        <Alert type="success" icon={false} text="No icon (icon={false})." />
+      </div>
     </section>
 
     <section class="mt-8 space-y-4">

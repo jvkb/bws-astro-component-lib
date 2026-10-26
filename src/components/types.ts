@@ -13,6 +13,9 @@ export type NumberControlVariant = 'default' | 'split' | 'hidden';
 export type FormValidateOn = 'blur' | 'input' | 'submit';
 export type MenuLocation = 'auto' | 'bottom' | 'top';
 export type DrawerLocation = 'left' | 'right' | 'top' | 'bottom';
+export type AlertType = 'success' | 'info' | 'warning' | 'error';
+/** The edge an Alert's accent border is on (`start` / `end` follow the text direction). */
+export type AlertBorder = 'start' | 'end' | 'top' | 'bottom';
 /** Where a Menu opens next to its activator — any Floating UI placement, e.g. `bottom-start`. */
 export type MenuPlacement = Placement;
 /** Where a Tooltip appears next to its activator — any Floating UI placement, e.g. `top`. */

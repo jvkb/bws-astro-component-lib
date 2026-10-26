@@ -27,6 +27,7 @@ export default defineConfig({
                 'components/icon',
               ],
             },
+            { label: 'Feedback', items: ['components/alert'] },
             {
               label: 'Overlays',
               items: [

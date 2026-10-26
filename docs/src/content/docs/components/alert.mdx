@@ -1,0 +1,117 @@
+---
+title: Alert
+description: Messages for success, information, warnings and errors, like Vuetify's v-alert.
+---
+
+import { Alert, Button } from 'bws-astro-components';
+import { Heart } from 'bws-astro-components/icons';
+import Preview from '../../../components/Preview.astro';
+
+<Preview layout="stack" class="max-w-none">
+  <Alert type="success" title="Payment received" text="We've sent the receipt to your email." />
+  <Alert type="info" title="New version" text="Version 2.0 brings dark mode and a new editor." />
+  <Alert type="warning" title="Your trial ends soon" text="Upgrade within 3 days to keep your projects." />
+  <Alert type="error" title="Couldn't save" text="Check your connection and try again." />
+</Preview>
+
+```astro
+---
+import { Alert } from 'bws-astro-components';
+---
+
+<Alert type="success" title="Payment received" text="We've sent the receipt to your email." />
+<Alert type="error" title="Couldn't save" text="Check your connection and try again." />
+```
+
+`type` sets the color and the icon. Without it — and without a `color` — the alert is neutral.
+
+## Variants
+
+<Preview layout="grid">
+  <Alert type="info" variant="tonal" text='variant="tonal" (default)' />
+  <Alert type="info" variant="flat" text='variant="flat"' />
+  <Alert type="info" variant="elevated" text='variant="elevated"' />
+  <Alert type="info" variant="outlined" text='variant="outlined"' />
+  <Alert type="info" variant="text" text='variant="text"' />
+  <Alert text="Neutral — no type or color." />
+</Preview>
+
+On the tinted variants (`tonal`, `outlined`, `text`) the text is the alert's color mixed with a
+quarter of the theme's text color, so it meets WCAG AA contrast even for light brand colors — in
+both themes.
+
+## Border and prominent
+
+<Preview layout="grid">
+  <Alert type="warning" border="start" text='border="start"' />
+  <Alert type="success" border="top" variant="outlined" text='border="top", outlined' />
+  <Alert type="error" border="start" variant="flat" text='border="start", flat' />
+  <Alert type="info" prominent title="Prominent" text="A larger icon for alerts that need more attention." />
+</Preview>
+
+`border` adds a thick accent on one edge: `start`, `end` (these follow the text direction), `top`
+or `bottom`.
+
+## Actions and closing
+
+The `append` slot holds actions; `closable` adds a × that removes the alert.
+
+<Preview layout="grid">
+  <Alert type="error" title="Upload failed">The file is larger than 10 MB.<Button slot="append" size="sm" variant="flat" color="error">Try again</Button></Alert>
+  <Alert type="info" closable title="Closable" text="Click × to dismiss this alert." />
+</Preview>
+
+```astro
+<Alert type="error" title="Upload failed">
+  The file is larger than 10 MB.
+  <Button slot="append" size="sm" variant="flat" color="error">Try again</Button>
+</Alert>
+
+<Alert id="cookies" type="info" closable text="We use cookies." />
+
+<script>
+  // Fired on the alert before it's removed; preventDefault() keeps it.
+  document.getElementById('cookies')?.addEventListener('alert:close', () => {
+    localStorage.setItem('cookies-dismissed', '1');
+  });
+</script>
+```
+
+## Custom color and icon
+
+<Preview layout="grid">
+  <Alert color="secondary" icon={Heart} text="Custom color and icon." />
+  <Alert type="success" icon={false} text="No icon (icon={false})." />
+</Preview>
+
+## Accessibility
+
+Warnings and errors get `role="alert"`, so screen readers announce them right away; other alerts
+get `role="status"`, announced politely. Pass your own `role` to change it.
+
+## API
+
+| Prop         | Type                                                | Default    |
+| ------------ | --------------------------------------------------- | ---------- |
+| `type`       | `success` · `info` · `warning` · `error`            | —          |
+| `title`      | `string`                                            | —          |
+| `text`       | `string`                                            | —          |
+| `variant`    | `tonal` · `flat` · `elevated` · `outlined` · `text` | `tonal`    |
+| `color`      | overrides the type's color                          | from `type`, else neutral |
+| `icon`       | icon component, or `false` to hide it               | from `type` |
+| `border`     | `start` · `end` · `top` · `bottom`                  | —          |
+| `prominent`  | `boolean` — a larger icon                           | `false`    |
+| `rounded`    | `xs` · `sm` · `default` · `lg` · `xl` · `full`      | `default`  |
+| `closable`   | `boolean` — a × that removes the alert              | `false`    |
+| `closeLabel` | `string` — accessible name of the ×                 | `Close`    |
+
+| Slot      | Content                         |
+| --------- | ------------------------------- |
+| `title`   | replaces `title`                |
+| default   | the body — replaces `text`      |
+| `prepend` | replaces the icon               |
+| `append`  | actions, e.g. a button          |
+
+| Event         | When                                                        |
+| ------------- | ----------------------------------------------------------- |
+| `alert:close` | on the alert, before a closable alert is removed — cancelable, bubbles |
