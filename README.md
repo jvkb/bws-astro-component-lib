@@ -172,6 +172,23 @@ Closing fires a cancelable, bubbling `chip:close` event on the chip — call
 `event.preventDefault()` to keep it (e.g. while a request runs). Focus moves to
 the next chip's × button. A chip can't be both a link and closable.
 
+### ChipGroup
+
+Selectable chips, like Vuetify's `v-chip-group` with `filter`:
+
+```astro
+<ChipGroup name="size" label="Size" items={['S', 'M', 'L']} value="M" />
+<ChipGroup name="tags" items={['Astro', 'Vue', 'React']} multiple filter />
+```
+
+Each chip is a native radio (or checkbox with `multiple`) in a `<fieldset>`, so
+the group submits, resets and works with the keyboard — and without JavaScript.
+`mandatory` keeps at least one chip selected (the first available one starts
+selected); without it a single choice can be cleared by clicking it again.
+`color` is the color of selected chips and `selectedVariant` their look —
+`flat` (solid) by default, so they stand out with any palette; `variant`
+(unselected chips), `size` and `rounded` work as on `Chip`. With `rules`, `required` means at least one chip is selected.
+
 ## Select
 
 A Vuetify-style dropdown with the same variants, colors, label, hint and
@@ -228,7 +245,7 @@ import { email, max, required } from 'bws-astro-components/rules';
 </Form>
 ```
 
-Inside a `<Form>`, fields with `rules` (`TextInput`, `NumberInput`, `Select`) validate in the browser: messages replace
+Inside a `<Form>`, fields with `rules` (`TextInput`, `NumberInput`, `Select`, `ChipGroup`) validate in the browser: messages replace
 the hint, the submit is blocked while anything is invalid and the first invalid
 field gets focus. Without JavaScript, the rules still apply as native attributes
 (`required`, `min`, `maxlength`, …).

@@ -7,3 +7,4 @@ export { default as Form } from './components/Form.astro';
 export { default as Select } from './components/Inputs/Select.astro';
 export { default as Card } from './components/Card.astro';
 export { default as Chip } from './components/Chip.astro';
+export { default as ChipGroup } from './components/ChipGroup.astro';

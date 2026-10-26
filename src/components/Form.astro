@@ -27,17 +27,18 @@ const { validateOn, ...attrs } = Astro.props;
   const FORM = 'form[data-validate-on]';
   const FIELD = '[data-rules]';
 
-  // The element holding the value: an <input>, or the hidden <select> behind Select.
-  type Field = HTMLInputElement | HTMLSelectElement;
+  // The element holding the value: an <input>, the hidden <select> behind Select,
+  // or the <fieldset> of a ChipGroup.
+  type Field = HTMLInputElement | HTMLSelectElement | HTMLFieldSetElement;
 
   function getField(target: EventTarget | null): Field | null {
     if (!(target instanceof Element)) return null;
     if (target.matches(FIELD)) return target as Field;
-    // Custom controls (Select's combobox) stand in for the field inside their wrapper.
+    // Custom controls (Select's combobox, a ChipGroup's inputs) stand in for the field inside their wrapper.
     return target.closest('[data-field]')?.querySelector<Field>(FIELD) ?? null;
   }
 
-  // The element the user interacts with — it gets focus, aria-invalid and the message link.
+  // The element the user interacts with — it gets focus on a failed submit.
   function getControl(field: Field) {
     return (
       field
@@ -48,6 +49,16 @@ const { validateOn, ...attrs } = Astro.props;
 
   function getValidateOn(input: Field) {
     return input.closest<HTMLFormElement>(FORM)?.dataset.validateOn ?? null;
+  }
+
+  // A group's value is its checked inputs, so `required` means "at least one selected".
+  function getValue(field: Field) {
+    if (field instanceof HTMLFieldSetElement) {
+      return [...field.querySelectorAll<HTMLInputElement>('input:checked')]
+        .map((input) => input.value)
+        .join(',');
+    }
+    return field.value;
   }
 
   function getRules(input: Field): Rule[] {
@@ -62,16 +73,20 @@ const { validateOn, ...attrs } = Astro.props;
   // aria-invalid on the input and the message in place of the hint.
   function showResult(input: Field, message: string | null) {
     const wrapper = input.closest('[data-field]');
-    const control = getControl(input);
+    // aria-invalid goes on whichever element is linked to the message: the input itself,
+    // Select's combobox or a ChipGroup's fieldset.
+    const described = input.hasAttribute('aria-describedby')
+      ? input
+      : getControl(input);
     const messageElement = document.getElementById(
-      control.getAttribute('aria-describedby') ?? '',
+      described.getAttribute('aria-describedby') ?? '',
     );
 
     // Keeps form.checkValidity() and :invalid in sync with the rules.
     input.setCustomValidity(message ?? '');
     wrapper?.toggleAttribute('data-invalid', message !== null);
-    if (message) control.setAttribute('aria-invalid', 'true');
-    else control.removeAttribute('aria-invalid');
+    if (message) described.setAttribute('aria-invalid', 'true');
+    else described.removeAttribute('aria-invalid');
     if (messageElement) {
       messageElement.textContent = message ?? messageElement.dataset.hint ?? '';
     }
@@ -80,7 +95,7 @@ const { validateOn, ...attrs } = Astro.props;
   function validateField(input: Field) {
     const message = input.disabled
       ? null
-      : validate(input.value, getRules(input));
+      : validate(getValue(input), getRules(input));
     showResult(input, message);
     return message === null;
   }

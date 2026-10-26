@@ -3,6 +3,7 @@ import '../styles/global.css';
 import {
   Button,
   Chip,
+  ChipGroup,
   Form,
   Icon,
   NumberInput,
@@ -356,6 +357,15 @@ const palettes = {
           rules={contactRules.postalCode}
         />
         <TextInput name="nip" label="NIP" rules={contactRules.nip} />
+        <ChipGroup
+          class="col-span-2"
+          name="services"
+          label="Usługi"
+          items={['Strona WWW', 'Sklep', 'SEO', 'Hosting']}
+          multiple
+          filter
+          rules={contactRules.services}
+        />
         <Select
           name="country"
           label="Kraj"
@@ -496,6 +506,48 @@ const palettes = {
         <Chip closable color="success" variant="flat" text="Vuetify" />
       </div>
       <p id="chip-log" class="text-sm text-gray-600"></p>
+
+      <h3 class="pt-4 font-semibold">ChipGroup</h3>
+      <div class="grid max-w-5xl grid-cols-2 gap-6">
+        <ChipGroup
+          label="Single choice (click again to deselect)"
+          name="size"
+          items={['XS', 'S', 'M', 'L', 'XL']}
+          value="M"
+        />
+        <ChipGroup
+          label="Single, mandatory (first chip preselected)"
+          name="delivery"
+          items={['Kurier', 'Paczkomat', 'Odbiór osobisty']}
+          mandatory
+          color="secondary"
+        />
+        <ChipGroup
+          label="Multiple with filter"
+          name="tags"
+          items={['Astro', 'Tailwind', 'TypeScript', 'Vue', 'React']}
+          value={['Astro', 'Tailwind']}
+          multiple
+          filter
+        />
+        <ChipGroup
+          label="Multiple, mandatory, outlined"
+          name="days"
+          items={[
+            { title: 'Pon', value: 'mon' },
+            { title: 'Wt', value: 'tue' },
+            { title: 'Śr', value: 'wed' },
+            { title: 'Sob (closed)', value: 'sat', disabled: true },
+          ]}
+          value={['mon']}
+          multiple
+          mandatory
+          filter
+          variant="outlined"
+          color="success"
+          hint="Can't uncheck the last day"
+        />
+      </div>
     </section>
 
     <script>

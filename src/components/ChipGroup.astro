@@ -1,0 +1,271 @@
+---
+import Check from '@lucide/astro/icons/check';
+import { twMerge } from 'tailwind-merge';
+import { type Rule } from '../rules.ts';
+import {
+  chipBase,
+  getChipColor,
+  getChipInteractiveClasses,
+  getChipRounded,
+  getChipSize,
+  getChipVariantClasses,
+} from './chip.ts';
+import type {
+  ButtonVariant,
+  ColorVariant,
+  RoundedVariant,
+  SelectItem,
+  SharedProps,
+  Size,
+} from './types.ts';
+
+type Props = SharedProps & {
+  /** Plain strings, or `{ title, value, disabled? }` when the shown text differs from the value. */
+  items: SelectItem[];
+  name?: string;
+  /** Initially selected value — an array with `multiple`. */
+  value?: string | string[];
+  /** Allow selecting several chips (checkboxes instead of radios). */
+  multiple?: boolean;
+  /** At least one chip must stay selected. */
+  mandatory?: boolean;
+  /** Show a check mark on selected chips. */
+  filter?: boolean;
+  /** Group label, rendered as the fieldset's legend. */
+  label?: string;
+  /** Color of selected chips; unselected ones are neutral. */
+  color?: ColorVariant;
+  /** Look of unselected chips. */
+  variant?: ButtonVariant;
+  /**
+   * Look of selected chips. Defaults to `flat` (solid color), which stands out from the neutral
+   * unselected chips with any palette — `tonal` is subtle when the color is close to gray.
+   */
+  selectedVariant?: ButtonVariant;
+  size?: Size;
+  rounded?: RoundedVariant;
+  /** Helper text under the group. */
+  hint?: string;
+  /** Error message, e.g. from server-side validation. When set, the group starts out invalid. */
+  error?: string;
+  /** Validation rules from `bws-astro-components/rules`, checked in the browser inside a <Form>. */
+  rules?: Rule[];
+  disabled?: boolean;
+};
+
+const props = Astro.props;
+const {
+  items,
+  name,
+  value,
+  multiple,
+  mandatory,
+  filter,
+  label,
+  color,
+  variant,
+  selectedVariant,
+  size,
+  rounded,
+  hint,
+  error,
+  rules,
+  disabled,
+} = props;
+
+const id = props.id ?? `chip-group-${crypto.randomUUID().slice(0, 8)}`;
+const messageId = `${id}-message`;
+// Radios share a name to form one group, so one is needed even when nothing is submitted.
+const inputName = name ?? id;
+
+const options = items.map((item) =>
+  typeof item === 'string'
+    ? { title: item, value: item, disabled: false }
+    : item,
+);
+const selectedValues = value === undefined ? [] : [value].flat();
+// Like Vuetify: a mandatory group starts with the first available chip selected.
+if (mandatory && selectedValues.length === 0) {
+  const first = options.find((option) => !option.disabled);
+  if (first) selectedValues.push(first.value);
+}
+const message = error ?? hint;
+// Groups with rules (or a server error that should clear once changed) are picked up by Form's script.
+const validated = rules !== undefined || error !== undefined;
+// `required` means "pick one" on radios, but "check this one" on each checkbox — so radios only.
+const required = !multiple && rules?.some((rule) => rule.type === 'required');
+const currentVariant = variant ?? 'tonal';
+
+// Selected chips switch --chip-color from neutral gray to the group's color, through the sibling
+// selector input:checked ~ span (the visible chip follows its hidden input).
+// The selected look, applied on top of the unselected one. Each state keeps its own hover.
+function getSelectedVariantClasses(variant: ButtonVariant) {
+  switch (variant) {
+    case 'flat': {
+      return 'peer-checked:border-transparent peer-checked:bg-(--chip-color) peer-checked:text-white peer-checked:hover:bg-(--chip-color)/90';
+    }
+    case 'elevated': {
+      return 'peer-checked:border-transparent peer-checked:bg-(--chip-color) peer-checked:text-white peer-checked:shadow-sm peer-checked:hover:bg-(--chip-color)/90';
+    }
+    case 'tonal': {
+      return 'peer-checked:border-transparent peer-checked:bg-(--chip-color)/12 peer-checked:text-(--chip-color) peer-checked:hover:bg-(--chip-color)/20';
+    }
+    case 'outlined': {
+      return 'peer-checked:border-(--chip-color) peer-checked:bg-transparent peer-checked:text-(--chip-color) peer-checked:hover:bg-(--chip-color)/8';
+    }
+    case 'text': {
+      return 'peer-checked:border-transparent peer-checked:bg-transparent peer-checked:text-(--chip-color) peer-checked:hover:bg-(--chip-color)/8';
+    }
+  }
+}
+
+function getSelectedColor(color: ColorVariant) {
+  switch (color) {
+    case 'primary': {
+      return 'peer-checked:[--chip-color:var(--color-primary)]';
+    }
+    case 'secondary': {
+      return 'peer-checked:[--chip-color:var(--color-secondary)]';
+    }
+    case 'success': {
+      return 'peer-checked:[--chip-color:var(--color-success)]';
+    }
+    case 'warning': {
+      return 'peer-checked:[--chip-color:var(--color-warning)]';
+    }
+    case 'info': {
+      return 'peer-checked:[--chip-color:var(--color-info)]';
+    }
+    case 'error': {
+      return 'peer-checked:[--chip-color:var(--color-error)]';
+    }
+  }
+}
+---
+
+<div
+  id={id}
+  data-field
+  data-chip-group
+  data-invalid={error ? '' : undefined}
+  class={twMerge('group/field flex flex-col gap-1', props.class)}
+>
+  <fieldset
+    disabled={disabled}
+    aria-describedby={message || validated ? messageId : undefined}
+    aria-invalid={error ? 'true' : undefined}
+    data-rules={validated ? JSON.stringify(rules ?? []) : undefined}
+    data-touched={error ? '' : undefined}
+    data-mandatory={mandatory ? '' : undefined}
+    data-multiple={multiple ? '' : undefined}
+    class="min-w-0"
+  >
+    {label && (
+      <legend class="mb-2 text-sm font-medium text-gray-700 group-data-invalid/field:text-error">
+        {label}
+      </legend>
+    )}
+    <div class="flex flex-wrap gap-2">
+      {options.map((option, index) => (
+        <label class="relative inline-flex max-w-full select-none">
+          <input
+            type={multiple ? 'checkbox' : 'radio'}
+            name={inputName}
+            value={option.value}
+            checked={selectedValues.includes(option.value)}
+            disabled={option.disabled}
+            required={required}
+            data-focus={index === 0 ? '' : undefined}
+            class="peer sr-only"
+          />
+          <span
+            class={twMerge(
+              chipBase,
+              getChipColor(undefined),
+              getSelectedColor(color ?? 'primary'),
+              getChipVariantClasses(currentVariant),
+              getChipInteractiveClasses(currentVariant),
+              getSelectedVariantClasses(selectedVariant ?? 'flat'),
+              // The input is visually hidden, so the chip shows its focus and disabled state.
+              'peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-(--chip-color) peer-disabled:cursor-not-allowed peer-disabled:opacity-50',
+              getChipSize(size ?? 'default'),
+              getChipRounded(rounded ?? 'full'),
+            )}
+          >
+            {filter && (
+              <Check
+                aria-hidden="true"
+                class="-ml-0.5 hidden size-[1em] [.peer:checked~*_&]:inline-block"
+              />
+            )}
+            <span class="truncate">{option.title}</span>
+          </span>
+        </label>
+      ))}
+    </div>
+  </fieldset>
+
+  {(message || validated) && (
+    <p
+      id={messageId}
+      data-hint={hint}
+      aria-live={validated ? 'polite' : undefined}
+      class={twMerge(
+        'text-xs text-gray-600 group-data-invalid/field:text-error',
+        // Reserve the line, so the layout doesn't jump when an error appears.
+        validated && 'min-h-4',
+      )}
+    >
+      {message}
+    </p>
+  )}
+</div>
+
+<script>
+  // Selection itself is native (radios / checkboxes); this only adds what HTML can't do.
+  // One set of delegated listeners serves every ChipGroup on the page.
+  const GROUP = '[data-chip-group] fieldset';
+
+  function getInput(target: EventTarget | null) {
+    const input =
+      target instanceof Element
+        ? target.closest('label')?.querySelector('input')
+        : null;
+    return input?.closest(GROUP) ? input : null;
+  }
+
+  // A plain radio can't be deselected. Without `mandatory`, clicking the selected chip clears it —
+  // so remember whether it was checked before the click toggles it.
+  function rememberState(event: Event) {
+    const input = getInput(event.target);
+    if (input?.type === 'radio')
+      input.dataset.wasChecked = String(input.checked);
+  }
+  document.addEventListener('pointerdown', rememberState);
+  document.addEventListener('keydown', (event) => {
+    if (event.key === ' ') rememberState(event);
+  });
+
+  document.addEventListener('click', (event) => {
+    const input = event.target;
+    if (!(input instanceof HTMLInputElement) || !input.closest(GROUP)) return;
+    const group = input.closest('fieldset')!;
+    const mandatory = group.hasAttribute('data-mandatory');
+
+    if (input.type === 'radio') {
+      const wasChecked = input.dataset.wasChecked === 'true';
+      delete input.dataset.wasChecked;
+      if (wasChecked && !mandatory) {
+        input.checked = false;
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+      return;
+    }
+
+    // `mandatory` with checkboxes: unchecking the last selected chip is undone.
+    if (mandatory && !input.checked && !group.querySelector('input:checked')) {
+      event.preventDefault();
+    }
+  });
+</script>
