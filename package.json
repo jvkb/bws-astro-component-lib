@@ -4,7 +4,7 @@
   "description": "BWS Astro UI — Vuetify-inspired Astro components styled with Tailwind CSS v4.",
   "type": "module",
   "license": "MIT",
-  "author": "Jakub Banach (https://banachwebsolutions.com)",
+  "author": "Jakub Banach (https://banachwebsolutions.com/?utm_source=npm&utm_medium=social&utm_campaign=dokumentacja)",
   "keywords": [
     "astro-component",
     "withastro",
@@ -43,6 +43,8 @@
     "docs:dev": "pnpm --filter docs dev",
     "docs:build": "pnpm --filter docs build",
     "docs:preview": "pnpm --filter docs preview",
+    "docs:release": "scripts/deploy-docs.sh",
+    "docs:release:dry": "scripts/deploy-docs.sh --dry-run",
     "version:patch": "npm version patch --no-git-tag-version",
     "version:minor": "npm version minor --no-git-tag-version",
     "version:major": "npm version major --no-git-tag-version",

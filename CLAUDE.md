@@ -31,3 +31,5 @@ Starlight documentation site.
 4. Run `pnpm verify` and `pnpm docs:build`.
 
 Releasing (`pnpm release`: publish, tag `v<version>`, push) is done by the maintainer.
+The docs go to https://astro-ui.banachwebsolutions.com with `pnpm docs:release` (mydevil.net, see
+`DEPLOY.md`), before the npm release.

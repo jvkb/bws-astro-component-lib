@@ -5,8 +5,8 @@ import pkg from 'bws-astro-ui/package.json' with { type: 'json' };
 
 export default defineConfig({
   // The address the docs are served from — used for canonical URLs and the sitemap.
-  // If they live in a subfolder (e.g. https://example.com/ui/), also set `base: '/ui'`.
-  site: 'https://example.com',
+  // scripts/deploy-docs.sh checks it matches DOCS_DOMAIN in deploy.env.
+  site: 'https://astro-ui.banachwebsolutions.com',
   integrations: [
     starlight({
       title: `BWS Astro UI v${pkg.version}`,
@@ -16,7 +16,7 @@ export default defineConfig({
         dark: './src/assets/bws-short-light.svg',
         alt: 'BWS',
       },
-      favicon: '/favicon.svg',
+      favicon: '/favicon.ico',
       components: {
         // Adds a "Created by Banach Web Solutions" credit under every page.
         Footer: './src/components/Footer.astro',
