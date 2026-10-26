@@ -5,6 +5,12 @@
   "type": "module",
   "license": "MIT",
   "author": "Jakub Banach (https://banachwebsolutions.com/?utm_source=npm&utm_medium=social&utm_campaign=dokumentacja)",
+  "homepage": "https://astro-ui.banachwebsolutions.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jvkb/bws-astro-component-lib.git"
+  },
+  "bugs": "https://github.com/jvkb/bws-astro-component-lib/issues",
   "keywords": [
     "astro-component",
     "withastro",
@@ -48,7 +54,7 @@
     "version:patch": "npm version patch --no-git-tag-version",
     "version:minor": "npm version minor --no-git-tag-version",
     "version:major": "npm version major --no-git-tag-version",
-    "release": "pnpm publish && git tag v$npm_package_version && git push --follow-tags"
+    "release": "pnpm publish && git tag -a v$npm_package_version -m v$npm_package_version && git push --follow-tags"
   },
   "peerDependencies": {
     "astro": "^7.0.0",

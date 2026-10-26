@@ -3,7 +3,7 @@
 Vuetify-inspired Astro components styled with Tailwind CSS v4: buttons, cards, chips, inputs,
 select, form validation and light/dark themes.
 
-**Documentation:** run `pnpm docs:dev` locally, or see the deployed docs site. It has live
+**Documentation:** [astro-ui.banachwebsolutions.com](https://astro-ui.banachwebsolutions.com) — live
 examples and the full API of every component.
 
 ## Quick start
