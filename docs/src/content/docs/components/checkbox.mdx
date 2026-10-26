@@ -1,0 +1,98 @@
+---
+title: Checkbox
+description: Checkboxes on a native input, with an indeterminate state, like Vuetify's v-checkbox.
+---
+
+import { Checkbox } from 'bws-astro-components';
+import Preview from '../../../components/Preview.astro';
+
+A native `<input type="checkbox">` with Vuetify's look. It submits with forms, resets, works with
+Space and Tab, and needs no JavaScript — except to set the `indeterminate` state.
+
+<Preview layout="grid">
+  <Checkbox label="Checked" checked />
+  <Checkbox label="Unchecked" />
+  <Checkbox label="Secondary" color="secondary" checked />
+  <Checkbox label="Indeterminate" indeterminate />
+  <Checkbox label="Disabled" disabled checked />
+  <Checkbox label="With a hint" hint="We'll send one email a month" />
+</Preview>
+
+```astro
+---
+import { Checkbox } from 'bws-astro-components';
+---
+
+<Checkbox name="newsletter" label="Send me the newsletter" checked />
+<Checkbox name="newsletter" label="Send me the newsletter" color="secondary" />
+```
+
+`color` is the color of the box when it's checked. The check mark uses the theme's `surface`
+color, so it stays readable on solid colors in both the light and the dark theme.
+
+## Several options
+
+Checkboxes with the same `name` submit every checked `value`:
+
+```astro
+<Checkbox name="toppings" value="cheese" label="Cheese" />
+<Checkbox name="toppings" value="ham" label="Ham" />
+<Checkbox name="toppings" value="olives" label="Olives" />
+```
+
+```js
+new FormData(form).getAll('toppings'); // ['cheese', 'olives']
+```
+
+For options shown as chips, see [`ChipGroup`](/components/chip-group/).
+
+## Indeterminate
+
+`indeterminate` shows a dash instead of a check mark — the "some, but not all" state of a
+"select all" checkbox. Clicking it clears the state. In a script, set `input.indeterminate`:
+
+```astro
+<Checkbox id="all" label="All toppings" indeterminate />
+
+<script>
+  const all = document.getElementById('all') as HTMLInputElement;
+  // … when some, but not all, items are checked:
+  all.indeterminate = true;
+</script>
+```
+
+## Label with a link
+
+<Preview>
+  <Checkbox>I accept the <a href="#label-with-a-link" class="text-primary underline">terms</a></Checkbox>
+</Preview>
+
+## In a form
+
+A checkbox submits its `value` (`on` by default) only when it's checked. In a
+[`Form`](/components/form/), `required` means it has to be checked:
+
+```astro
+<Checkbox name="terms" label="I accept the terms" rules={[required('Accept the terms')]} />
+```
+
+<Preview>
+  <Checkbox label="I accept the terms" error="Accept the terms" />
+</Preview>
+
+## API
+
+| Prop            | Type                                                   | Default   |
+| --------------- | ------------------------------------------------------ | --------- |
+| `label`         | `string`                                               | —         |
+| `color`         | `primary` · `secondary` · `success` · `warning` · `info` · `error` | `primary` |
+| `checked`       | `boolean`                                              | `false`   |
+| `indeterminate` | `boolean` — partly checked (a dash)                    | `false`   |
+| `name`, `value` | `string` — what the form submits (`value` defaults to `on`) | —    |
+| `hint`          | `string`                                               | —         |
+| `error`         | `string` — starts out invalid                          | —         |
+| `rules`         | [validation rules](/guides/validation/) — `required` means checked | — |
+| `disabled`      | `boolean`                                              | `false`   |
+| `id`, `class`   | `string` — `id` goes to the input, `class` to the wrapper | —      |
+
+Any other attribute goes to the `<input>`. **Slot:** default — the label, replacing `label`.

@@ -39,6 +39,7 @@ export default defineConfig({
               label: 'Forms',
               items: [
                 'components/form',
+                'components/checkbox',
                 'components/text-input',
                 'components/textarea',
                 'components/number-input',

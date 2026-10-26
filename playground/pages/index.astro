@@ -3,6 +3,7 @@ import '../styles/global.css';
 import {
   Avatar,
   Button,
+  Checkbox,
   Chip,
   ChipGroup,
   Dialog,
@@ -465,6 +466,51 @@ const palettes = {
       </div>
     </section>
 
+    <section class="mt-8 space-y-4">
+      <h2 class="text-lg font-semibold">Checkbox</h2>
+      <div class="grid max-w-3xl grid-cols-2 gap-x-8 gap-y-2">
+        <Checkbox label="Checked" checked />
+        <Checkbox label="Unchecked" />
+        <Checkbox label="Secondary" color="secondary" checked />
+        <Checkbox label="Indeterminate" indeterminate />
+        <Checkbox label="Disabled" disabled checked />
+        <Checkbox label="With a hint" hint="We'll send one email a month" />
+        <Checkbox>
+          I accept the{' '}
+          <a href="#" class="text-primary underline">
+            terms
+          </a>
+        </Checkbox>
+        <Checkbox label="Error" error="This one is required" />
+      </div>
+      <fieldset id="select-all-demo" class="space-y-1">
+        <legend class="mb-1 text-sm font-medium">Select all</legend>
+        <Checkbox id="select-all" label="All toppings" indeterminate />
+        <div class="space-y-1 pl-7">
+          <Checkbox name="toppings" value="cheese" label="Cheese" checked />
+          <Checkbox name="toppings" value="ham" label="Ham" />
+          <Checkbox name="toppings" value="olives" label="Olives" />
+        </div>
+      </fieldset>
+    </section>
+
+    <script>
+      // "Select all": the parent follows its children — checked, unchecked or indeterminate.
+      const group = document.getElementById('select-all-demo')!;
+      const all = document.getElementById('select-all') as HTMLInputElement;
+      const items = [
+        ...group.querySelectorAll<HTMLInputElement>('input[name="toppings"]'),
+      ];
+      all.addEventListener('change', () =>
+        items.forEach((item) => (item.checked = all.checked)),
+      );
+      group.addEventListener('change', (event) => {
+        if (event.target === all) return;
+        const checked = items.filter((item) => item.checked).length;
+        all.checked = checked === items.length;
+        all.indeterminate = checked > 0 && checked < items.length;
+      });
+    </script>
     <section class="mt-8 space-y-4">
       <h2 class="text-lg font-semibold">Switch</h2>
       <div class="grid max-w-3xl grid-cols-2 gap-x-8 gap-y-2">

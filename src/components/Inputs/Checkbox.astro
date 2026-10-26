@@ -1,0 +1,149 @@
+---
+import Check from '@lucide/astro/icons/check';
+import Minus from '@lucide/astro/icons/minus';
+import type { HTMLAttributes } from 'astro/types';
+import { twMerge } from 'tailwind-merge';
+import { type Rule, toInputAttributes } from '../../rules.ts';
+import type { ColorVariant, SharedProps } from '../types.ts';
+import { getInputColor } from './field.ts';
+
+type Props = Omit<HTMLAttributes<'input'>, 'class' | 'id' | 'color' | 'type'> &
+  SharedProps & {
+    /** Text next to the checkbox; use the default slot for richer content (e.g. a link). */
+    label?: string;
+    /** Color of the box when it's checked. */
+    color?: ColorVariant;
+    /** Partly checked — shows a dash, e.g. for "select all" when only some items are. */
+    indeterminate?: boolean;
+    /** Helper text under the checkbox. */
+    hint?: string;
+    /** Error message, e.g. from server-side validation. When set, the checkbox starts out invalid. */
+    error?: string;
+    /** Validation rules from `bws-astro-components/rules` — `required` means it must be checked. */
+    rules?: Rule[];
+  };
+
+const props = Astro.props;
+// Component-only props stay out of the spread, so they don't end up as HTML attributes.
+const {
+  label,
+  color,
+  indeterminate,
+  hint,
+  error,
+  rules,
+  class: _class,
+  id: _id,
+  ...attrs
+} = props;
+
+const inputId = props.id ?? `checkbox-${crypto.randomUUID().slice(0, 8)}`;
+const messageId = `${inputId}-message`;
+const message = error ?? hint;
+// Checkboxes with rules (or a server error that should clear once changed) are picked up by Form's script.
+const validated = rules !== undefined || error !== undefined;
+// Only `required` applies to a checkbox natively — it then has to be checked.
+const inputAttrs = {
+  ...(toInputAttributes(rules ?? []).required ? { required: true } : {}),
+  ...attrs,
+};
+
+// What the default slot actually renders: MDX can pass an empty one, which would hide the label prop.
+const slotted = Astro.slots.has('default')
+  ? (await Astro.slots.render('default')).trim()
+  : '';
+const hasLabel = slotted !== '' || label !== undefined;
+
+// The box is the hidden input's sibling (peer-checked:, peer-indeterminate:); the marks sit inside
+// it ([.peer:checked~*_&]:). The mark uses `surface`, which contrasts with solid colors in both themes.
+const filled =
+  'peer-checked:border-(--input-color) peer-checked:bg-(--input-color) peer-indeterminate:border-(--input-color) peer-indeterminate:bg-(--input-color)';
+---
+
+<div
+  data-field
+  data-invalid={error ? '' : undefined}
+  class={twMerge(
+    'group/field flex flex-col gap-1 data-invalid:[--input-color:var(--color-error)]',
+    getInputColor(color ?? 'primary'),
+    props.class,
+  )}
+>
+  <label class="group/checkbox inline-flex w-fit cursor-pointer items-start gap-3 select-none has-[input:disabled]:cursor-not-allowed has-[input:disabled]:opacity-60">
+    <input
+      id={inputId}
+      type="checkbox"
+      aria-invalid={error ? 'true' : undefined}
+      aria-describedby={message || validated ? messageId : undefined}
+      data-rules={validated ? JSON.stringify(rules ?? []) : undefined}
+      data-touched={error ? '' : undefined}
+      data-indeterminate={indeterminate ? '' : undefined}
+      class="peer sr-only"
+      {...inputAttrs}
+    />
+    <span
+      aria-hidden="true"
+      class={twMerge(
+        'mt-px inline-flex size-4.5 shrink-0 items-center justify-center rounded-[3px] border-2 border-on-surface/60 text-surface transition-colors duration-150 group-hover/checkbox:border-on-surface',
+        // The input is visually hidden, so the box shows its focus.
+        'peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-(--input-color)',
+        'group-data-invalid/field:border-error',
+        filled,
+      )}
+    >
+      <Check
+        stroke-width={3.5}
+        class="hidden size-3.5 [.peer:checked:not(:indeterminate)~*_&]:block"
+      />
+      <Minus
+        stroke-width={3.5}
+        class="hidden size-3.5 [.peer:indeterminate~*_&]:block"
+      />
+    </span>
+    {hasLabel && (
+      <span class="text-sm text-on-surface group-data-invalid/field:text-error">
+        {slotted ? <Fragment set:html={slotted} /> : label}
+      </span>
+    )}
+  </label>
+
+  {(message || validated) && (
+    <p
+      id={messageId}
+      data-hint={hint}
+      aria-live={validated ? 'polite' : undefined}
+      class={twMerge(
+        'text-xs text-on-surface/70 group-data-invalid/field:text-error',
+        // Reserve the line, so the layout doesn't jump when an error appears.
+        validated && 'min-h-4',
+      )}
+    >
+      {message}
+    </p>
+  )}
+</div>
+
+<script>
+  // `indeterminate` is a DOM property, not an HTML attribute — set it from data-indeterminate,
+  // on load and after a form reset (which restores `checked` but not `indeterminate`).
+  const INDETERMINATE = 'input[data-indeterminate]';
+
+  function applyIndeterminate(root: ParentNode = document) {
+    for (const input of root.querySelectorAll<HTMLInputElement>(
+      INDETERMINATE,
+    )) {
+      input.indeterminate = true;
+    }
+  }
+
+  document.addEventListener('reset', (event) => {
+    if (event.target instanceof HTMLFormElement) {
+      const form = event.target;
+      setTimeout(() => applyIndeterminate(form));
+    }
+  });
+
+  applyIndeterminate();
+  // Re-run after client-side navigation when the site uses Astro's view transitions.
+  document.addEventListener('astro:page-load', () => applyIndeterminate());
+</script>

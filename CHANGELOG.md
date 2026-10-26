@@ -4,6 +4,13 @@ All notable changes to this project are documented here. The project follows
 [Semantic Versioning](https://semver.org): a new component or feature raises the
 minor version, a fix the patch version, and an incompatible change the major version.
 
+## [1.7.0] - 2026-10-26
+
+### Added
+
+- `Checkbox` — a native checkbox with Vuetify's look: `label` or a slot, `color`,
+  `indeterminate`, `hint`, `error`, `rules` (`required` means checked).
+
 ## [1.6.0] - 2026-10-26
 
 ### Added

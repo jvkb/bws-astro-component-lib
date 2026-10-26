@@ -1,6 +1,6 @@
 {
   "name": "bws-astro-components",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "description": "Reusable Astro components styled with Tailwind CSS.",
   "type": "module",
   "license": "MIT",

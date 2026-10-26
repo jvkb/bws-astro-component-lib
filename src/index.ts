@@ -15,3 +15,4 @@ export { default as Dialog } from './components/Dialog.astro';
 export { default as NavigationDrawer } from './components/NavigationDrawer.astro';
 export { default as Menu } from './components/Menu.astro';
 export { default as Switch } from './components/Inputs/Switch.astro';
+export { default as Checkbox } from './components/Inputs/Checkbox.astro';
