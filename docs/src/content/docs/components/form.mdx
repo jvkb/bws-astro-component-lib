@@ -1,0 +1,44 @@
+---
+title: Form
+description: A form that validates its fields' rules in the browser.
+---
+
+import Preview from '../../../components/Preview.astro';
+import ValidationDemo from '../../../components/examples/ValidationDemo.astro';
+
+A `<form>` that validates the `rules` of the fields inside it. Everything about rules, custom
+checks and server-side validation is in the [Form validation](/guides/validation/) guide.
+
+<Preview layout="stack" class="max-w-none">
+  <ValidationDemo />
+</Preview>
+
+```astro
+---
+import { Button, Form, TextInput } from 'bws-astro-components';
+import { email, required } from 'bws-astro-components/rules';
+---
+
+<Form method="post" validateOn="blur">
+  <TextInput name="email" label="Email" rules={[required(), email()]} />
+  <Button type="submit">Send</Button>
+</Form>
+```
+
+## Behavior
+
+- Fields with `rules` show their message in place of the hint and get `aria-invalid`.
+- A submit checks every field first; while anything is invalid it's stopped, the first invalid
+  field gets focus and your `submit` handlers on the form don't run.
+- `reset` clears all messages.
+- The browser's own validation bubbles are turned off once the script runs; without JavaScript the
+  native attributes from the rules still validate.
+
+## API
+
+| Prop         | Type                                                       | Default |
+| ------------ | ---------------------------------------------------------- | ------- |
+| `validateOn` | `blur` · `input` · `submit` — when fields start validating | `blur`  |
+
+Any other attribute (`method`, `action`, `id`…) goes to the `<form>`. **Slot:** default — the
+fields.

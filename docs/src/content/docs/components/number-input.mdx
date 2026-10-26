@@ -1,0 +1,61 @@
+---
+title: NumberInput
+description: A number field with step buttons that respect min, max and step.
+---
+
+import { NumberInput } from 'bws-astro-components';
+import Preview from '../../../components/Preview.astro';
+
+A [`TextInput`](/components/text-input/) with `type="number"` and +/− buttons — every
+`TextInput` prop (variants, label, hint, error, rules…) works here too.
+
+<Preview layout="grid">
+  <NumberInput label="Rooms" min={1} max={10} value={2} />
+  <NumberInput label="Quantity" controlVariant="split" min={1} value={1} />
+  <NumberInput
+    label="Price"
+    controlVariant="hidden"
+    step={0.5}
+    variant="outlined"
+  />
+  <NumberInput
+    label="Guests"
+    value={9}
+    max={10}
+    hint="+ stops at the maximum"
+    variant="underlined"
+  />
+</Preview>
+
+```astro
+---
+import { NumberInput } from 'bws-astro-components';
+---
+
+<NumberInput label="Rooms" min={1} max={10} value={2} />
+<NumberInput label="Quantity" controlVariant="split" min={1} value={1} />
+<NumberInput label="Price" controlVariant="hidden" step={0.5} />
+```
+
+## Buttons
+
+| `controlVariant` | Buttons                      |
+| ---------------- | ---------------------------- |
+| `default`        | ▲ / ▼ stacked at the end     |
+| `split`          | − at the start, + at the end |
+| `hidden`         | none — arrow keys still step |
+
+The buttons use the input's native stepping, so `min`, `max` and `step` are respected, and a button
+turns off once its limit is reached. Each step fires `input` and `change`, like typing does. The
+buttons keep focus in the field and are skipped by Tab — keyboard users step with the arrow keys.
+
+## API
+
+All [`TextInput` props](/components/text-input/#api) except `type`, plus:
+
+| Prop                 | Type                            | Default    |
+| -------------------- | ------------------------------- | ---------- |
+| `controlVariant`     | `default` · `split` · `hidden`  | `default`  |
+| `incrementLabel`     | `string` — accessible name of + | `Increase` |
+| `decrementLabel`     | `string` — accessible name of − | `Decrease` |
+| `min`, `max`, `step` | native attributes               | —          |

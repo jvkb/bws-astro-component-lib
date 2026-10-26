@@ -1,0 +1,83 @@
+---
+import {
+  Button,
+  ChipGroup,
+  Form,
+  NumberInput,
+  Select,
+  TextInput,
+} from 'bws-astro-components';
+import {
+  email,
+  max,
+  min,
+  minLength,
+  required,
+} from 'bws-astro-components/rules';
+---
+
+<Form id="validation-demo" class="grid gap-x-4 gap-y-1 sm:grid-cols-2">
+  <TextInput
+    name="name"
+    label="Name"
+    rules={[required('Enter your name'), minLength(2)]}
+  />
+  <TextInput
+    name="email"
+    type="email"
+    label="Email"
+    hint="We'll reply to this address"
+    rules={[required('Enter your email'), email()]}
+  />
+  <NumberInput
+    name="guests"
+    label="Guests"
+    controlVariant="split"
+    rules={[required(), min(1), max(20, 'At most 20 guests')]}
+  />
+  <Select
+    name="city"
+    label="City"
+    items={['Warszawa', 'Kraków', 'Gdańsk']}
+    rules={[required('Choose a city')]}
+  />
+  <ChipGroup
+    class="sm:col-span-2"
+    name="services"
+    label="Services"
+    items={['Website', 'Shop', 'SEO']}
+    multiple
+    filter
+    rules={[required('Pick at least one service')]}
+  />
+  <div class="flex gap-3 pt-2 sm:col-span-2">
+    <Button type="submit">Send</Button>
+    <Button type="reset" variant="outlined">
+      Reset
+    </Button>
+  </div>
+  <p id="validation-demo-result" class="text-sm text-success sm:col-span-2"></p>
+</Form>
+
+<script>
+  const form = document.getElementById(
+    'validation-demo',
+  ) as HTMLFormElement | null;
+  const result = document.getElementById('validation-demo-result');
+
+  // Only reached when every field is valid — Form stops the submit otherwise.
+  form?.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const data = new FormData(form);
+    const values = Object.fromEntries(
+      [...new Set(data.keys())].map((key) => [
+        key,
+        data.getAll(key).join(', '),
+      ]),
+    );
+    if (result)
+      result.textContent = `Valid — would send ${JSON.stringify(values)}`;
+  });
+  form?.addEventListener('input', () => result && (result.textContent = ''));
+  form?.addEventListener('reset', () => result && (result.textContent = ''));
+</script>

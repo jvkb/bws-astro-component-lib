@@ -1,0 +1,149 @@
+---
+title: Card
+description: A container with a title, subtitle, body and actions, like Vuetify's v-card.
+---
+
+import { Button, Card, Icon } from 'bws-astro-components';
+import { Heart } from 'bws-astro-components/icons';
+import Preview from '../../../components/Preview.astro';
+
+Each part — title, subtitle, body and actions — is a prop for plain text or a slot for anything
+else. Parts you leave out aren't rendered.
+
+<Preview>
+  <Card
+    class="w-80"
+    title="Consultation"
+    subtitle="30 min, online"
+    text="We'll go through your project and pick the right components."
+  >
+    <Fragment slot="actions">
+      <Button variant="text">Later</Button>
+      <Button variant="text">Book</Button>
+    </Fragment>
+  </Card>
+</Preview>
+
+```astro
+---
+import { Button, Card } from 'bws-astro-components';
+---
+
+<Card
+  title="Consultation"
+  subtitle="30 min, online"
+  text="We'll go through your project…"
+>
+  <Fragment slot="actions">
+    <Button variant="text">Later</Button>
+    <Button variant="text">Book</Button>
+  </Fragment>
+</Card>
+```
+
+## Variants
+
+<Preview layout="grid">
+  <Card
+    variant="elevated"
+    title="Elevated"
+    text="With a shadow — the default."
+  />
+  <Card variant="flat" title="Flat" text="No shadow, no border." />
+  <Card
+    variant="outlined"
+    title="Outlined"
+    text="A border instead of a shadow."
+  />
+  <Card variant="tonal" title="Tonal" text="A light tint of the text color." />
+</Preview>
+
+## Colors
+
+With a `color`, `elevated` and `flat` cards get a solid background; `outlined` and `tonal` take the
+color for the border or tint and the text.
+
+<Preview layout="grid">
+  <Card
+    color="primary"
+    title="Elevated, primary"
+    text="Solid background, text in on-primary."
+  >
+    <Button slot="actions" variant="flat" color="secondary">
+      Book a call
+    </Button>
+  </Card>
+  <Card
+    variant="tonal"
+    color="secondary"
+    title="Tonal, secondary"
+    text="Tinted background and colored text."
+  />
+  <Card
+    variant="outlined"
+    color="success"
+    title="Outlined, success"
+    text="Colored border and text."
+  />
+</Preview>
+
+```astro
+<Card color="primary" title="Elevated, primary" text="…" />
+<Card variant="tonal" color="secondary" title="Tonal, secondary" text="…" />
+```
+
+## Slots
+
+<Preview>
+  <Card class="w-80" variant="outlined" rounded="xl">
+    <div slot="title" class="flex items-center gap-2">
+      <Icon icon={Heart} size="sm" /> Favourites
+    </div>
+    <Fragment slot="subtitle">3 saved items</Fragment>
+    <ul class="list-disc pl-5">
+      <li>Warszawa</li>
+      <li>Kraków</li>
+      <li>Gdańsk</li>
+    </ul>
+    <Button slot="actions" variant="text">
+      Show all
+    </Button>
+  </Card>
+</Preview>
+
+```astro
+<Card variant="outlined" rounded="xl">
+  <div slot="title" class="flex items-center gap-2">
+    <Icon icon={Heart} size="sm" /> Favourites
+  </div>
+  <Fragment slot="subtitle">3 saved items</Fragment>
+  <ul>…</ul>
+  <Button slot="actions" variant="text">
+    Show all
+  </Button>
+</Card>
+```
+
+The actions stay at the bottom when cards in a grid stretch to the same height.
+
+## API
+
+| Prop       | Type                                                               | Default             |
+| ---------- | ------------------------------------------------------------------ | ------------------- |
+| `title`    | `string`                                                           | —                   |
+| `subtitle` | `string`                                                           | —                   |
+| `text`     | `string` — body text                                               | —                   |
+| `variant`  | `elevated` · `flat` · `outlined` · `tonal`                         | `elevated`          |
+| `color`    | `primary` · `secondary` · `success` · `warning` · `info` · `error` | — (neutral surface) |
+| `rounded`  | `xs` · `sm` · `default` · `lg` · `xl` · `full`                     | `default`           |
+| `titleTag` | `h2` … `h6` · `div` — put the title in the heading outline         | `div`               |
+| `class`    | `string`                                                           | —                   |
+
+Any other attribute goes to the card's `<div>` — e.g. `data-theme="dark"` for a dark card.
+
+| Slot       | Content                    |
+| ---------- | -------------------------- |
+| `title`    | replaces `title`           |
+| `subtitle` | replaces `subtitle`        |
+| default    | the body — replaces `text` |
+| `actions`  | buttons at the bottom      |

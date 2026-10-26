@@ -1,0 +1,106 @@
+---
+title: Select
+description: An accessible dropdown with Vuetify's look, keyboard support and smart positioning.
+---
+
+import { Select } from 'bws-astro-components';
+import Preview from '../../../components/Preview.astro';
+
+A Vuetify-style dropdown with the same variants, colors, label, hint and error as
+[`TextInput`](/components/text-input/).
+
+<Preview layout="grid">
+  <Select
+    label="City"
+    items={['Warszawa', 'Kraków', 'Wrocław', 'Gdańsk', 'Poznań', 'Łódź']}
+    hint="Type a letter to jump"
+  />
+  <Select
+    label="Plan"
+    value="pro"
+    color="secondary"
+    items={[
+      { title: 'Free', value: 'free' },
+      { title: 'Pro — 49 zł / month', value: 'pro' },
+      { title: 'Enterprise (contact us)', value: 'enterprise', disabled: true },
+    ]}
+  />
+  <Select
+    label="Country"
+    placeholder="Choose…"
+    variant="outlined"
+    items={['Polska', 'Niemcy', 'Czechy']}
+  />
+  <Select
+    label="Error"
+    items={['Warszawa']}
+    error="This city is not available"
+    variant="underlined"
+  />
+</Preview>
+
+```astro
+---
+import { Select } from 'bws-astro-components';
+---
+
+<Select name="city" label="City" items={['Warszawa', 'Kraków', 'Gdańsk']} />
+<Select
+  name="plan"
+  label="Plan"
+  value="pro"
+  items={[
+    { title: 'Free', value: 'free' },
+    { title: 'Pro', value: 'pro' },
+    { title: 'Enterprise', value: 'enterprise', disabled: true },
+  ]}
+/>
+```
+
+Items are strings, or `{ title, value, disabled? }` when the shown text differs from the submitted
+value. The value lives in a hidden native `<select>`, so the field submits with the form, resets
+and fires `input` / `change` like a native one. Opening the list needs JavaScript.
+
+## Keyboard
+
+It follows the WAI-ARIA select-only combobox pattern: focus stays on the field and screen readers
+announce the highlighted option.
+
+| Key                   | Action                                                            |
+| --------------------- | ----------------------------------------------------------------- |
+| ↓ / ↑ / Enter / Space | open the list                                                     |
+| ↓ / ↑                 | move through options (skipping disabled ones)                     |
+| Home / End            | first / last option                                               |
+| Enter / Space         | choose the highlighted option                                     |
+| Escape                | close without a change                                            |
+| Tab                   | close and move on                                                 |
+| letters               | jump to an option — repeat a letter to cycle, type more to narrow |
+
+## Position
+
+The list is positioned with [Floating UI](https://floating-ui.com): it isn't clipped by a parent
+with `overflow: hidden` and follows the field while scrolling. `location` sets where it opens:
+
+| `location`       | Opens                                       |
+| ---------------- | ------------------------------------------- |
+| `auto` (default) | below, or above when there isn't room below |
+| `bottom`         | always below                                |
+| `top`            | always above                                |
+
+## API
+
+| Prop          | Type                                          | Default   |
+| ------------- | --------------------------------------------- | --------- |
+| `items`       | `string[]` or `{ title, value, disabled? }[]` | required  |
+| `name`        | `string` — form field name                    | —         |
+| `value`       | `string` — initially selected value           | —         |
+| `label`       | `string`                                      | —         |
+| `placeholder` | `string`                                      | —         |
+| `variant`     | `filled` · `outlined` · `underlined`          | `filled`  |
+| `color`       | focus color                                   | `primary` |
+| `location`    | `auto` · `bottom` · `top`                     | `auto`    |
+| `hint`        | `string`                                      | —         |
+| `error`       | `string` — starts out invalid                 | —         |
+| `rules`       | [validation rules](/guides/validation/)       | —         |
+| `disabled`    | `boolean`                                     | `false`   |
+| `id`, `class` | `string` — `id` goes to the focusable field   | —         |

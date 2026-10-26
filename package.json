@@ -1,6 +1,6 @@
 {
   "name": "bws-astro-components",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Reusable Astro components styled with Tailwind CSS.",
   "type": "module",
   "license": "MIT",
@@ -23,7 +23,8 @@
     "./package.json": "./package.json"
   },
   "files": [
-    "src"
+    "src",
+    "CHANGELOG.md"
   ],
   "sideEffects": [
     "**/*.css"
@@ -39,9 +40,13 @@
     "pack:dry": "npm pack --dry-run",
     "verify": "pnpm check && pnpm format:check && pnpm lint:pkg && pnpm build",
     "prepublishOnly": "pnpm verify",
-    "release:patch": "npm version patch -m \"release: v%s\" && git push --follow-tags && pnpm publish",
-    "release:minor": "npm version minor -m \"release: v%s\" && git push --follow-tags && pnpm publish",
-    "release:major": "npm version major -m \"release: v%s\" && git push --follow-tags && pnpm publish"
+    "docs:dev": "pnpm --filter docs dev",
+    "docs:build": "pnpm --filter docs build",
+    "docs:preview": "pnpm --filter docs preview",
+    "version:patch": "npm version patch --no-git-tag-version",
+    "version:minor": "npm version minor --no-git-tag-version",
+    "version:major": "npm version major --no-git-tag-version",
+    "release": "pnpm publish && git tag v$npm_package_version && git push --follow-tags"
   },
   "peerDependencies": {
     "astro": "^7.0.0",

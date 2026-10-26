@@ -1,0 +1,81 @@
+---
+title: Icon
+description: Lucide icons and your own SVG files, rendered as inline SVG.
+---
+
+import { Button, Icon } from 'bws-astro-components';
+import { Heart, MessageCircle, Star } from 'bws-astro-components/icons';
+import Preview from '../../../components/Preview.astro';
+
+[Lucide](https://lucide.dev/icons) ships with the library. Icons are rendered to inline SVG when the
+page is built — no JavaScript, and only the icons you use end up in the HTML.
+
+<Preview>
+  <Icon icon={Heart} size="xs" />
+  <Icon icon={Heart} size="sm" />
+  <Icon icon={Heart} size="default" />
+  <Icon icon={Heart} size="lg" />
+  <Icon icon={Heart} size="xl" />
+  <Icon icon={Heart} size={40} class="text-secondary" />
+  <Icon icon={Star} size="xl" label="Favourite" class="text-primary" />
+</Preview>
+
+```astro
+---
+import { Icon } from 'bws-astro-components';
+import { Heart, Star } from 'bws-astro-components/icons';
+import Logo from '../assets/logo.svg';
+---
+
+<Icon icon={Heart} /> <!-- 1em, follows the text -->
+<Icon icon={Heart} size="lg" /> <!-- xs · sm · default · lg · xl -->
+<Icon icon={Heart} size={40} /> <!-- pixels -->
+<Icon icon={Star} label="Favourite" />{' '}
+<!-- meaningful icon, announced by screen readers -->
+<Icon icon={Logo} label="Company logo" /> <!-- any imported .svg file -->
+```
+
+## Size
+
+Without `size` an icon is `1em`, so it matches the text around it — that's what you want inside a
+[`Button`](/components/button/) or a paragraph. The steps are `xs` 12px, `sm` 16px, `default`
+20px, `lg` 24px and `xl` 32px; a number sets pixels.
+
+<Preview>
+  <p class="flex items-center gap-2 text-xl">
+    Follows the text <Icon icon={MessageCircle} />
+  </p>
+  <Button size="lg">
+    Message <Icon icon={MessageCircle} />
+  </Button>
+</Preview>
+
+## Color and other attributes
+
+Icons use `currentColor`, so color them with text utilities (`class="text-primary"`). Other SVG
+attributes, like `stroke-width`, are passed through.
+
+## Accessibility
+
+Without a `label` the icon is decorative and hidden from screen readers (`aria-hidden`). Give it a
+`label` when the icon carries meaning on its own — it then gets `role="img"` and `aria-label`.
+
+## Where icons come from
+
+- `bws-astro-components/icons` exports every Lucide icon. Names like `Link`, `Image` or `Menu` would
+  clash with components, so icons have their own entry point.
+- Any `.svg` file imported in Astro works as an icon too.
+- In your own components, deep imports are faster in development:
+  `import Heart from '@lucide/astro/icons/heart'`.
+
+## API
+
+| Prop    | Type                                                          | Default  |
+| ------- | ------------------------------------------------------------- | -------- |
+| `icon`  | a Lucide icon or an imported `.svg` component                 | required |
+| `size`  | `xs` · `sm` · `default` · `lg` · `xl` · number (px)           | `1em`    |
+| `label` | `string` — accessible name; without it the icon is decorative | —        |
+| `color` | `string` — prefer a text utility in `class`                   | —        |
+| `class` | `string`                                                      | —        |
+
+Any other SVG attribute goes to the `<svg>`.

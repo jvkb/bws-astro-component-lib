@@ -1,0 +1,166 @@
+---
+title: Button
+description: Buttons and button-styled links with variants, colors, sizes and rounding.
+---
+
+import { Button, Icon } from 'bws-astro-components';
+import { ArrowRight, Download } from 'bws-astro-components/icons';
+import Preview from '../../../components/Preview.astro';
+
+Renders a `<button>`, or an `<a>` when it gets an `href`.
+
+```astro
+---
+import { Button } from 'bws-astro-components';
+---
+
+<Button>Save</Button>
+<Button href="/contact">Contact</Button>
+```
+
+## Variants
+
+<Preview>
+  <Button variant="elevated">Elevated</Button>
+  <Button variant="flat">Flat</Button>
+  <Button variant="tonal">Tonal</Button>
+  <Button variant="outlined">Outlined</Button>
+  <Button variant="text">Text</Button>
+</Preview>
+
+```astro
+<Button variant="elevated">Elevated</Button>
+<Button variant="flat">Flat</Button>
+<Button variant="tonal">Tonal</Button>
+<Button variant="outlined">Outlined</Button>
+<Button variant="text">Text</Button>
+```
+
+## Colors
+
+<Preview>
+  <Button color="primary">Primary</Button>
+  <Button color="secondary">Secondary</Button>
+  <Button color="success">Success</Button>
+  <Button color="warning">Warning</Button>
+  <Button color="info">Info</Button>
+  <Button color="error">Error</Button>
+</Preview>
+
+```astro
+<Button color="secondary">Secondary</Button>
+<Button color="error" variant="outlined">
+  Delete
+</Button>
+```
+
+Hover and pressed states and the `tonal` background are derived from the color, so any brand color
+works without defining shades.
+
+## Sizes and rounding
+
+<Preview>
+  <Button size="xs">xs</Button>
+  <Button size="sm">sm</Button>
+  <Button size="default">default</Button>
+  <Button size="lg">lg</Button>
+  <Button size="xl">xl</Button>
+</Preview>
+
+<Preview>
+  <Button rounded="xs" variant="tonal">
+    xs
+  </Button>
+  <Button rounded="sm" variant="tonal">
+    sm
+  </Button>
+  <Button rounded="default" variant="tonal">
+    default
+  </Button>
+  <Button rounded="lg" variant="tonal">
+    lg
+  </Button>
+  <Button rounded="xl" variant="tonal">
+    xl
+  </Button>
+  <Button rounded="full" variant="tonal">
+    full
+  </Button>
+</Preview>
+
+```astro
+<Button size="lg" rounded="full">
+  Book a call
+</Button>
+<Button block>Full width</Button>
+```
+
+## Icons
+
+Put an [`Icon`](/components/icon/) inside — without a `size` it follows the button's text size.
+
+<Preview>
+  <Button>
+    Next <Icon icon={ArrowRight} />
+  </Button>
+  <Button variant="outlined" color="secondary">
+    <Icon icon={Download} /> Download
+  </Button>
+</Preview>
+
+```astro
+---
+import { Button, Icon } from 'bws-astro-components';
+import { ArrowRight } from 'bws-astro-components/icons';
+---
+
+<Button>
+  Next <Icon icon={ArrowRight} />
+</Button>
+```
+
+## Links, forms and disabled buttons
+
+<Preview>
+  <Button href="#links-forms-and-disabled-buttons">Link</Button>
+  <Button type="submit" variant="tonal">
+    Submit
+  </Button>
+  <Button disabled>Disabled</Button>
+</Preview>
+
+```astro
+<Button href="/pricing" target="_blank">
+  Link
+</Button>
+<Button type="submit">Submit</Button>
+<Button disabled>Disabled</Button>
+```
+
+A `<button>` defaults to `type="button"`, so it never submits a form by accident — set
+`type="submit"` for that. With `href` the button takes link attributes (`target`, `rel`,
+`download`…), without it button attributes (`type`, `disabled`, `name`, `form`…); TypeScript flags
+mixing them, e.g. `disabled` on a link.
+
+## Overriding classes
+
+Classes passed in `class` replace the conflicting defaults (merged with
+[tailwind-merge](https://github.com/dcastil/tailwind-merge)):
+
+<Preview>
+  <Button class="rounded-none tracking-wide uppercase">Custom</Button>
+</Preview>
+
+## API
+
+| Prop      | Type                                                               | Default    |
+| --------- | ------------------------------------------------------------------ | ---------- |
+| `variant` | `elevated` · `flat` · `tonal` · `outlined` · `text`                | `elevated` |
+| `color`   | `primary` · `secondary` · `success` · `warning` · `info` · `error` | `primary`  |
+| `size`    | `xs` · `sm` · `default` · `lg` · `xl`                              | `default`  |
+| `rounded` | `xs` · `sm` · `default` · `lg` · `xl` · `full`                     | `default`  |
+| `block`   | `boolean` — full width                                             | `false`    |
+| `href`    | `string` — renders an `<a>`                                        | —          |
+| `class`   | `string` — merged over the defaults                                | —          |
+
+Any other attribute goes to the `<button>` / `<a>`. **Slot:** default — the content.

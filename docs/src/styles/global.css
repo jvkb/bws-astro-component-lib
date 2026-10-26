@@ -1,0 +1,43 @@
+/*
+ * Starlight + Tailwind v4. Starlight's styles sit in their own layer after `base`, so Tailwind's
+ * preflight (which the components expect, as in any Tailwind project) doesn't override them.
+ */
+@layer base, starlight, theme, components, utilities;
+
+@import '@astrojs/starlight-tailwind';
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/preflight.css' layer(base);
+@import 'tailwindcss/utilities.css' layer(utilities);
+@import 'bws-astro-components/styles.css';
+
+@theme {
+  /* Brand colors, the same as the playground. */
+  --color-primary: #2b4570;
+  --color-secondary: #dc5f26;
+
+  /* Starlight's accent color follows the brand. */
+  --color-accent-200: #c7dcfd;
+  --color-accent-600: #5178b8;
+  --color-accent-900: #2b4570;
+  --color-accent-950: #112443;
+}
+
+/* Starlight's theme switch sets data-theme on <html>, the same attribute the components use. */
+[data-theme='dark'] {
+  --color-primary: #a4c4f7;
+  --color-on-primary: #112443;
+  --color-secondary: #f17b4a;
+  --color-on-secondary: #421300;
+}
+
+[data-theme='light'] {
+  --color-primary: #2b4570;
+  --color-on-primary: #ffffff;
+  --color-secondary: #dc5f26;
+  --color-on-secondary: #ffffff;
+}
+
+/* The changelog page already has a title — hide the heading from CHANGELOG.md. */
+.changelog > h1:first-child {
+  display: none;
+}

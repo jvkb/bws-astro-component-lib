@@ -1,0 +1,61 @@
+---
+title: bws-astro-components
+description: Vuetify-inspired Astro components styled with Tailwind CSS v4.
+template: splash
+hero:
+  tagline: Vuetify-inspired components for Astro, styled with Tailwind CSS v4. Rendered on the server, with JavaScript only where HTML can't do the job.
+  actions:
+    - text: Get started
+      link: /getting-started/
+      icon: right-arrow
+    - text: Browse components
+      link: /components/button/
+      variant: minimal
+---
+
+import { CardGrid, Card as Feature } from '@astrojs/starlight/components';
+import {
+  Button,
+  Chip,
+  ChipGroup,
+  Select,
+  TextInput,
+} from 'bws-astro-components';
+import Preview from '../../components/Preview.astro';
+
+<Preview layout="grid">
+  <TextInput label="Email" type="email" hint="We'll never share it" />
+  <Select label="City" items={['Warszawa', 'Kraków', 'Gdańsk']} />
+  <ChipGroup
+    items={['Astro', 'Tailwind', 'Vue']}
+    value="Astro"
+    multiple
+    filter
+  />
+  <div class="flex flex-wrap items-center gap-2">
+    <Button>Save</Button>
+    <Button variant="tonal" color="secondary">
+      Later
+    </Button>
+    <Chip color="success" text="Paid" />
+  </div>
+</Preview>
+
+<CardGrid>
+  <Feature title="Vuetify's API" icon="puzzle">
+    Variants, colors, sizes, `rules` and slots you already know — `elevated`,
+    `tonal`, `outlined`, `prepend-inner`…
+  </Feature>
+  <Feature title="Light and dark" icon="moon">
+    Theme roles instead of fixed grays. Switch with `data-theme` on the page or
+    on a single section.
+  </Feature>
+  <Feature title="Forms that work" icon="pencil">
+    Native form fields underneath, validation rules shared by the browser and
+    the server.
+  </Feature>
+  <Feature title="Accessible" icon="approve-check">
+    Keyboard support, ARIA patterns and labels — try the Select with arrow keys
+    and type-ahead.
+  </Feature>
+</CardGrid>

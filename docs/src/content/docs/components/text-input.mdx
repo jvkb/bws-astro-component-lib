@@ -1,0 +1,106 @@
+---
+title: TextInput
+description: Text fields with Vuetify's variants, a floating label, hint and error.
+---
+
+import { Icon, TextInput } from 'bws-astro-components';
+import { Search } from 'bws-astro-components/icons';
+import Preview from '../../../components/Preview.astro';
+
+<Preview layout="grid">
+  <TextInput label="Filled" />
+  <TextInput label="Outlined" variant="outlined" />
+  <TextInput label="Underlined" variant="underlined" />
+  <TextInput label="With value" value="Jan Kowalski" variant="outlined" />
+</Preview>
+
+```astro
+---
+import { TextInput } from 'bws-astro-components';
+---
+
+<TextInput name="name" label="Name" />
+<TextInput name="name" label="Name" variant="outlined" />
+<TextInput name="name" label="Name" variant="underlined" />
+```
+
+The label rests inside the field and floats up on focus or once there's a value — in pure CSS,
+without JavaScript. With a `placeholder`, the label stays floated above it.
+
+## Hint, error and states
+
+<Preview layout="grid">
+  <TextInput label="Email" type="email" hint="We'll never share it" />
+  <TextInput label="Email" value="jan@" error="Enter a valid email address" />
+  <TextInput label="City" placeholder="e.g. Warszawa" color="secondary" />
+  <TextInput label="Disabled" value="Read only" disabled />
+</Preview>
+
+```astro
+<TextInput label="Email" type="email" hint="We'll never share it" />
+<TextInput label="Email" value="jan@" error="Enter a valid email address" />
+<TextInput label="City" placeholder="e.g. Warszawa" color="secondary" />
+<TextInput label="Disabled" value="Read only" disabled />
+```
+
+`color` sets the focus color. An `error` — e.g. from server-side validation — marks the field
+invalid (`aria-invalid`) until the value is edited, when it's inside a [`Form`](/components/form/).
+For rules checked while typing, see [Form validation](/guides/validation/).
+
+## Content inside the field
+
+The `prepend-inner` and `append-inner` slots put icons or buttons inside the field, before or after
+the text:
+
+<Preview layout="grid">
+  <TextInput label="Search" variant="outlined">
+    <Icon
+      slot="prepend-inner"
+      icon={Search}
+      size="sm"
+      class="ml-3 self-center text-on-surface/60"
+    />
+  </TextInput>
+  <TextInput label="Price">
+    <span slot="append-inner" class="self-center pr-4 text-on-surface/60">
+      zł
+    </span>
+  </TextInput>
+</Preview>
+
+```astro
+<TextInput label="Search" variant="outlined">
+  <Icon
+    slot="prepend-inner"
+    icon={Search}
+    size="sm"
+    class="ml-3 self-center text-on-surface/60"
+  />
+</TextInput>
+<TextInput label="Price">
+  <span slot="append-inner" class="self-center pr-4 text-on-surface/60">
+    zł
+  </span>
+</TextInput>
+```
+
+## API
+
+| Prop          | Type                                    | Default   |
+| ------------- | --------------------------------------- | --------- |
+| `label`       | `string`                                | —         |
+| `variant`     | `filled` · `outlined` · `underlined`    | `filled`  |
+| `color`       | focus color                             | `primary` |
+| `hint`        | `string` — helper text under the field  | —         |
+| `error`       | `string` — starts out invalid           | —         |
+| `rules`       | [validation rules](/guides/validation/) | —         |
+| `type`        | native input type                       | `text`    |
+| `id`, `class` | `string` — `class` goes to the wrapper  | —         |
+
+Any other attribute (`name`, `value`, `placeholder`, `required`, `autocomplete`, `disabled`…) goes
+to the `<input>`. Without an `id`, a unique one is generated to link the label and message.
+
+| Slot            | Content                           |
+| --------------- | --------------------------------- |
+| `prepend-inner` | inside the field, before the text |
+| `append-inner`  | inside the field, after the text  |

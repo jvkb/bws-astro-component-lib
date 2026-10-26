@@ -1,0 +1,33 @@
+---
+type Props = {
+  /** `row` (default) lines items up and wraps; `stack` puts them under each other; `grid` uses columns. */
+  layout?: 'row' | 'stack' | 'grid';
+  class?: string;
+};
+
+const { layout = 'row', class: className } = Astro.props;
+---
+
+{/* not-content opts out of Starlight's Markdown styles, so the components look as they do in a project. */}
+<div
+  class:list={[
+    'not-content preview',
+    layout === 'row' && 'flex flex-wrap items-center gap-3',
+    layout === 'stack' && 'flex max-w-md flex-col gap-4',
+    layout === 'grid' && 'grid gap-4 sm:grid-cols-2',
+    className,
+  ]}
+>
+  <slot />
+</div>
+
+<style>
+  .preview {
+    margin-top: 1rem;
+    padding: 1.5rem;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.5rem;
+    background-color: var(--color-background);
+    color: var(--color-on-background);
+  }
+</style>

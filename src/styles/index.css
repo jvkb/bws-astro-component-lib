@@ -74,29 +74,54 @@
   /*
    * data-theme="light" | "dark" | "system" on <html> or any element switches the theme for that
    * subtree (like Vuetify's v-theme-provider) — themes nest both ways. Without it, the page is light.
+   * In `base`, so utilities like a card's bg-surface still win.
    */
   [data-theme] {
     background-color: var(--color-background);
     color: var(--color-on-background);
   }
+}
 
-  [data-theme='light'] {
-    color-scheme: light;
-    --color-background: var(--light-background);
-    --color-on-background: var(--light-on-background);
-    --color-surface: var(--light-surface);
-    --color-on-surface: var(--light-on-surface);
-    --color-success: var(--light-success);
-    --color-on-success: var(--light-on-success);
-    --color-warning: var(--light-warning);
-    --color-on-warning: var(--light-on-warning);
-    --color-info: var(--light-info);
-    --color-on-info: var(--light-on-info);
-    --color-error: var(--light-error);
-    --color-on-error: var(--light-on-error);
-  }
+/*
+ * The theme switch itself, deliberately outside any layer: it must override the light defaults
+ * from @theme, which Tailwind emits in the `theme` layer — or without a layer in some setups
+ * (e.g. Starlight's). Unlayered and later in the file, it wins either way.
+ */
+[data-theme='light'] {
+  color-scheme: light;
+  --color-background: var(--light-background);
+  --color-on-background: var(--light-on-background);
+  --color-surface: var(--light-surface);
+  --color-on-surface: var(--light-on-surface);
+  --color-success: var(--light-success);
+  --color-on-success: var(--light-on-success);
+  --color-warning: var(--light-warning);
+  --color-on-warning: var(--light-on-warning);
+  --color-info: var(--light-info);
+  --color-on-info: var(--light-on-info);
+  --color-error: var(--light-error);
+  --color-on-error: var(--light-on-error);
+}
 
-  [data-theme='dark'] {
+[data-theme='dark'] {
+  color-scheme: dark;
+  --color-background: var(--dark-background);
+  --color-on-background: var(--dark-on-background);
+  --color-surface: var(--dark-surface);
+  --color-on-surface: var(--dark-on-surface);
+  --color-success: var(--dark-success);
+  --color-on-success: var(--dark-on-success);
+  --color-warning: var(--dark-warning);
+  --color-on-warning: var(--dark-on-warning);
+  --color-info: var(--dark-info);
+  --color-on-info: var(--dark-on-info);
+  --color-error: var(--dark-error);
+  --color-on-error: var(--dark-on-error);
+}
+
+/* "system" follows the OS setting. CSS can't share the block above, so it's repeated. */
+@media (prefers-color-scheme: dark) {
+  [data-theme='system'] {
     color-scheme: dark;
     --color-background: var(--dark-background);
     --color-on-background: var(--dark-on-background);
@@ -111,41 +136,22 @@
     --color-error: var(--dark-error);
     --color-on-error: var(--dark-on-error);
   }
+}
 
-  /* "system" follows the OS setting. CSS can't share the block above, so it's repeated. */
-  @media (prefers-color-scheme: dark) {
-    [data-theme='system'] {
-      color-scheme: dark;
-      --color-background: var(--dark-background);
-      --color-on-background: var(--dark-on-background);
-      --color-surface: var(--dark-surface);
-      --color-on-surface: var(--dark-on-surface);
-      --color-success: var(--dark-success);
-      --color-on-success: var(--dark-on-success);
-      --color-warning: var(--dark-warning);
-      --color-on-warning: var(--dark-on-warning);
-      --color-info: var(--dark-info);
-      --color-on-info: var(--dark-on-info);
-      --color-error: var(--dark-error);
-      --color-on-error: var(--dark-on-error);
-    }
-  }
-
-  @media (prefers-color-scheme: light) {
-    [data-theme='system'] {
-      color-scheme: light;
-      --color-background: var(--light-background);
-      --color-on-background: var(--light-on-background);
-      --color-surface: var(--light-surface);
-      --color-on-surface: var(--light-on-surface);
-      --color-success: var(--light-success);
-      --color-on-success: var(--light-on-success);
-      --color-warning: var(--light-warning);
-      --color-on-warning: var(--light-on-warning);
-      --color-info: var(--light-info);
-      --color-on-info: var(--light-on-info);
-      --color-error: var(--light-error);
-      --color-on-error: var(--light-on-error);
-    }
+@media (prefers-color-scheme: light) {
+  [data-theme='system'] {
+    color-scheme: light;
+    --color-background: var(--light-background);
+    --color-on-background: var(--light-on-background);
+    --color-surface: var(--light-surface);
+    --color-on-surface: var(--light-on-surface);
+    --color-success: var(--light-success);
+    --color-on-success: var(--light-on-success);
+    --color-warning: var(--light-warning);
+    --color-on-warning: var(--light-on-warning);
+    --color-info: var(--light-info);
+    --color-on-info: var(--light-on-info);
+    --color-error: var(--light-error);
+    --color-on-error: var(--light-on-error);
   }
 }

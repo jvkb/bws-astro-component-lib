@@ -1,0 +1,144 @@
+---
+title: ChipGroup
+description: Selectable chips for single or multiple choice, like Vuetify's v-chip-group.
+---
+
+import { ChipGroup } from 'bws-astro-components';
+import Preview from '../../../components/Preview.astro';
+
+<Preview layout="stack">
+  <ChipGroup
+    label="Size"
+    name="size"
+    items={['XS', 'S', 'M', 'L', 'XL']}
+    value="M"
+  />
+  <ChipGroup
+    label="Tags"
+    name="tags"
+    items={['Astro', 'Tailwind', 'TypeScript', 'Vue']}
+    value={['Astro', 'Tailwind']}
+    multiple
+    filter
+  />
+</Preview>
+
+```astro
+---
+import { ChipGroup } from 'bws-astro-components';
+---
+
+<ChipGroup
+  label="Size"
+  name="size"
+  items={['XS', 'S', 'M', 'L', 'XL']}
+  value="M"
+/>
+<ChipGroup
+  label="Tags"
+  name="tags"
+  items={['Astro', 'Tailwind', 'TypeScript', 'Vue']}
+  multiple
+  filter
+/>
+```
+
+Each chip is a native radio — or a checkbox with `multiple` — inside a `<fieldset>`. The group
+submits with the form (`FormData.getAll('tags')`), resets, works with the keyboard (arrow keys,
+Space) and even without JavaScript.
+
+## Single and multiple choice
+
+| Setup                    | Behavior                                                   |
+| ------------------------ | ---------------------------------------------------------- |
+| default                  | one chip; clicking the selected chip clears the choice     |
+| `mandatory`              | one chip, always — the first available one starts selected |
+| `multiple`               | any number of chips                                        |
+| `multiple` + `mandatory` | at least one chip — the last one can't be unchecked        |
+
+<Preview layout="stack">
+  <ChipGroup
+    label="Delivery (mandatory)"
+    name="delivery"
+    items={['Courier', 'Parcel locker', 'Pickup']}
+    mandatory
+    color="secondary"
+  />
+  <ChipGroup
+    label="Opening days (multiple, mandatory)"
+    name="days"
+    items={[
+      { title: 'Mon', value: 'mon' },
+      { title: 'Tue', value: 'tue' },
+      { title: 'Wed', value: 'wed' },
+      { title: 'Sat (closed)', value: 'sat', disabled: true },
+    ]}
+    value={['mon']}
+    multiple
+    mandatory
+    filter
+    variant="outlined"
+    color="success"
+  />
+</Preview>
+
+Items are strings, or `{ title, value, disabled? }` when the shown text differs from the submitted
+value.
+
+## Selected look
+
+`color` is the color of selected chips; unselected ones stay neutral. `selectedVariant` sets how
+selected chips look — `flat` (solid) by default, so they stand out with any palette. Set it to
+`tonal` for Vuetify's subtler look:
+
+<Preview layout="stack">
+  <ChipGroup items={['Day', 'Week', 'Month']} value="Week" />
+  <ChipGroup
+    items={['Day', 'Week', 'Month']}
+    value="Week"
+    selectedVariant="tonal"
+  />
+  <ChipGroup
+    items={['Day', 'Week', 'Month']}
+    value="Week"
+    variant="outlined"
+    selectedVariant="outlined"
+    color="secondary"
+  />
+</Preview>
+
+## Validation
+
+With `rules` inside a [`Form`](/components/form/), `required` means at least one selected chip —
+see [Form validation](/guides/validation/).
+
+```astro
+<ChipGroup
+  name="services"
+  label="Services"
+  items={['Website', 'Shop', 'SEO']}
+  multiple
+  rules={[required()]}
+/>
+```
+
+## API
+
+| Prop              | Type                                                                          | Default   |
+| ----------------- | ----------------------------------------------------------------------------- | --------- |
+| `items`           | `string[]` or `{ title, value, disabled? }[]`                                 | required  |
+| `name`            | `string` — form field name                                                    | —         |
+| `value`           | `string`, or `string[]` with `multiple`                                       | —         |
+| `multiple`        | `boolean`                                                                     | `false`   |
+| `mandatory`       | `boolean`                                                                     | `false`   |
+| `filter`          | `boolean` — check mark on selected chips                                      | `false`   |
+| `label`           | `string` — the group's legend                                                 | —         |
+| `color`           | color of selected chips                                                       | `primary` |
+| `variant`         | look of unselected chips: `tonal` · `flat` · `elevated` · `outlined` · `text` | `tonal`   |
+| `selectedVariant` | look of selected chips                                                        | `flat`    |
+| `size`            | `xs` · `sm` · `default` · `lg` · `xl`                                         | `default` |
+| `rounded`         | `xs` · `sm` · `default` · `lg` · `xl` · `full`                                | `full`    |
+| `hint`            | `string`                                                                      | —         |
+| `error`           | `string` — starts out invalid                                                 | —         |
+| `rules`           | validation rules                                                              | —         |
+| `disabled`        | `boolean` — the whole group                                                   | `false`   |

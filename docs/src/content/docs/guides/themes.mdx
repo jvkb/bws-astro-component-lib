@@ -1,0 +1,169 @@
+---
+title: Themes
+description: Light and dark themes, theme roles and switching the theme.
+---
+
+import {
+  Button,
+  Card,
+  Chip,
+  ChipGroup,
+  Select,
+  TextInput,
+} from 'bws-astro-components';
+import Preview from '../../../components/Preview.astro';
+
+Like Vuetify, the components don't use fixed grays but **theme roles**, so they work on light and
+dark pages. Switch these docs between light and dark (top right) — every example follows.
+
+## Theme roles
+
+| Role                                          | Used for                                                          |
+| --------------------------------------------- | ----------------------------------------------------------------- |
+| `background` / `on-background`                | page background and text                                          |
+| `surface` / `on-surface`                      | cards, menus, fields                                              |
+| `on-primary`, `on-secondary`, `on-success`, … | text on solid fills (flat buttons, selected chips, colored cards) |
+
+Muted text, borders, field backgrounds and hover states are `on-surface` at reduced opacity
+(`text-on-surface/70`, `border-on-surface/38`…), so they adapt to any theme by themselves. The
+roles are regular Tailwind colors — use them in your own markup too:
+
+```html
+<body class="bg-background text-on-background">
+  <p class="text-on-surface/70">Muted text</p>
+</body>
+```
+
+## Switching the theme
+
+Set `data-theme` to `light`, `dark` or `system` (follows the operating system). On `<html>` it
+themes the whole page; on any element it themes just that part, and themes nest both ways — like
+Vuetify's `v-theme-provider`:
+
+```astro
+<section data-theme="dark">
+  <Card title="Dark section" />
+  <Card data-theme="light" title="Light again" />
+</section>
+```
+
+<Preview layout="stack" class="max-w-none">
+  <div data-theme="dark" class="grid gap-4 rounded-lg p-4 sm:grid-cols-2">
+    <Card title='data-theme="dark"' text="Whatever the page theme.">
+      <Fragment slot="actions">
+        <Button variant="text">Cancel</Button>
+        <Button>Save</Button>
+      </Fragment>
+    </Card>
+    <div class="flex flex-col gap-2">
+      <TextInput label="Email" variant="outlined" />
+      <Select label="City" items={['Warszawa', 'Kraków']} />
+    </div>
+    <Card
+      data-theme="light"
+      title='data-theme="light"'
+      text="Nested back to light."
+    >
+      <Chip slot="actions" color="info" text="info" />
+    </Card>
+    <ChipGroup
+      items={['Astro', 'Vue', 'React']}
+      value="Astro"
+      color="success"
+      filter
+    />
+  </div>
+</Preview>
+
+An element with `data-theme` gets the theme's background and text color. Without any
+`data-theme`, the page is light.
+
+### Remembering the visitor's choice
+
+Put `ThemeScript` in `<head>`. It runs before the page paints and restores the saved theme, so a
+dark page doesn't flash white on load:
+
+```astro title="src/layouts/Layout.astro"
+---
+import { ThemeScript } from 'bws-astro-components';
+---
+
+<html lang="pl">
+  <head>
+    <ThemeScript defaultTheme="system" />
+  </head>
+  <body class="bg-background text-on-background">
+    <slot />
+  </body>
+</html>
+```
+
+Change the theme with the helpers from `bws-astro-components/theme`:
+
+```astro
+<button data-theme-toggle>Toggle theme</button>
+
+<script>
+  import { toggleTheme } from 'bws-astro-components/theme';
+
+  document
+    .querySelector('[data-theme-toggle]')
+    ?.addEventListener('click', toggleTheme);
+</script>
+```
+
+| Function                       | What it does                                                                                      |
+| ------------------------------ | ------------------------------------------------------------------------------------------------- |
+| `setTheme(theme, { persist })` | sets `<html data-theme>` and saves it (unless `persist: false`); fires `theme:change` on `<html>` |
+| `toggleTheme()`                | switches between light and dark                                                                   |
+| `getTheme()`                   | `'light'`, `'dark'` or `'system'`                                                                 |
+| `getResolvedTheme()`           | the theme shown — `system` resolved to `'light'` or `'dark'`                                      |
+
+| `ThemeScript` prop | Default   | Description                                                    |
+| ------------------ | --------- | -------------------------------------------------------------- |
+| `defaultTheme`     | `'light'` | theme until the visitor picks one: `light` · `dark` · `system` |
+
+## Customizing the themes
+
+Each role has a value per theme in `--light-*` and `--dark-*` variables. Override any of them:
+
+```css title="src/styles/global.css"
+:root {
+  --dark-background: #0f1115;
+  --dark-surface: #1a1d24;
+  --light-success: #15803d;
+}
+```
+
+Available: `background`, `on-background`, `surface`, `on-surface`, and `success`, `warning`,
+`info`, `error` with their `on-*` pairs. Status colors are dark with white text in the light theme
+and light with dark text in the dark one, so both meet WCAG AA contrast.
+
+### Brand colors in the dark theme
+
+Brand colors come from your `@theme` and are the same in both themes. A dark `primary` is hard to
+read on a dark background, so give the dark theme its own shade with matching text — and restate
+the light one if light sections can sit inside dark ones:
+
+```css title="src/styles/global.css"
+[data-theme='dark'] {
+  --color-primary: #a4c4f7;
+  --color-on-primary: #112443;
+}
+
+[data-theme='light'] {
+  --color-primary: #2b4570;
+  --color-on-primary: #ffffff;
+}
+```
+
+These docs do exactly that.
+
+### Outlined fields on custom backgrounds
+
+The floating label of an `outlined` field covers the border with the background behind it — the
+page background by default, the card's surface inside a `Card`. On another background, set it:
+
+```astro
+<div class="bg-primary/10 [--input-bg:var(--color-background)]">…</div>
+```

@@ -1,0 +1,145 @@
+---
+title: Chip
+description: Small pills for tags, statuses and filters — static, links or closable.
+---
+
+import { Chip } from 'bws-astro-components';
+import { ArrowRight, Check, Heart } from 'bws-astro-components/icons';
+import Preview from '../../../components/Preview.astro';
+
+<Preview>
+  <Chip text="New" />
+  <Chip color="primary" text="Astro" />
+  <Chip color="success" variant="outlined" prependIcon={Check} text="Paid" />
+  <Chip color="error" variant="flat" text="Overdue" />
+</Preview>
+
+```astro
+---
+import { Chip } from 'bws-astro-components';
+import { Check } from 'bws-astro-components/icons';
+---
+
+<Chip text="New" />
+<Chip color="success" variant="outlined" prependIcon={Check} text="Paid" />
+```
+
+Without a `color` the chip is neutral. For selectable chips, see [ChipGroup](/components/chip-group/).
+
+## Variants and colors
+
+<Preview>
+  <Chip variant="tonal" color="primary" text="tonal" />
+  <Chip variant="flat" color="primary" text="flat" />
+  <Chip variant="elevated" color="primary" text="elevated" />
+  <Chip variant="outlined" color="primary" text="outlined" />
+  <Chip variant="text" color="primary" text="text" />
+</Preview>
+
+<Preview>
+  <Chip color="secondary" text="secondary" />
+  <Chip color="success" text="success" />
+  <Chip color="warning" text="warning" />
+  <Chip color="info" text="info" />
+  <Chip color="error" text="error" />
+</Preview>
+
+## Sizes, rounding and icons
+
+<Preview>
+  <Chip size="xs" prependIcon={Heart} text="xs" />
+  <Chip size="sm" prependIcon={Heart} text="sm" />
+  <Chip size="default" prependIcon={Heart} text="default" />
+  <Chip size="lg" prependIcon={Heart} text="lg" />
+  <Chip size="xl" prependIcon={Heart} text="xl" />
+  <Chip rounded="sm" color="info" text='rounded="sm" (label)' />
+</Preview>
+
+Icons follow the chip's text size. Use the `prepend` / `append` slots for anything else, e.g. an
+avatar:
+
+<Preview>
+  <Chip color="primary">
+    <span
+      slot="prepend"
+      class="-ml-2 inline-flex size-6 items-center justify-center rounded-full bg-primary text-[0.625rem] text-on-primary"
+    >
+      JB
+    </span>
+    Jakub Banach
+  </Chip>
+</Preview>
+
+```astro
+<Chip color="primary">
+  <span
+    slot="prepend"
+    class="-ml-2 inline-flex size-6 items-center justify-center rounded-full bg-primary text-[0.625rem] text-on-primary"
+  >
+    JB
+  </span>
+  Jakub Banach
+</Chip>
+```
+
+## Links
+
+With `href` the chip is a link with hover and focus styles:
+
+<Preview>
+  <Chip href="#links" color="primary" appendIcon={ArrowRight} text="#astro" />
+  <Chip href="#links" variant="outlined" color="secondary" text="#tailwind" />
+</Preview>
+
+## Closable chips
+
+`closable` adds a × button that removes the chip. Focus moves to the next chip's × button, so
+keyboard users keep their place.
+
+<Preview>
+  <Chip closable text="Warszawa" />
+  <Chip closable color="primary" text="Kraków" />
+  <Chip closable color="secondary" variant="outlined" text="Gdańsk" />
+</Preview>
+
+```astro
+<div id="cities">
+  <Chip closable text="Warszawa" />
+  <Chip closable text="Kraków" />
+</div>
+
+<script>
+  // Fired on the chip before it's removed; preventDefault() keeps it.
+  document.getElementById('cities')?.addEventListener('chip:close', (event) => {
+    if (!confirm('Remove?')) event.preventDefault();
+  });
+</script>
+```
+
+A chip can't be both a link and closable — a button inside a link isn't valid HTML, and TypeScript
+flags it.
+
+## API
+
+| Prop          | Type                                                               | Default     |
+| ------------- | ------------------------------------------------------------------ | ----------- |
+| `text`        | `string`                                                           | —           |
+| `variant`     | `tonal` · `flat` · `elevated` · `outlined` · `text`                | `tonal`     |
+| `color`       | `primary` · `secondary` · `success` · `warning` · `info` · `error` | — (neutral) |
+| `size`        | `xs` · `sm` · `default` · `lg` · `xl`                              | `default`   |
+| `rounded`     | `xs` · `sm` · `default` · `lg` · `xl` · `full`                     | `full`      |
+| `prependIcon` | icon component (as for [`Icon`](/components/icon/))                | —           |
+| `appendIcon`  | icon component                                                     | —           |
+| `href`        | `string` — renders an `<a>`                                        | —           |
+| `closable`    | `boolean` — not with `href`                                        | `false`     |
+| `closeLabel`  | `string` — accessible name of the × button                         | `Remove`    |
+
+| Slot      | Content                    |
+| --------- | -------------------------- |
+| default   | the text — replaces `text` |
+| `prepend` | before the text            |
+| `append`  | after the text             |
+
+| Event        | When                                                                 |
+| ------------ | -------------------------------------------------------------------- |
+| `chip:close` | on the chip, before a closable chip is removed — cancelable, bubbles |

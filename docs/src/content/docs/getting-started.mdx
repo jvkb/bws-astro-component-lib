@@ -1,0 +1,99 @@
+---
+title: Getting started
+description: Install bws-astro-components and set up Tailwind CSS.
+---
+
+import { Button, Card } from 'bws-astro-components';
+import pkg from 'bws-astro-components/package.json';
+import Preview from '../../components/Preview.astro';
+
+Current version: **{pkg.version}** — see the [changelog](/changelog/) for what's new.
+
+## Requirements
+
+- Astro 7 or newer
+- Tailwind CSS 4 or newer, set up with `@tailwindcss/vite`
+
+## Install
+
+```bash
+pnpm add bws-astro-components
+```
+
+The library's own dependencies — Lucide icons, `tailwind-merge` and Floating UI — come with it.
+Components are published as `.astro` files and compiled by your project, so there's nothing to
+configure in Astro.
+
+## Set up the styles
+
+Import the library's styles right after Tailwind in your global stylesheet and define your brand
+colors:
+
+```css title="src/styles/global.css"
+@import 'tailwindcss';
+@import 'bws-astro-components/styles.css';
+
+@theme {
+  --color-primary: #2b4570;
+  --color-secondary: #dc5f26;
+}
+```
+
+`styles.css` lets Tailwind find the classes used inside the components and defines the
+[theme roles](/guides/themes/) and status colors.
+
+| Variable                                     | Required   | Used for                                     |
+| -------------------------------------------- | ---------- | -------------------------------------------- |
+| `--color-primary`                            | yes        | the default color of buttons, fields, chips… |
+| `--color-secondary`                          | yes        | `color="secondary"`                          |
+| `--color-on-primary`, `--color-on-secondary` | no — white | text on solid fills in those colors          |
+
+Any CSS color format works. Components derive hover states and tints from these two colors, so
+shades (`--color-primary-50` … `950`) aren't needed — define them only for your own markup.
+
+## Use the components
+
+```astro title="src/pages/index.astro"
+---
+import '../styles/global.css';
+import { Button, Card } from 'bws-astro-components';
+---
+
+<Card title="Hello" subtitle="bws-astro-components" text="Your first card.">
+  <Button slot="actions">Get started</Button>
+</Card>
+```
+
+<Preview>
+  <Card
+    class="w-80"
+    title="Hello"
+    subtitle="bws-astro-components"
+    text="Your first card."
+  >
+    <Button slot="actions">Get started</Button>
+  </Card>
+</Preview>
+
+## Entry points
+
+| Import                              | Contents                                                   |
+| ----------------------------------- | ---------------------------------------------------------- |
+| `bws-astro-components`              | all components                                             |
+| `bws-astro-components/icons`        | every [Lucide icon](https://lucide.dev/icons) for `<Icon>` |
+| `bws-astro-components/rules`        | [validation rules](/guides/validation/) and `validateForm` |
+| `bws-astro-components/theme`        | `setTheme`, `toggleTheme`, … ([themes](/guides/themes/))   |
+| `bws-astro-components/styles.css`   | the styles from the setup above                            |
+| `bws-astro-components/components/*` | a single component file, e.g. `components/Button.astro`    |
+
+## Dark mode
+
+Components follow the theme set with `data-theme` — add `<ThemeScript />` to your `<head>` for a
+theme switch that remembers the visitor's choice. See [Themes](/guides/themes/).
+
+## Versioning
+
+The library follows [semantic versioning](https://semver.org): new components and features raise
+the minor version (`1.1.0`), fixes the patch version (`1.0.1`) and breaking changes the major
+version (`2.0.0`). A range like `^1.0.0` in your `package.json` picks up new components and fixes,
+but never a breaking change.
