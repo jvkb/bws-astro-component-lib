@@ -1,0 +1,89 @@
+---
+title: Textarea
+description: Multi-line text fields with Vuetify's variants, auto-grow and a character counter.
+---
+
+import { Textarea } from 'bws-astro-components';
+import Preview from '../../../components/Preview.astro';
+
+The multi-line sibling of [`TextInput`](/components/text-input/) — the same variants, floating
+label, hint, error and validation.
+
+<Preview layout="grid">
+  <Textarea label="Filled" rows={3} />
+  <Textarea label="Outlined" variant="outlined" rows={3} />
+  <Textarea label="Underlined" variant="underlined" rows={3} />
+  <Textarea label="With value" variant="outlined" rows={3} value="Hello! I'd like to ask about the project." />
+</Preview>
+
+```astro
+---
+import { Textarea } from 'bws-astro-components';
+---
+
+<Textarea name="message" label="Message" />
+<Textarea name="message" label="Message" variant="outlined" rows={3} />
+```
+
+The label rests on the first line while the field is empty and floats up on focus or once there's
+text.
+
+## Auto-grow
+
+With `autoGrow` the field grows with its content instead of scrolling; `rows` is then the minimum
+height and `maxRows` the maximum, after which it scrolls. The resize handle is hidden.
+
+<Preview layout="grid">
+  <Textarea label="Auto-grow" rows={2} autoGrow value="Type more lines here to see the field grow." />
+  <Textarea label="Auto-grow, max 4 rows" rows={2} autoGrow maxRows={4} variant="outlined" />
+</Preview>
+
+```astro
+<Textarea label="Message" rows={2} autoGrow maxRows={6} />
+```
+
+## Counter
+
+`counter` shows the number of characters — out of `maxlength` when it's set, or out of the number
+you pass. The count turns red above the limit; use a [`maxLength` rule](/guides/validation/) to
+also block the submit.
+
+<Preview layout="grid">
+  <Textarea label="Bio" rows={3} maxlength={160} counter hint="Shown on your profile" />
+  <Textarea label="Note" rows={3} counter={50} variant="outlined" />
+</Preview>
+
+```astro
+<Textarea label="Bio" maxlength={160} counter hint="Shown on your profile" />
+<Textarea label="Note" counter={50} rules={[maxLength(50)]} />
+```
+
+## States
+
+<Preview layout="grid">
+  <Textarea label="Message" rows={2} value="Hi" error="Write at least 10 characters" />
+  <Textarea label="Disabled" rows={2} value="Read only" disabled />
+  <Textarea label="No resize" rows={2} noResize variant="outlined" />
+  <Textarea label="With placeholder" rows={2} placeholder="Tell us about your project…" color="secondary" />
+</Preview>
+
+## API
+
+| Prop          | Type                                                     | Default   |
+| ------------- | -------------------------------------------------------- | --------- |
+| `label`       | `string`                                                 | —         |
+| `variant`     | `filled` · `outlined` · `underlined`                     | `filled`  |
+| `color`       | focus color                                              | `primary` |
+| `value`       | `string` — initial text                                  | —         |
+| `rows`        | `number` — visible lines; the minimum with `autoGrow`    | `5`       |
+| `autoGrow`    | `boolean`                                                | `false`   |
+| `maxRows`     | `number` — with `autoGrow`, lines before it scrolls      | —         |
+| `counter`     | `boolean` or `number` — character counter                | —         |
+| `noResize`    | `boolean` — hide the resize handle                       | `false`   |
+| `hint`        | `string`                                                 | —         |
+| `error`       | `string` — starts out invalid                            | —         |
+| `rules`       | [validation rules](/guides/validation/)                  | —         |
+| `id`, `class` | `string` — `class` goes to the wrapper                   | —         |
+
+Any other attribute (`name`, `placeholder`, `maxlength`, `required`, `disabled`…) goes to the
+`<textarea>`.

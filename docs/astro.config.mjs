@@ -17,16 +17,27 @@ export default defineConfig({
         {
           label: 'Components',
           items: [
-            'components/avatar',
-            'components/button',
-            'components/card',
-            'components/chip',
-            'components/chip-group',
-            'components/form',
-            'components/icon',
-            'components/number-input',
-            'components/select',
-            'components/text-input',
+            { label: 'Actions', items: ['components/button'] },
+            { label: 'Containment', items: ['components/card'] },
+            {
+              label: 'Data display',
+              items: [
+                'components/avatar',
+                'components/chip',
+                'components/icon',
+              ],
+            },
+            {
+              label: 'Forms',
+              items: [
+                'components/form',
+                'components/text-input',
+                'components/textarea',
+                'components/number-input',
+                'components/select',
+                'components/chip-group',
+              ],
+            },
           ],
         },
       ],

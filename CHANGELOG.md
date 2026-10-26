@@ -4,6 +4,14 @@ All notable changes to this project are documented here. The project follows
 [Semantic Versioning](https://semver.org): a new component or feature raises the
 minor version, a fix the patch version, and an incompatible change the major version.
 
+## [1.2.0] - 2026-10-26
+
+### Added
+
+- `Textarea` — multi-line field with `TextInput`'s variants, floating label, hint, error and
+  validation; `rows`, `autoGrow` with `maxRows`, a character `counter` and `noResize`.
+- `Form` validates textareas with `rules`.
+
 ## [1.1.0] - 2026-10-26
 
 ### Added

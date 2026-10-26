@@ -10,3 +10,4 @@ export { default as Chip } from './components/Chip.astro';
 export { default as ChipGroup } from './components/ChipGroup.astro';
 export { default as ThemeScript } from './components/ThemeScript.astro';
 export { default as Avatar } from './components/Avatar.astro';
+export { default as Textarea } from './components/Inputs/Textarea.astro';

@@ -1,0 +1,276 @@
+---
+import type { HTMLAttributes } from 'astro/types';
+import { twMerge } from 'tailwind-merge';
+import { type Rule, toInputAttributes } from '../../rules.ts';
+import type { ColorVariant, InputVariant, SharedProps } from '../types.ts';
+import {
+  getFieldClasses,
+  getInputColor,
+  getInvalidFieldClasses,
+  getLabelClasses,
+} from './field.ts';
+
+type Props = Omit<
+  HTMLAttributes<'textarea'>,
+  'class' | 'id' | 'color' | 'value'
+> &
+  SharedProps & {
+    label?: string;
+    variant?: InputVariant;
+    color?: ColorVariant;
+    /** Initial text. */
+    value?: string;
+    /** Visible lines; with `autoGrow`, the minimum. */
+    rows?: number;
+    /** Grow with the content instead of scrolling. */
+    autoGrow?: boolean;
+    /** With `autoGrow`, the most lines before the textarea starts scrolling. */
+    maxRows?: number;
+    /**
+     * Character counter under the field. `true` shows the count (out of `maxlength`, if set);
+     * a number shows the count out of that number.
+     */
+    counter?: boolean | number;
+    /** Hide the resize handle. */
+    noResize?: boolean;
+    /** Helper text under the field. */
+    hint?: string;
+    /** Error message, e.g. from server-side validation. When set, the field starts out invalid. */
+    error?: string;
+    /** Validation rules from `bws-astro-components/rules`, checked in the browser inside a <Form>. */
+    rules?: Rule[];
+  };
+
+const props = Astro.props;
+// Component-only props stay out of the spread, so they don't end up as HTML attributes.
+const {
+  label,
+  variant,
+  color,
+  value,
+  rows,
+  autoGrow,
+  maxRows,
+  counter,
+  noResize,
+  hint,
+  error,
+  rules,
+  class: _class,
+  id: _id,
+  placeholder,
+  ...attrs
+} = props;
+
+const inputId = props.id ?? `textarea-${crypto.randomUUID().slice(0, 8)}`;
+const messageId = `${inputId}-message`;
+const message = error ?? hint;
+// Fields with rules (or a server error that should clear once edited) are picked up by Form's script.
+const validated = rules !== undefined || error !== undefined;
+
+// Only the rules a textarea understands natively (min, max and pattern don't apply to it).
+const ruleAttributes = toInputAttributes(rules ?? []);
+const nativeRules = Object.fromEntries(
+  Object.entries(ruleAttributes).filter(([name]) =>
+    ['required', 'minlength', 'maxlength'].includes(name),
+  ),
+);
+// Native attributes from the rules come first, so explicitly passed ones win.
+const textareaAttrs = { ...nativeRules, ...attrs };
+
+const maxLength = textareaAttrs.maxlength;
+const counterMax =
+  typeof counter === 'number'
+    ? counter
+    : maxLength !== undefined
+      ? Number(maxLength)
+      : undefined;
+const count = value?.length ?? 0;
+const counterId = `${inputId}-counter`;
+
+// Same pure-CSS floating label as TextInput: it rests on the first line while the textarea is empty.
+const textareaPlaceholder = label && !placeholder ? ' ' : placeholder;
+const currentVariant = variant ?? 'filled';
+
+// Room for the floated label above the text.
+function getTextareaPadding(variant: InputVariant) {
+  switch (variant) {
+    case 'filled': {
+      return label ? 'px-4 pt-6 pb-2' : 'px-4 py-3';
+    }
+    case 'underlined': {
+      return label ? 'pt-6 pb-2' : 'py-3';
+    }
+    case 'outlined': {
+      return 'px-4 py-3';
+    }
+  }
+}
+
+// Moves the label onto the first line while the textarea is empty and not focused.
+// Skipped when there's a real placeholder — the label then stays floated above it.
+function getRestingLabelClasses(variant: InputVariant) {
+  switch (variant) {
+    case 'filled':
+    case 'underlined': {
+      return 'peer-[:placeholder-shown:not(:focus)]:top-6 peer-[:placeholder-shown:not(:focus)]:text-base';
+    }
+    case 'outlined': {
+      return 'peer-[:placeholder-shown:not(:focus)]:top-3 peer-[:placeholder-shown:not(:focus)]:translate-y-0 peer-[:placeholder-shown:not(:focus)]:bg-transparent peer-[:placeholder-shown:not(:focus)]:text-base';
+    }
+  }
+}
+---
+
+<div
+  data-field
+  data-invalid={error ? '' : undefined}
+  class={twMerge(
+    'group/field flex flex-col gap-1 has-[textarea:disabled]:opacity-60 data-invalid:[--input-color:var(--color-error)]',
+    getInputColor(color ?? 'primary'),
+    props.class,
+  )}
+>
+  <div
+    class={twMerge(
+      'relative flex',
+      getFieldClasses(currentVariant),
+      getInvalidFieldClasses(currentVariant),
+    )}
+  >
+    <div class="relative min-w-0 flex-1">
+      <textarea
+        id={inputId}
+        rows={rows ?? 5}
+        placeholder={textareaPlaceholder}
+        aria-invalid={error ? 'true' : undefined}
+        aria-describedby={
+          message || validated || counter ? messageId : undefined
+        }
+        data-rules={validated ? JSON.stringify(rules ?? []) : undefined}
+        data-touched={error ? '' : undefined}
+        data-auto-grow={autoGrow ? '' : undefined}
+        data-max-rows={autoGrow && maxRows ? maxRows : undefined}
+        data-counter={counter ? counterId : undefined}
+        data-counter-max={counterMax}
+        class={twMerge(
+          'peer block w-full resize-y bg-transparent text-base leading-6 text-on-surface outline-none placeholder:text-on-surface/50 disabled:cursor-not-allowed',
+          getTextareaPadding(currentVariant),
+          (noResize || autoGrow) && 'resize-none',
+          autoGrow && 'overflow-hidden',
+        )}
+        {...textareaAttrs}
+      >{value}</textarea>
+      {label && (
+        <label
+          for={inputId}
+          class={twMerge(
+            'pointer-events-none absolute text-xs text-on-surface/70 transition-all duration-150 peer-focus:text-(--input-color)',
+            getLabelClasses(currentVariant, false),
+            !placeholder && getRestingLabelClasses(currentVariant),
+            'group-data-invalid/field:text-(--input-color)',
+          )}
+        >
+          {label}
+        </label>
+      )}
+    </div>
+  </div>
+
+  {(message || validated || counter) && (
+    <div
+      class={twMerge(
+        'flex justify-between gap-4 text-xs',
+        currentVariant !== 'underlined' && 'px-4',
+      )}
+    >
+      <p
+        id={messageId}
+        data-hint={hint}
+        aria-live={validated ? 'polite' : undefined}
+        class={twMerge(
+          'text-on-surface/70 group-data-invalid/field:text-error',
+          // Reserve the line, so the layout doesn't jump when an error appears.
+          validated && 'min-h-4',
+        )}
+      >
+        {message}
+      </p>
+      {counter && (
+        <span
+          id={counterId}
+          class:list={[
+            'shrink-0 text-on-surface/70 tabular-nums',
+            counterMax !== undefined && count > counterMax && 'text-error',
+          ]}
+        >
+          {counterMax === undefined ? count : `${count} / ${counterMax}`}
+        </span>
+      )}
+    </div>
+  )}
+</div>
+
+<script>
+  // Auto-grow and the counter, for every Textarea on the page (Astro bundles this script once).
+  const AUTO_GROW = 'textarea[data-auto-grow]';
+  const COUNTER = 'textarea[data-counter]';
+
+  // Grows the textarea to fit its content, up to data-max-rows lines (then it scrolls).
+  function grow(textarea: HTMLTextAreaElement) {
+    const style = getComputedStyle(textarea);
+    const maxRows = Number(textarea.dataset.maxRows);
+    const maxHeight = maxRows
+      ? maxRows * parseFloat(style.lineHeight) +
+        parseFloat(style.paddingTop) +
+        parseFloat(style.paddingBottom)
+      : Infinity;
+
+    textarea.style.height = 'auto';
+    const height = Math.min(textarea.scrollHeight, maxHeight);
+    textarea.style.height = `${height}px`;
+    textarea.style.overflowY =
+      textarea.scrollHeight > maxHeight ? 'auto' : 'hidden';
+  }
+
+  function updateCounter(textarea: HTMLTextAreaElement) {
+    const counter = document.getElementById(textarea.dataset.counter ?? '');
+    if (!counter) return;
+    const count = textarea.value.length;
+    const max = textarea.dataset.counterMax
+      ? Number(textarea.dataset.counterMax)
+      : undefined;
+    counter.textContent =
+      max === undefined ? String(count) : `${count} / ${max}`;
+    counter.classList.toggle('text-error', max !== undefined && count > max);
+  }
+
+  function update(textarea: HTMLTextAreaElement) {
+    if (textarea.matches(AUTO_GROW)) grow(textarea);
+    if (textarea.matches(COUNTER)) updateCounter(textarea);
+  }
+
+  function updateAll(root: ParentNode = document) {
+    for (const textarea of root.querySelectorAll<HTMLTextAreaElement>(
+      `${AUTO_GROW}, ${COUNTER}`,
+    )) {
+      update(textarea);
+    }
+  }
+
+  document.addEventListener('input', (event) => {
+    if (event.target instanceof HTMLTextAreaElement) update(event.target);
+  });
+
+  // After a form reset the textareas have their initial text back.
+  document.addEventListener('reset', (event) => {
+    if (event.target instanceof HTMLFormElement) {
+      const form = event.target;
+      setTimeout(() => updateAll(form));
+    }
+  });
+
+  updateAll();
+  // Re-run after client-side navigation when the site uses Astro's view transitions.
+  document.addEventListener('astro:page-load', () => updateAll());
+</script>

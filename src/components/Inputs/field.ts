@@ -1,4 +1,4 @@
-// Field styles shared by the Vuetify-style inputs (TextInput, Select), so they look and behave alike.
+// Field styles shared by the Vuetify-style inputs (TextInput, Textarea, Select), so they look and behave alike.
 import { twMerge } from 'tailwind-merge';
 import type { ColorVariant, InputVariant } from '../types.ts';
 

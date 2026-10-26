@@ -10,6 +10,7 @@ import {
   NumberInput,
   Select,
   TextInput,
+  Textarea,
   ThemeScript,
 } from '../../src';
 import { required } from '../../src/rules';
@@ -290,6 +291,31 @@ const palettes = {
     </section>
 
     <section class="mt-8 space-y-4">
+      <h2 class="text-lg font-semibold">Textarea</h2>
+      {inputVariants.map((variant) => (
+        <div class="grid max-w-5xl grid-cols-3 items-start gap-4">
+          <Textarea variant={variant} label={`${variant}: empty`} rows={3} />
+          <Textarea
+            variant={variant}
+            label="Auto-grow (max 6 rows)"
+            rows={2}
+            autoGrow
+            maxRows={6}
+            value="Type more lines here to see the field grow."
+          />
+          <Textarea
+            variant={variant}
+            label="With counter"
+            rows={3}
+            maxlength={120}
+            counter
+            hint="Counts against maxlength"
+          />
+        </div>
+      ))}
+    </section>
+
+    <section class="mt-8 space-y-4">
       <h2 class="text-lg font-semibold">NumberInput</h2>
       {inputVariants.map((variant) => (
         <div class="grid max-w-5xl grid-cols-3 items-start gap-4">
@@ -435,6 +461,15 @@ const palettes = {
           label="Liczba gości"
           controlVariant="split"
           rules={contactRules.guests}
+        />
+        <Textarea
+          class="col-span-2"
+          name="message"
+          label="Wiadomość"
+          rows={3}
+          autoGrow
+          counter
+          rules={contactRules.message}
         />
         <TextInput
           name="login"

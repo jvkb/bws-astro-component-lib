@@ -27,9 +27,13 @@ const { validateOn, ...attrs } = Astro.props;
   const FORM = 'form[data-validate-on]';
   const FIELD = '[data-rules]';
 
-  // The element holding the value: an <input>, the hidden <select> behind Select,
+  // The element holding the value: an <input>, a <textarea>, the hidden <select> behind Select,
   // or the <fieldset> of a ChipGroup.
-  type Field = HTMLInputElement | HTMLSelectElement | HTMLFieldSetElement;
+  type Field =
+    | HTMLInputElement
+    | HTMLTextAreaElement
+    | HTMLSelectElement
+    | HTMLFieldSetElement;
 
   function getField(target: EventTarget | null): Field | null {
     if (!(target instanceof Element)) return null;
