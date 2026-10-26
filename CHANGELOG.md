@@ -4,6 +4,15 @@ All notable changes to this project are documented here. The project follows
 [Semantic Versioning](https://semver.org): a new component or feature raises the
 minor version, a fix the patch version, and an incompatible change the major version.
 
+## [1.11.0] - 2026-10-26
+
+### Added
+
+- `Pagination` — links to the pages of a list, without JavaScript: `href` as a `{page}` template or
+  a function (fits Astro's `paginate()`), ellipses for long ranges (`totalVisible`), previous/next
+  arrows with `rel`, optional first/last arrows, `color` and `activeColor`, `size`, `rounded`, `variant` and
+  `activeVariant`. The current page has `aria-current="page"`; all labels can be translated.
+
 ## [1.10.0] - 2026-10-26
 
 ### Added

@@ -30,7 +30,11 @@ export default defineConfig({
             { label: 'Feedback', items: ['components/alert'] },
             {
               label: 'Navigation',
-              items: ['components/breadcrumbs', 'components/navigation-drawer'],
+              items: [
+                'components/breadcrumbs',
+                'components/navigation-drawer',
+                'components/pagination',
+              ],
             },
             {
               label: 'Overlays',

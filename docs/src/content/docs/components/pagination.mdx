@@ -1,0 +1,129 @@
+---
+title: Pagination
+description: Links to the pages of a list, with ellipses for long ranges, like Vuetify's v-pagination.
+---
+
+import { Pagination } from 'bws-astro-components';
+import Preview from '../../../components/Preview.astro';
+
+<Preview layout="stack" class="max-w-none">
+  <Pagination page={2} length={5} href="#" />
+  <Pagination page={10} length={20} href="#" color="primary" />
+  <Pagination page={18} length={20} href="#" totalVisible={9} showFirstLast variant="outlined" rounded="full" color="secondary" />
+</Preview>
+
+```astro
+---
+import { Pagination } from 'bws-astro-components';
+---
+
+<Pagination page={3} length={10} href="/blog/{page}" />
+```
+
+Every page is its own URL, so the component needs no JavaScript: the buttons are links, the
+current one is marked with `aria-current="page"`, and the previous and next arrows carry
+`rel="prev"` / `rel="next"`. On the first or last page the arrows are disabled buttons instead of
+links. The whole thing is a `<nav>` with a list; the ellipses are hidden from screen readers.
+
+## With Astro's paginate()
+
+Pagination fits Astro's [`paginate()`](https://docs.astro.build/en/guides/routing/#pagination):
+pass the current page and the last one.
+
+```astro title="src/pages/blog/[page].astro"
+---
+import type { GetStaticPaths } from 'astro';
+import { getCollection } from 'astro:content';
+import { Pagination } from 'bws-astro-components';
+
+export const getStaticPaths = (async ({ paginate }) => {
+  const posts = await getCollection('blog');
+  return paginate(posts, { pageSize: 10 });
+}) satisfies GetStaticPaths;
+
+const { page } = Astro.props;
+---
+
+{page.data.map((post) => <h2>{post.data.title}</h2>)}
+
+<Pagination page={page.currentPage} length={page.lastPage} href="/blog/{page}" />
+```
+
+## Links
+
+`href` is a template — `{page}` is replaced with the page number — or a function, for URLs a
+template can't express, e.g. a first page without a number:
+
+```astro
+<Pagination page={page} length={10} href="/blog?page={page}" />
+
+<Pagination
+  page={page}
+  length={10}
+  href={(page) => (page === 1 ? '/blog' : `/blog/${page}`)}
+/>
+```
+
+## Visible pages
+
+`totalVisible` (7 by default, at least 5) is the most page buttons shown, ellipses included. The
+first and last pages always show, the current one sits in the middle where it can, and an
+ellipsis always stands for at least two pages:
+
+<Preview layout="stack" class="max-w-none">
+  <Pagination page={3} length={20} href="#" />
+  <Pagination page={10} length={20} href="#" />
+  <Pagination page={10} length={20} href="#" totalVisible={5} />
+</Preview>
+
+## Looks
+
+`variant` and `color` style the other pages and the arrows (`text` in the theme's text color by
+default), `activeVariant` and `activeColor` the current page (`flat` in `color`, or primary).
+`size` and `rounded` work as on `Button`:
+
+<Preview layout="stack" class="max-w-none">
+  <Pagination page={2} length={4} href="#" size="sm" activeVariant="tonal" color="primary" />
+  <Pagination page={2} length={4} href="#" variant="outlined" rounded="full" activeColor="secondary" />
+  <Pagination page={2} length={4} href="#" size="lg" variant="tonal" activeVariant="elevated" color="success" />
+</Preview>
+
+## Labels
+
+The accessible names are in English by default; translate them with `label`, `pageLabel` (`{page}`
+is replaced with the number), `previousLabel`, `nextLabel`, `firstLabel` and `lastLabel`:
+
+```astro
+<Pagination
+  page={2}
+  length={10}
+  href="/blog/{page}"
+  label="Stronicowanie"
+  pageLabel="Strona {page}"
+  previousLabel="Poprzednia strona"
+  nextLabel="Następna strona"
+/>
+```
+
+## API
+
+| Prop            | Type                                              | Default         |
+| --------------- | ------------------------------------------------- | --------------- |
+| `page`          | `number` — the current page, from 1               | required        |
+| `length`        | `number` — the number of pages                    | required        |
+| `href`          | `string` with `{page}`, or `(page: number) => string` | required    |
+| `totalVisible`  | `number` — page buttons shown, ellipses included  | `7`             |
+| `showFirstLast` | `boolean` — add first and last page arrows        | `false`         |
+| `color`         | other pages and arrows: `primary` · `secondary` · `success` · `warning` · `info` · `error` | theme text color |
+| `activeColor`   | the current page, same values                     | `color`, or `primary` |
+| `size`          | `xs` · `sm` · `default` · `lg` · `xl`             | `default`       |
+| `rounded`       | `xs` · `sm` · `default` · `lg` · `xl` · `full`    | `default`       |
+| `variant`       | other pages: `text` · `flat` · `elevated` · `tonal` · `outlined` | `text` |
+| `activeVariant` | the current page, same values                     | `flat`          |
+| `label`         | `string` — accessible name of the `<nav>`         | `Pagination`    |
+| `pageLabel`     | `string` — each page's name, with `{page}`        | `Page {page}`   |
+| `previousLabel`, `nextLabel` | `string`                             | `Previous page`, `Next page` |
+| `firstLabel`, `lastLabel`    | `string`                             | `First page`, `Last page`    |
+| `id`, `class`   | `string`                                          | —               |
+
+Other attributes go to the `<nav>`. With `length={0}` nothing renders.

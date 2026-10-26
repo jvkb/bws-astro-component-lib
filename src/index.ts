@@ -19,3 +19,4 @@ export { default as Checkbox } from './components/Inputs/Checkbox.astro';
 export { default as Tooltip } from './components/Tooltip.astro';
 export { default as Alert } from './components/Alert.astro';
 export { default as Breadcrumbs } from './components/Breadcrumbs.astro';
+export { default as Pagination } from './components/Pagination.astro';

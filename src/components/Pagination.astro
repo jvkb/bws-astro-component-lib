@@ -1,0 +1,230 @@
+---
+import ChevronLeft from '@lucide/astro/icons/chevron-left';
+import ChevronRight from '@lucide/astro/icons/chevron-right';
+import ChevronsLeft from '@lucide/astro/icons/chevrons-left';
+import ChevronsRight from '@lucide/astro/icons/chevrons-right';
+import type { HTMLAttributes } from 'astro/types';
+import { twMerge } from 'tailwind-merge';
+import Button from './Button.astro';
+import Icon from './Icon.astro';
+import { getPageItems } from './pagination.ts';
+import type {
+  ButtonVariant,
+  ColorVariant,
+  RoundedVariant,
+  SharedProps,
+  Size,
+} from './types.ts';
+
+type Props = Omit<HTMLAttributes<'nav'>, 'class' | 'id'> &
+  SharedProps & {
+    /** The current page, starting at 1. */
+    page: number;
+    /** The number of pages. */
+    length: number;
+    /** A page's URL: a template with `{page}` (e.g. `/blog/{page}`) or a function. */
+    href: string | ((page: number) => string);
+    /** The most page buttons shown, ellipses included (at least 5). */
+    totalVisible?: number;
+    /** Also show buttons for the first and last page. */
+    showFirstLast?: boolean;
+    /** Color of the other pages and the arrows; without it they're the theme's text color. */
+    color?: ColorVariant;
+    /** Color of the current page. */
+    activeColor?: ColorVariant;
+    size?: Size;
+    rounded?: RoundedVariant;
+    /** Look of the other pages. */
+    variant?: ButtonVariant;
+    /** Look of the current page. */
+    activeVariant?: ButtonVariant;
+    /** Accessible name of the navigation. */
+    label?: string;
+    /** Accessible name of each page button; `{page}` is replaced with its number. */
+    pageLabel?: string;
+    previousLabel?: string;
+    nextLabel?: string;
+    firstLabel?: string;
+    lastLabel?: string;
+  };
+
+const props = Astro.props;
+// Component-only props stay out of the spread, so they don't end up as HTML attributes.
+const {
+  page,
+  length,
+  href,
+  totalVisible,
+  showFirstLast,
+  color,
+  activeColor,
+  size,
+  rounded,
+  variant,
+  activeVariant,
+  label,
+  pageLabel,
+  previousLabel,
+  nextLabel,
+  firstLabel,
+  lastLabel,
+  class: _class,
+  id: _id,
+  ...attrs
+} = props;
+
+const current = Math.min(Math.max(page, 1), Math.max(length, 1));
+const items = getPageItems(current, length, totalVisible ?? 7);
+const hrefFor = (target: number) =>
+  typeof href === 'function'
+    ? href(target)
+    : href.replaceAll('{page}', String(target));
+
+// Square buttons: as wide as they're tall, wider for long numbers.
+function getMinWidth(size: Size) {
+  switch (size) {
+    case 'xs': {
+      return 'min-w-7 px-1.5';
+    }
+    case 'sm': {
+      return 'min-w-8 px-2';
+    }
+    case 'default': {
+      return 'min-w-10 px-2';
+    }
+    case 'lg': {
+      return 'min-w-12 px-2.5';
+    }
+    case 'xl': {
+      return 'min-w-14 px-3';
+    }
+  }
+}
+
+const itemClass = getMinWidth(size ?? 'default');
+// Without a color the other pages and arrows take the theme's text color, like Vuetify.
+const neutral =
+  color === undefined &&
+  '[--btn-color:var(--color-on-surface)] [--btn-on-color:var(--color-surface)]';
+const shared = { color, size, rounded, class: twMerge(itemClass, neutral) };
+
+// The arrows. At the first or last page they're disabled buttons, not links.
+type Arrow = {
+  target: number;
+  enabled: boolean;
+  label: string;
+  icon: typeof ChevronLeft;
+  rel?: string;
+};
+const first: Arrow = {
+  target: 1,
+  enabled: current > 1,
+  label: firstLabel ?? 'First page',
+  icon: ChevronsLeft,
+};
+const previous: Arrow = {
+  target: current - 1,
+  enabled: current > 1,
+  label: previousLabel ?? 'Previous page',
+  icon: ChevronLeft,
+  rel: 'prev',
+};
+const next: Arrow = {
+  target: current + 1,
+  enabled: current < length,
+  label: nextLabel ?? 'Next page',
+  icon: ChevronRight,
+  rel: 'next',
+};
+const last: Arrow = {
+  target: length,
+  enabled: current < length,
+  label: lastLabel ?? 'Last page',
+  icon: ChevronsRight,
+};
+const before = showFirstLast ? [first, previous] : [previous];
+const after = showFirstLast ? [next, last] : [next];
+
+const arrowLink = (arrow: Arrow) =>
+  arrow.enabled
+    ? { href: hrefFor(arrow.target), rel: arrow.rel }
+    : { disabled: true };
+---
+
+{length > 0 && (
+  <nav
+    id={props.id}
+    aria-label={label ?? 'Pagination'}
+    class={props.class}
+    {...attrs}
+  >
+    <ul class="flex flex-wrap items-center gap-1">
+      {before.map((arrow) => (
+        <li>
+          <Button
+            {...arrowLink(arrow)}
+            variant={variant ?? 'text'}
+            aria-label={arrow.label}
+            {...shared}
+          >
+            <Icon icon={arrow.icon} />
+          </Button>
+        </li>
+      ))}
+
+      {items.map((item) =>
+        item === 'ellipsis' ? (
+          // Hidden from screen readers — the page numbers around it say what's skipped.
+          <li
+            aria-hidden="true"
+            class={twMerge(
+              'inline-flex items-center justify-center text-on-surface/60 select-none',
+              itemClass,
+            )}
+          >
+            …
+          </li>
+        ) : (
+          <li>
+            <Button
+              href={hrefFor(item)}
+              variant={
+                item === current
+                  ? (activeVariant ?? 'flat')
+                  : (variant ?? 'text')
+              }
+              color={item === current ? (activeColor ?? color) : color}
+              aria-current={item === current ? 'page' : undefined}
+              aria-label={(pageLabel ?? 'Page {page}').replaceAll(
+                '{page}',
+                String(item),
+              )}
+              size={size}
+              rounded={rounded}
+              class={twMerge(
+                itemClass,
+                item !== current && neutral,
+                'tabular-nums',
+              )}
+            >
+              {item}
+            </Button>
+          </li>
+        ),
+      )}
+
+      {after.map((arrow) => (
+        <li>
+          <Button
+            {...arrowLink(arrow)}
+            variant={variant ?? 'text'}
+            aria-label={arrow.label}
+            {...shared}
+          >
+            <Icon icon={arrow.icon} />
+          </Button>
+        </li>
+      ))}
+    </ul>
+  </nav>
+)}

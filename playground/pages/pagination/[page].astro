@@ -1,0 +1,44 @@
+---
+// A real paginated route: what Pagination is built for.
+import type { GetStaticPaths } from 'astro';
+import '../../styles/global.css';
+import { Card, Pagination, ThemeScript } from '../../../src';
+
+export const getStaticPaths = (({ paginate }) => {
+  const posts = Array.from({ length: 95 }, (_, i) => ({
+    title: `Post ${i + 1}`,
+  }));
+  return paginate(posts, { pageSize: 5 });
+}) satisfies GetStaticPaths;
+
+const { page } = Astro.props;
+---
+
+<html lang="pl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Pagination — page {page.currentPage}</title>
+    <ThemeScript />
+  </head>
+  <body class="space-y-6 p-8">
+    <a class="text-sm underline" href="/">
+      ← Playground
+    </a>
+    <h1 class="text-2xl font-bold">
+      Page {page.currentPage} of {page.lastPage}
+    </h1>
+    <div class="grid max-w-xl gap-3">
+      {page.data.map((post) => (
+        <Card title={post.title} />
+      ))}
+    </div>
+    <Pagination
+      page={page.currentPage}
+      length={page.lastPage}
+      href="/pagination/{page}"
+      showFirstLast
+      color="primary"
+    />
+  </body>
+</html>

@@ -14,6 +14,7 @@ import {
   Menu,
   NavigationDrawer,
   NumberInput,
+  Pagination,
   Select,
   Switch,
   TextInput,
@@ -784,6 +785,44 @@ const palettes = {
         divider="›"
       />
       <Breadcrumbs id="breadcrumbs-with-schema" items={breadcrumbs} schema />
+    </section>
+
+    <section class="mt-8 space-y-4">
+      <h2 class="text-lg font-semibold">Pagination</h2>
+      <p class="text-sm text-on-surface/70">
+        Every page is its own URL —{' '}
+        <a class="underline" href="/pagination/1">
+          /pagination/1
+        </a>{' '}
+        uses Astro's <code>paginate()</code>.
+      </p>
+      <Pagination page={1} length={5} href="/pagination/{page}" />
+      <Pagination
+        page={10}
+        length={20}
+        href="/pagination/{page}"
+        color="primary"
+      />
+      <Pagination
+        page={18}
+        length={20}
+        href={(page) => `/pagination/${page}`}
+        totalVisible={9}
+        showFirstLast
+        variant="outlined"
+        rounded="full"
+        color="secondary"
+      />
+      <div class="flex flex-wrap items-center gap-6">
+        <Pagination page={3} length={6} href="/pagination/{page}" size="xs" />
+        <Pagination
+          page={3}
+          length={6}
+          href="/pagination/{page}"
+          size="lg"
+          activeVariant="tonal"
+        />
+      </div>
     </section>
 
     <section class="mt-8 space-y-4">
