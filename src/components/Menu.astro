@@ -1,0 +1,456 @@
+---
+import type { HTMLAttributes } from 'astro/types';
+import { twMerge } from 'tailwind-merge';
+import Icon from './Icon.astro';
+import type {
+  ColorVariant,
+  MenuItem,
+  MenuPlacement,
+  SharedProps,
+} from './types.ts';
+
+type Props = Omit<HTMLAttributes<'div'>, 'class' | 'id'> &
+  SharedProps & {
+    /** Menu entries. Without them, the default slot is shown as free-form content. */
+    items?: MenuItem[];
+    /** Where the menu opens next to its activator; it flips when there isn't room. */
+    location?: MenuPlacement;
+    /** Open while the pointer is over the activator or the menu. */
+    openOnHover?: boolean;
+    /** Close after a click inside the menu. */
+    closeOnContentClick?: boolean;
+  };
+
+const props = Astro.props;
+// Component-only props stay out of the spread, so they don't end up as HTML attributes.
+const {
+  items,
+  location,
+  openOnHover,
+  closeOnContentClick,
+  class: _class,
+  id: _id,
+  ...attrs
+} = props;
+
+const id = props.id ?? `menu-${crypto.randomUUID().slice(0, 8)}`;
+const isMenu = items !== undefined;
+const Tag = isMenu ? 'ul' : 'div';
+
+function getItemColor(color: ColorVariant | undefined) {
+  switch (color) {
+    case 'primary': {
+      return 'text-primary';
+    }
+    case 'secondary': {
+      return 'text-secondary';
+    }
+    case 'success': {
+      return 'text-success';
+    }
+    case 'warning': {
+      return 'text-warning';
+    }
+    case 'info': {
+      return 'text-info';
+    }
+    case 'error': {
+      return 'text-error';
+    }
+    case undefined: {
+      return 'text-on-surface';
+    }
+  }
+}
+
+const itemClass =
+  'flex w-full cursor-pointer items-center gap-3 px-4 py-2 text-left text-sm outline-none hover:bg-on-surface/8 focus:bg-on-surface/8 aria-disabled:pointer-events-none aria-disabled:opacity-50';
+
+// Fades and scales in and out (open: covers :popover-open). @starting-style (starting:) and
+// allow-discrete (transition-discrete) animate the switch to and from display: none.
+const animation =
+  'opacity-0 scale-95 transition-[opacity,scale,display,overlay] transition-discrete duration-150 ease-out open:opacity-100 open:scale-100 starting:open:opacity-0 starting:open:scale-95';
+---
+
+{/* display: contents — the wrapper only catches clicks and keys, it doesn't affect the layout. */}
+<span
+  class="contents"
+  data-menu-activator={id}
+  data-open-on-hover={openOnHover ? '' : undefined}
+>
+  <slot name="activator" />
+</span>
+
+{/* A manual popover sits in the top layer: no z-index, and no parent's overflow clips it. */}
+<Tag
+  id={id}
+  popover="manual"
+  data-menu
+  data-location={location ?? 'bottom-start'}
+  data-close-on-content-click={closeOnContentClick === false ? undefined : ''}
+  role={isMenu ? 'menu' : undefined}
+  class={twMerge(
+    'inset-auto m-0 min-w-48 overflow-y-auto rounded-md border-0 bg-surface p-0 text-on-surface shadow-lg ring-1 ring-on-surface/12',
+    isMenu ? 'py-1' : 'p-4',
+    animation,
+    props.class,
+  )}
+  {...attrs}
+>
+  {isMenu ? (
+    items.map((item) =>
+      'divider' in item ? (
+        <li role="separator" class="my-1 border-t border-on-surface/12" />
+      ) : (
+        <li role="none">
+          {item.href !== undefined ? (
+            <a
+              href={item.href}
+              role="menuitem"
+              tabindex="-1"
+              aria-disabled={item.disabled ? 'true' : undefined}
+              class={twMerge(itemClass, getItemColor(item.color))}
+            >
+              {item.icon && (
+                <Icon
+                  icon={item.icon}
+                  size="sm"
+                  class={item.color ? undefined : 'text-on-surface/70'}
+                />
+              )}
+              {item.title}
+            </a>
+          ) : (
+            <button
+              type="button"
+              role="menuitem"
+              tabindex="-1"
+              data-value={item.value ?? item.title}
+              aria-disabled={item.disabled ? 'true' : undefined}
+              class={twMerge(itemClass, getItemColor(item.color))}
+            >
+              {item.icon && (
+                <Icon
+                  icon={item.icon}
+                  size="sm"
+                  class={item.color ? undefined : 'text-on-surface/70'}
+                />
+              )}
+              {item.title}
+            </button>
+          )}
+        </li>
+      ),
+    )
+  ) : (
+    <slot />
+  )}
+</Tag>
+
+<script>
+  // One set of delegated listeners serves every Menu on the page (Astro bundles this script once).
+  // Follows the WAI-ARIA menu button pattern; Floating UI keeps the menu next to its activator.
+  import {
+    autoUpdate,
+    computePosition,
+    flip,
+    offset,
+    shift,
+    size,
+    type Placement,
+  } from '@floating-ui/dom';
+
+  const ACTIVATOR = '[data-menu-activator]';
+  const MENU = '[data-menu]';
+  const ITEM = '[role="menuitem"]:not([aria-disabled="true"])';
+  const stopUpdates = new WeakMap<HTMLElement, () => void>();
+
+  const getMenu = (wrapper: Element) =>
+    document.getElementById(
+      (wrapper as HTMLElement).dataset.menuActivator ?? '',
+    );
+  const getWrapper = (menu: HTMLElement) =>
+    document.querySelector<HTMLElement>(
+      `${ACTIVATOR}[data-menu-activator="${CSS.escape(menu.id)}"]`,
+    );
+  // The wrapper is display: contents, so the slotted element is what's on screen.
+  const getTrigger = (menu: HTMLElement) =>
+    getWrapper(menu)?.firstElementChild as HTMLElement | null | undefined;
+  const isOpen = (menu: HTMLElement) => menu.matches(':popover-open');
+  const getItems = (menu: HTMLElement) => [
+    ...menu.querySelectorAll<HTMLElement>(ITEM),
+  ];
+
+  // The activator comes from a slot, so its ARIA attributes are added here.
+  function initTriggers() {
+    for (const wrapper of document.querySelectorAll<HTMLElement>(ACTIVATOR)) {
+      const menu = getMenu(wrapper);
+      const trigger = wrapper.firstElementChild as HTMLElement | null;
+      if (!menu || !trigger) continue;
+      trigger.id ||= `${menu.id}-activator`;
+      trigger.setAttribute(
+        'aria-haspopup',
+        menu.getAttribute('role') === 'menu' ? 'menu' : 'true',
+      );
+      trigger.setAttribute('aria-expanded', String(isOpen(menu)));
+      trigger.setAttribute('aria-controls', menu.id);
+      if (!menu.hasAttribute('aria-label'))
+        menu.setAttribute('aria-labelledby', trigger.id);
+    }
+  }
+
+  // Positions the menu with Floating UI and keeps it there while scrolling or resizing.
+  // Resolves once the first position is applied (the menu is hidden until then).
+  function position(menu: HTMLElement, trigger: HTMLElement) {
+    // Hidden until the first position is known, so it doesn't flash in the corner.
+    menu.style.visibility = 'hidden';
+    const update = () =>
+      computePosition(trigger, menu, {
+        strategy: 'fixed',
+        placement: (menu.dataset.location ?? 'bottom-start') as Placement,
+        middleware: [
+          offset(4),
+          flip({ padding: 8 }),
+          shift({ padding: 8 }),
+          size({
+            padding: 8,
+            apply({ availableHeight }) {
+              menu.style.maxHeight = `${Math.max(availableHeight, 120)}px`;
+            },
+          }),
+        ],
+      }).then(({ x, y, placement }) => {
+        // Grow out of the activator's side.
+        const side = placement.split('-')[0];
+        const origin = {
+          top: 'bottom',
+          bottom: 'top',
+          left: 'right',
+          right: 'left',
+        }[side];
+        Object.assign(menu.style, {
+          left: `${x}px`,
+          top: `${y}px`,
+          transformOrigin: origin,
+          visibility: '',
+        });
+        menu.dataset.placement = placement;
+      });
+    return new Promise<void>((resolve) => {
+      let first = true;
+      stopUpdates.set(
+        menu,
+        autoUpdate(trigger, menu, () =>
+          update().then(() => {
+            if (first) resolve();
+            first = false;
+          }),
+        ),
+      );
+    });
+  }
+
+  async function open(menu: HTMLElement, focus?: 'first' | 'last') {
+    const trigger = getTrigger(menu);
+    if (!trigger) return;
+    // One menu at a time.
+    for (const other of document.querySelectorAll<HTMLElement>(
+      `${MENU}:popover-open`,
+    )) {
+      if (other !== menu) close(other);
+    }
+    if (!isOpen(menu)) {
+      menu.showPopover();
+      trigger.setAttribute('aria-expanded', 'true');
+      // An invisible element can't take focus — wait until the menu is placed and shown.
+      await position(menu, trigger);
+    }
+    const items = getItems(menu);
+    if (focus) (focus === 'first' ? items[0] : items.at(-1))?.focus();
+  }
+
+  function close(menu: HTMLElement, { restoreFocus = false } = {}) {
+    if (!isOpen(menu)) return;
+    stopUpdates.get(menu)?.();
+    stopUpdates.delete(menu);
+    menu.hidePopover();
+    const trigger = getTrigger(menu);
+    trigger?.setAttribute('aria-expanded', 'false');
+    if (restoreFocus) trigger?.focus();
+  }
+
+  function moveFocus(
+    menu: HTMLElement,
+    to: 'next' | 'previous' | 'first' | 'last',
+  ) {
+    const items = getItems(menu);
+    const current = items.indexOf(document.activeElement as HTMLElement);
+    const index = {
+      next: (current + 1) % items.length,
+      previous: (current - 1 + items.length) % items.length,
+      first: 0,
+      last: items.length - 1,
+    }[to];
+    items[index]?.focus();
+  }
+
+  // Typing jumps to the next item starting with the typed text.
+  let typed = '';
+  let typedTimer: ReturnType<typeof setTimeout> | undefined;
+  function typeahead(menu: HTMLElement, key: string) {
+    clearTimeout(typedTimer);
+    typed += key.toLowerCase();
+    typedTimer = setTimeout(() => (typed = ''), 500);
+    const items = getItems(menu);
+    const current = items.indexOf(document.activeElement as HTMLElement);
+    const ordered = [
+      ...items.slice(current + 1),
+      ...items.slice(0, current + 1),
+    ];
+    ordered
+      .find((item) => item.textContent?.trim().toLowerCase().startsWith(typed))
+      ?.focus();
+  }
+
+  document.addEventListener('click', (event) => {
+    const target = event.target as Element | null;
+
+    const wrapper = target?.closest(ACTIVATOR);
+    const wrapperMenu = wrapper && getMenu(wrapper);
+    if (wrapperMenu) {
+      // A hover menu is already open when it's clicked — keep it, and move into it.
+      const hover = wrapper.hasAttribute('data-open-on-hover');
+      if (isOpen(wrapperMenu) && !hover) close(wrapperMenu);
+      else open(wrapperMenu, 'first');
+      return;
+    }
+
+    const menu = target?.closest<HTMLElement>(MENU);
+    if (menu) {
+      const item = target?.closest<HTMLElement>('[role="menuitem"]');
+      if (item?.getAttribute('aria-disabled') === 'true') {
+        event.preventDefault();
+        return;
+      }
+      // Actions report which item was chosen; links just navigate.
+      if (item && item.tagName === 'BUTTON') {
+        menu.dispatchEvent(
+          new CustomEvent('menu:select', {
+            bubbles: true,
+            detail: {
+              value: item.dataset.value,
+              title: item.textContent?.trim(),
+            },
+          }),
+        );
+      }
+      if (item || menu.hasAttribute('data-close-on-content-click')) {
+        close(menu, { restoreFocus: Boolean(item) });
+      }
+      return;
+    }
+
+    // A click anywhere else closes open menus.
+    for (const openMenu of document.querySelectorAll<HTMLElement>(
+      `${MENU}:popover-open`,
+    )) {
+      close(openMenu);
+    }
+  });
+
+  document.addEventListener('keydown', (event) => {
+    const target = event.target as Element | null;
+
+    // On the activator: arrows open the menu and move into it.
+    const wrapper = target?.closest(ACTIVATOR);
+    const wrapperMenu = wrapper && getMenu(wrapper);
+    if (wrapperMenu && (event.key === 'ArrowDown' || event.key === 'ArrowUp')) {
+      event.preventDefault();
+      open(wrapperMenu, event.key === 'ArrowDown' ? 'first' : 'last');
+      return;
+    }
+    if (wrapperMenu && event.key === 'Escape' && isOpen(wrapperMenu)) {
+      close(wrapperMenu);
+      return;
+    }
+
+    const menu = target?.closest<HTMLElement>(MENU);
+    if (!menu || !isOpen(menu)) return;
+
+    switch (event.key) {
+      case 'Escape': {
+        event.preventDefault();
+        close(menu, { restoreFocus: true });
+        return;
+      }
+      case 'Tab': {
+        // Back to the activator, so Tab carries on from there.
+        close(menu, { restoreFocus: true });
+        return;
+      }
+    }
+
+    if (menu.getAttribute('role') !== 'menu') return;
+    switch (event.key) {
+      case 'ArrowDown':
+      case 'ArrowUp':
+      case 'Home':
+      case 'End': {
+        event.preventDefault();
+        const to = {
+          ArrowDown: 'next',
+          ArrowUp: 'previous',
+          Home: 'first',
+          End: 'last',
+        } as const;
+        moveFocus(menu, to[event.key]);
+        return;
+      }
+      default: {
+        if (
+          event.key.length === 1 &&
+          !event.ctrlKey &&
+          !event.metaKey &&
+          !event.altKey
+        ) {
+          typeahead(menu, event.key);
+        }
+      }
+    }
+  });
+
+  // openOnHover: open while the pointer is over the activator or the menu, with a short delay
+  // before closing, so moving from one to the other doesn't close it.
+  const closeTimers = new WeakMap<HTMLElement, ReturnType<typeof setTimeout>>();
+
+  function hoverMenu(element: Element | null) {
+    const wrapper = element?.closest(`${ACTIVATOR}[data-open-on-hover]`);
+    if (wrapper) return getMenu(wrapper);
+    const menu = element?.closest<HTMLElement>(MENU);
+    return menu && getWrapper(menu)?.hasAttribute('data-open-on-hover')
+      ? menu
+      : null;
+  }
+
+  document.addEventListener('pointerover', (event) => {
+    const menu = hoverMenu(event.target as Element | null);
+    if (!menu || event.pointerType === 'touch') return;
+    clearTimeout(closeTimers.get(menu));
+    open(menu);
+  });
+
+  document.addEventListener('pointerout', (event) => {
+    const menu = hoverMenu(event.target as Element | null);
+    if (!menu || event.pointerType === 'touch') return;
+    // Still inside the same activator or menu.
+    if (hoverMenu(event.relatedTarget as Element | null) === menu) return;
+    closeTimers.set(
+      menu,
+      setTimeout(() => close(menu), 150),
+    );
+  });
+
+  initTriggers();
+  // Re-run after client-side navigation when the site uses Astro's view transitions.
+  document.addEventListener('astro:page-load', initTriggers);
+</script>

@@ -4,6 +4,15 @@ All notable changes to this project are documented here. The project follows
 [Semantic Versioning](https://semver.org): a new component or feature raises the
 minor version, a fix the patch version, and an incompatible change the major version.
 
+## [1.5.0] - 2026-10-26
+
+### Added
+
+- `Menu` — a dropdown next to its activator, positioned with Floating UI (any `location`, flips
+  and shifts, follows scrolling) in the top layer. `items` with links, actions (`menu:select`
+  event), icons, colors, disabled items and dividers, with the WAI-ARIA menu button keyboard
+  pattern; free-form content in the slot; `openOnHover` and `closeOnContentClick`.
+
 ## [1.4.0] - 2026-10-26
 
 ### Added

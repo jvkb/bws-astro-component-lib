@@ -13,3 +13,4 @@ export { default as Avatar } from './components/Avatar.astro';
 export { default as Textarea } from './components/Inputs/Textarea.astro';
 export { default as Dialog } from './components/Dialog.astro';
 export { default as NavigationDrawer } from './components/NavigationDrawer.astro';
+export { default as Menu } from './components/Menu.astro';

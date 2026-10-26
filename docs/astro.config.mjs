@@ -29,7 +29,11 @@ export default defineConfig({
             },
             {
               label: 'Overlays',
-              items: ['components/dialog', 'components/navigation-drawer'],
+              items: [
+                'components/dialog',
+                'components/menu',
+                'components/navigation-drawer',
+              ],
             },
             {
               label: 'Forms',

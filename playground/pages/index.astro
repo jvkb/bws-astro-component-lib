@@ -8,6 +8,7 @@ import {
   Dialog,
   Form,
   Icon,
+  Menu,
   NavigationDrawer,
   NumberInput,
   Select,
@@ -26,8 +27,11 @@ import {
   House,
   LayoutGrid,
   Mail,
-  Menu,
+  Menu as MenuIcon,
   Settings,
+  LogOut,
+  ChevronDown,
+  UserRound,
 } from '../../src/icons';
 import Star from '../assets/star.svg';
 import photo from '../assets/avatar.png';
@@ -35,6 +39,8 @@ import type {
   ButtonVariant,
   ColorVariant,
   DrawerLocation,
+  MenuItem,
+  MenuPlacement,
   InputVariant,
   RoundedVariant,
   Size,
@@ -71,6 +77,23 @@ const cities = [
   'Lublin',
   'Katowice',
   'Białystok',
+];
+const accountItems: MenuItem[] = [
+  { title: 'Profile', href: '#', icon: UserRound },
+  { title: 'Settings', value: 'settings', icon: Settings },
+  { title: 'Billing (soon)', value: 'billing', disabled: true },
+  { divider: true },
+  { title: 'Log out', value: 'logout', icon: LogOut, color: 'error' },
+];
+const productItems: MenuItem[] = [
+  { title: 'Websites', href: '#' },
+  { title: 'Online shops', href: '#' },
+  { title: 'SEO', href: '#' },
+];
+const menuPlacements: MenuPlacement[] = [
+  'bottom-end',
+  'top-start',
+  'right-start',
 ];
 const drawerLocations: DrawerLocation[] = ['left', 'right', 'top', 'bottom'];
 const navItems = [
@@ -650,11 +673,65 @@ const palettes = {
     </section>
 
     <section class="mt-8 space-y-4">
+      <h2 class="text-lg font-semibold">Menu</h2>
+      <div class="flex flex-wrap items-center gap-3">
+        <Menu id="account-menu" items={accountItems}>
+          <Button slot="activator" variant="outlined">
+            Account <Icon icon={ChevronDown} />
+          </Button>
+        </Menu>
+        {menuPlacements.map((location) => (
+          <Menu location={location} items={accountItems.slice(0, 2)}>
+            <Button slot="activator" variant="tonal">
+              {location}
+            </Button>
+          </Menu>
+        ))}
+        <Menu openOnHover items={productItems}>
+          <Button slot="activator" variant="text">
+            Products (hover) <Icon icon={ChevronDown} />
+          </Button>
+        </Menu>
+        <Menu closeOnContentClick={false} location="bottom-end" class="w-72">
+          <Button slot="activator" variant="flat" color="secondary">
+            Free-form content
+          </Button>
+          <p class="mb-3 text-sm text-on-surface/70">
+            Any content — here a small form. Clicks inside don't close it.
+          </p>
+          <TextInput label="Coupon code" variant="outlined" />
+          <Button class="mt-2" block>
+            Apply
+          </Button>
+        </Menu>
+        <div class="h-12 overflow-hidden rounded-md border border-dashed border-on-background/40 p-1">
+          <Menu items={accountItems}>
+            <Button slot="activator" variant="text" size="sm">
+              In overflow: hidden
+            </Button>
+          </Menu>
+        </div>
+      </div>
+      <p id="menu-log" class="text-sm text-on-background/70">
+        Choose an action from Account…
+      </p>
+    </section>
+
+    <script>
+      document
+        .getElementById('account-menu')
+        ?.addEventListener('menu:select', (event) => {
+          const { value, title } = (event as CustomEvent).detail;
+          document.getElementById('menu-log')!.textContent =
+            `menu:select → value "${value}", title "${title}"`;
+        });
+    </script>
+    <section class="mt-8 space-y-4">
       <h2 class="text-lg font-semibold">NavigationDrawer</h2>
       <div class="flex flex-wrap items-center gap-3">
         <NavigationDrawer title="Menu" closable>
           <Button slot="activator" variant="outlined" aria-label="Open menu">
-            <Icon icon={Menu} /> Menu
+            <Icon icon={MenuIcon} /> Menu
           </Button>
           <ul class="flex flex-col gap-1">
             {navItems.map((item) => (
