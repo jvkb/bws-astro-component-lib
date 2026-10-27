@@ -4,6 +4,15 @@ All notable changes to this project are documented here. The project follows
 [Semantic Versioning](https://semver.org): a new component or feature raises the
 minor version, a fix the patch version, and an incompatible change the major version.
 
+## [1.13.0] - 2026-10-27
+
+### Added
+
+- `Container`, `Row` and `Col` — a 12-column responsive grid like Vuetify's: widths per breakpoint
+  (`cols`, `sm` … `xxl`, with `auto` and equal shares), `offset` and `order` per breakpoint,
+  `align`, `justify` and `alignSelf`, `dense`, `noGutters` or any `gap`, and `tag` for the element.
+  Gaps use CSS `gap` with widths that account for it, so rows never overflow their parent.
+
 ## [1.12.0] - 2026-10-27
 
 ### Added

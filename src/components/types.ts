@@ -50,3 +50,23 @@ export type SharedProps = {
   class?: string;
   id?: string;
 };
+
+type GridColumns = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
+/**
+ * How much of a Row a Col takes: a number of its 12 columns, `auto` (as wide as its content) or
+ * `true` (an equal share of what's left).
+ */
+export type ColSpan = GridColumns | `${GridColumns}` | 'auto' | boolean;
+/** How many of the Row's 12 columns to leave empty before a Col. */
+export type ColOffset = 0 | GridColumns | `${0 | GridColumns}`;
+/** Where a Col sits in its Row, whatever its place in the markup. */
+export type ColOrder =
+  0 | GridColumns | `${0 | GridColumns}` | 'first' | 'last';
+export type GridAlign = 'start' | 'center' | 'end' | 'baseline' | 'stretch';
+export type GridJustify =
+  | 'start'
+  | 'center'
+  | 'end'
+  | 'space-between'
+  | 'space-around'
+  | 'space-evenly';

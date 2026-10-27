@@ -7,6 +7,8 @@ import {
   Button,
   Checkbox,
   Chip,
+  Col,
+  Container,
   ChipGroup,
   Dialog,
   Form,
@@ -19,6 +21,7 @@ import {
   Switch,
   TextInput,
   Textarea,
+  Row,
   ThemeScript,
   Tooltip,
 } from '../../src';
@@ -785,6 +788,192 @@ const palettes = {
         divider="›"
       />
       <Breadcrumbs id="breadcrumbs-with-schema" items={breadcrumbs} schema />
+    </section>
+
+    <section class="mt-8 space-y-6">
+      <h2 class="text-lg font-semibold">Grid</h2>
+      <Container
+        id="grid-container"
+        class="border border-dashed border-on-surface/38"
+      >
+        <Row id="grid-twelve">
+          {Array.from({ length: 12 }, (_, i) => (
+            <Col cols={1}>
+              <div class="rounded-md bg-primary/12 p-3 text-center text-sm">
+                {i + 1}
+              </div>
+            </Col>
+          ))}
+        </Row>
+      </Container>
+      <Row id="grid-equal">
+        <Col>
+          <div class="rounded-md bg-primary/12 p-3 text-center text-sm">
+            equal
+          </div>
+        </Col>
+        <Col>
+          <div class="rounded-md bg-primary/12 p-3 text-center text-sm">
+            equal
+          </div>
+        </Col>
+        <Col>
+          <div class="rounded-md bg-primary/12 p-3 text-center text-sm">
+            equal
+          </div>
+        </Col>
+      </Row>
+      <Row id="grid-responsive">
+        <Col cols="12" md="6" lg="4">
+          <div class="rounded-md bg-primary/12 p-3 text-center text-sm">
+            12 / md 6 / lg 4
+          </div>
+        </Col>
+        <Col cols="12" md="6" lg="4">
+          <div class="rounded-md bg-primary/12 p-3 text-center text-sm">
+            12 / md 6 / lg 4
+          </div>
+        </Col>
+        <Col cols="12" md="12" lg="4">
+          <div class="rounded-md bg-primary/12 p-3 text-center text-sm">
+            12 / md 12 / lg 4
+          </div>
+        </Col>
+      </Row>
+      <Row id="grid-auto">
+        <Col cols="auto">
+          <div class="rounded-md bg-primary/12 p-3 text-center text-sm">
+            auto width
+          </div>
+        </Col>
+        <Col>
+          <div class="rounded-md bg-primary/12 p-3 text-center text-sm">
+            fills the rest
+          </div>
+        </Col>
+        <Col cols="3">
+          <div class="rounded-md bg-primary/12 p-3 text-center text-sm">3</div>
+        </Col>
+      </Row>
+      <Row id="grid-offset">
+        <Col md="4" offsetMd="4">
+          <div class="rounded-md bg-primary/12 p-3 text-center text-sm">
+            md 4, offset 4
+          </div>
+        </Col>
+        <Col cols="3" offset="9">
+          <div class="rounded-md bg-primary/12 p-3 text-center text-sm">
+            3, offset 9
+          </div>
+        </Col>
+      </Row>
+      <Row id="grid-order">
+        <Col order="last">
+          <div class="rounded-md bg-primary/12 p-3 text-center text-sm">
+            1st in markup (last)
+          </div>
+        </Col>
+        <Col>
+          <div class="rounded-md bg-primary/12 p-3 text-center text-sm">
+            2nd in markup
+          </div>
+        </Col>
+        <Col order="first">
+          <div class="rounded-md bg-primary/12 p-3 text-center text-sm">
+            3rd in markup (first)
+          </div>
+        </Col>
+      </Row>
+      <Row dense>
+        <Col>
+          <div class="rounded-md bg-primary/12 p-3 text-center text-sm">
+            dense
+          </div>
+        </Col>
+        <Col>
+          <div class="rounded-md bg-primary/12 p-3 text-center text-sm">
+            dense
+          </div>
+        </Col>
+      </Row>
+      <Row noGutters>
+        <Col>
+          <div class="rounded-md bg-primary/12 p-3 text-center text-sm">
+            no gutters
+          </div>
+        </Col>
+        <Col>
+          <div class="rounded-md bg-primary/12 p-3 text-center text-sm">
+            no gutters
+          </div>
+        </Col>
+      </Row>
+      <Row id="grid-gap" gap={12}>
+        <Col cols="6">
+          <div class="rounded-md bg-primary/12 p-3 text-center text-sm">
+            gap 12 (3rem)
+          </div>
+        </Col>
+        <Col cols="6">
+          <div class="rounded-md bg-primary/12 p-3 text-center text-sm">
+            gap 12 (3rem)
+          </div>
+        </Col>
+      </Row>
+      <Row
+        justify="space-between"
+        align="center"
+        class="h-28 rounded-md border border-dashed border-on-surface/38"
+      >
+        <Col cols="3">
+          <div class="rounded-md bg-primary/12 p-3 text-center text-sm">
+            justify between
+          </div>
+        </Col>
+        <Col cols="3" alignSelf="end">
+          <div class="rounded-md bg-primary/12 p-3 text-center text-sm">
+            align-self end
+          </div>
+        </Col>
+        <Col cols="3">
+          <div class="rounded-md bg-primary/12 p-3 text-center text-sm">
+            align center
+          </div>
+        </Col>
+      </Row>
+      <Row id="grid-nested">
+        <Col cols="8">
+          <div class="rounded-md border border-dashed border-on-surface/38 p-3">
+            <Row dense>
+              <Col cols="6">
+                <div class="rounded-md bg-primary/12 p-3 text-center text-sm">
+                  nested 6
+                </div>
+              </Col>
+              <Col cols="6">
+                <div class="rounded-md bg-primary/12 p-3 text-center text-sm">
+                  nested 6
+                </div>
+              </Col>
+            </Row>
+          </div>
+        </Col>
+        <Col cols="4">
+          <div class="rounded-md bg-primary/12 p-3 text-center text-sm">4</div>
+        </Col>
+      </Row>
+      <Row tag="ul" class="list-none">
+        <Col tag="li" cols="12" sm="6">
+          <div class="rounded-md bg-primary/12 p-3 text-center text-sm">
+            Row tag="ul", Col tag="li"
+          </div>
+        </Col>
+        <Col tag="li" cols="12" sm="6">
+          <div class="rounded-md bg-primary/12 p-3 text-center text-sm">
+            Row tag="ul", Col tag="li"
+          </div>
+        </Col>
+      </Row>
     </section>
 
     <section class="mt-8 space-y-4">

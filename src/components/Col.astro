@@ -1,0 +1,253 @@
+---
+import type { HTMLAttributes, HTMLTag } from 'astro/types';
+import { twMerge } from 'tailwind-merge';
+import { cssVars, joinStyles } from './color.ts';
+import type {
+  ColOffset,
+  ColOrder,
+  ColSpan,
+  GridAlign,
+  SharedProps,
+} from './types.ts';
+
+type Props = Omit<HTMLAttributes<'div'>, 'class' | 'id'> &
+  SharedProps & {
+    /** The element to render, e.g. `li` inside a `<Row tag="ul">`. */
+    tag?: HTMLTag;
+    /** Width on every screen: 1–12 columns, `auto` or `true` (an equal share, the default). */
+    cols?: ColSpan;
+    /** Width from 640px up (Tailwind's `sm`). */
+    sm?: ColSpan;
+    /** Width from 768px up (`md`). */
+    md?: ColSpan;
+    /** Width from 1024px up (`lg`). */
+    lg?: ColSpan;
+    /** Width from 1280px up (`xl`). */
+    xl?: ColSpan;
+    /** Width from 1536px up (`2xl`). */
+    xxl?: ColSpan;
+    /** Columns left empty before this one. */
+    offset?: ColOffset;
+    offsetSm?: ColOffset;
+    offsetMd?: ColOffset;
+    offsetLg?: ColOffset;
+    offsetXl?: ColOffset;
+    offsetXxl?: ColOffset;
+    /** Position in the row: 0–12, `first` or `last`. */
+    order?: ColOrder;
+    orderSm?: ColOrder;
+    orderMd?: ColOrder;
+    orderLg?: ColOrder;
+    orderXl?: ColOrder;
+    orderXxl?: ColOrder;
+    /** Vertical alignment of this column, overriding the Row's `align`. */
+    alignSelf?: GridAlign;
+  };
+
+const props = Astro.props;
+// Component-only props stay out of the spread, so they don't end up as HTML attributes.
+const {
+  tag,
+  cols,
+  sm,
+  md,
+  lg,
+  xl,
+  xxl,
+  offset,
+  offsetSm,
+  offsetMd,
+  offsetLg,
+  offsetXl,
+  offsetXxl,
+  order,
+  orderSm,
+  orderMd,
+  orderLg,
+  orderXl,
+  orderXxl,
+  alignSelf,
+  class: _class,
+  id: _id,
+  style,
+  ...attrs
+} = props;
+const Tag = tag ?? 'div';
+
+// The widths are worked out here and passed in custom properties; the classes that read them are
+// written out in full, so Tailwind finds them. Each breakpoint's class is only added when that
+// breakpoint has a value, so smaller ones carry over.
+type Breakpoint = '' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl';
+const breakpoints: {
+  name: Breakpoint;
+  span: ColSpan | undefined;
+  offset: ColOffset | undefined;
+  order: ColOrder | undefined;
+  classes: { span: string; offset: string; order: string };
+}[] = [
+  {
+    name: '',
+    // Without any width a column takes an equal share, like Vuetify's.
+    span: cols ?? true,
+    offset,
+    order,
+    classes: {
+      span: 'flex-(--col) max-w-(--col-max)',
+      offset: 'ms-(--col-offset)',
+      order: 'order-(--col-order)',
+    },
+  },
+  {
+    name: 'sm',
+    span: sm,
+    offset: offsetSm,
+    order: orderSm,
+    classes: {
+      span: 'sm:flex-(--col-sm) sm:max-w-(--col-sm-max)',
+      offset: 'sm:ms-(--col-sm-offset)',
+      order: 'sm:order-(--col-sm-order)',
+    },
+  },
+  {
+    name: 'md',
+    span: md,
+    offset: offsetMd,
+    order: orderMd,
+    classes: {
+      span: 'md:flex-(--col-md) md:max-w-(--col-md-max)',
+      offset: 'md:ms-(--col-md-offset)',
+      order: 'md:order-(--col-md-order)',
+    },
+  },
+  {
+    name: 'lg',
+    span: lg,
+    offset: offsetLg,
+    order: orderLg,
+    classes: {
+      span: 'lg:flex-(--col-lg) lg:max-w-(--col-lg-max)',
+      offset: 'lg:ms-(--col-lg-offset)',
+      order: 'lg:order-(--col-lg-order)',
+    },
+  },
+  {
+    name: 'xl',
+    span: xl,
+    offset: offsetXl,
+    order: orderXl,
+    classes: {
+      span: 'xl:flex-(--col-xl) xl:max-w-(--col-xl-max)',
+      offset: 'xl:ms-(--col-xl-offset)',
+      order: 'xl:order-(--col-xl-order)',
+    },
+  },
+  {
+    name: 'xxl',
+    span: xxl,
+    offset: offsetXxl,
+    order: orderXxl,
+    classes: {
+      span: '2xl:flex-(--col-xxl) 2xl:max-w-(--col-xxl-max)',
+      offset: '2xl:ms-(--col-xxl-offset)',
+      order: '2xl:order-(--col-xxl-order)',
+    },
+  },
+];
+
+// The Row's gap is between columns, so n of 12 columns is n twelfths of the row plus one gap,
+// minus that gap: 12 single columns and their 11 gaps fill the row exactly.
+const gap = 'var(--row-gap, 0px)';
+const share = (n: number) => `(100% + ${gap}) * ${n} / 12`;
+
+function getSpan(span: ColSpan) {
+  if (span === true) return { flex: '1 0 0%', max: '100%' };
+  if (span === 'auto') return { flex: '0 0 auto', max: '100%' };
+  const n = Number(span);
+  if (span === false || !Number.isInteger(n) || n < 1 || n > 12) {
+    return warn('a column width', span);
+  }
+  const width = `calc(${share(n)} - ${gap})`;
+  return { flex: `0 0 ${width}`, max: width };
+}
+
+function getOffset(offset: ColOffset) {
+  const n = Number(offset);
+  if (!Number.isInteger(n) || n < 0 || n > 11) return warn('an offset', offset);
+  return n === 0 ? '0px' : `calc(${share(n)})`;
+}
+
+function getOrder(order: ColOrder) {
+  if (order === 'first') return '-1';
+  if (order === 'last') return '13';
+  const n = Number(order);
+  if (!Number.isInteger(n) || n < 0 || n > 12) return warn('an order', order);
+  return String(n);
+}
+
+function warn(what: string, value: unknown) {
+  console.warn(
+    `[bws-astro-ui] Col: ${JSON.stringify(value)} isn't ${what} — see the Grid docs.`,
+  );
+  return undefined;
+}
+
+const classes: string[] = [];
+const vars: Record<string, string | undefined> = {};
+for (const breakpoint of breakpoints) {
+  const prefix = breakpoint.name ? `--col-${breakpoint.name}` : '--col';
+  const span =
+    breakpoint.span === undefined ? undefined : getSpan(breakpoint.span);
+  if (span) {
+    classes.push(breakpoint.classes.span);
+    vars[prefix] = span.flex;
+    vars[`${prefix}-max`] = span.max;
+  }
+  const margin =
+    breakpoint.offset === undefined ? undefined : getOffset(breakpoint.offset);
+  if (margin) {
+    classes.push(breakpoint.classes.offset);
+    vars[`${prefix}-offset`] = margin;
+  }
+  const position =
+    breakpoint.order === undefined ? undefined : getOrder(breakpoint.order);
+  if (position) {
+    classes.push(breakpoint.classes.order);
+    vars[`${prefix}-order`] = position;
+  }
+}
+
+function getAlignSelf(align: GridAlign) {
+  switch (align) {
+    case 'start': {
+      return 'self-start';
+    }
+    case 'center': {
+      return 'self-center';
+    }
+    case 'end': {
+      return 'self-end';
+    }
+    case 'baseline': {
+      return 'self-baseline';
+    }
+    case 'stretch': {
+      return 'self-stretch';
+    }
+  }
+}
+---
+
+<Tag
+  id={props.id}
+  class={twMerge(
+    // min-w-0: long content (code, a truncated title) can't push the column wider than its share.
+    'min-w-0',
+    ...classes,
+    alignSelf && getAlignSelf(alignSelf),
+    props.class,
+  )}
+  style={joinStyles(cssVars(vars), style)}
+  {...attrs}
+>
+  <slot />
+</Tag>

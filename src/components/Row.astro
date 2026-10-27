@@ -1,0 +1,107 @@
+---
+import type { HTMLAttributes, HTMLTag } from 'astro/types';
+import { twMerge } from 'tailwind-merge';
+import { joinStyles } from './color.ts';
+import type { GridAlign, GridJustify, SharedProps } from './types.ts';
+
+type Props = Omit<HTMLAttributes<'div'>, 'class' | 'id'> &
+  SharedProps & {
+    /** The element to render, e.g. `ul` for a list of cards. */
+    tag?: HTMLTag;
+    /** Smaller gaps between columns (8px instead of 24px). */
+    dense?: boolean;
+    /** No gaps between columns. */
+    noGutters?: boolean;
+    /** Any gap between columns: a Tailwind spacing step (`gap={8}` is 2rem) or a CSS length. */
+    gap?: number | string;
+    /** Vertical alignment of the columns. */
+    align?: GridAlign;
+    /** Horizontal distribution of the columns when they don't fill the row. */
+    justify?: GridJustify;
+  };
+
+const props = Astro.props;
+// Component-only props stay out of the spread, so they don't end up as HTML attributes.
+const {
+  tag,
+  dense,
+  noGutters,
+  gap,
+  align,
+  justify,
+  class: _class,
+  id: _id,
+  style,
+  ...attrs
+} = props;
+const Tag = tag ?? 'div';
+
+// Columns are sized from --row-gap (see Col), so the gap is only ever changed through it.
+function getGap() {
+  if (noGutters) return '[--row-gap:0px]';
+  if (dense) return '[--row-gap:0.5rem]';
+  return '[--row-gap:1.5rem]';
+}
+const customGap =
+  gap === undefined
+    ? undefined
+    : `--row-gap: ${typeof gap === 'number' ? `calc(var(--spacing) * ${gap})` : gap}`;
+
+function getAlign(align: GridAlign) {
+  switch (align) {
+    case 'start': {
+      return 'items-start';
+    }
+    case 'center': {
+      return 'items-center';
+    }
+    case 'end': {
+      return 'items-end';
+    }
+    case 'baseline': {
+      return 'items-baseline';
+    }
+    case 'stretch': {
+      return 'items-stretch';
+    }
+  }
+}
+
+function getJustify(justify: GridJustify) {
+  switch (justify) {
+    case 'start': {
+      return 'justify-start';
+    }
+    case 'center': {
+      return 'justify-center';
+    }
+    case 'end': {
+      return 'justify-end';
+    }
+    case 'space-between': {
+      return 'justify-between';
+    }
+    case 'space-around': {
+      return 'justify-around';
+    }
+    case 'space-evenly': {
+      return 'justify-evenly';
+    }
+  }
+}
+---
+
+<Tag
+  id={props.id}
+  class={twMerge(
+    'flex flex-wrap gap-(--row-gap)',
+    getGap(),
+    align && getAlign(align),
+    justify && getJustify(justify),
+    props.class,
+  )}
+  style={joinStyles(customGap, style)}
+  {...attrs}
+>
+  <slot />
+</Tag>

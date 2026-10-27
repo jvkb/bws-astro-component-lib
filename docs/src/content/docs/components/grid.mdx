@@ -1,0 +1,168 @@
+---
+title: Grid
+description: Container, Row and Col — a 12-column responsive layout, like Vuetify's grid.
+---
+
+import { Col, Container, Row } from 'bws-astro-ui';
+import Preview from '../../../components/Preview.astro';
+
+A row has 12 columns. `Col` takes some of them, and can take a different number at each screen
+size. `Container` centers the page content and limits its width.
+
+<Preview layout="stack" class="max-w-none">
+  <Row><Col cols="12" md="4"><div class="rounded-md bg-primary/12 p-3 text-center text-sm">12 / md 4</div></Col><Col cols="12" md="4"><div class="rounded-md bg-primary/12 p-3 text-center text-sm">12 / md 4</div></Col><Col cols="12" md="4"><div class="rounded-md bg-primary/12 p-3 text-center text-sm">12 / md 4</div></Col></Row>
+  <Row><Col cols="12" md="8"><div class="rounded-md bg-primary/12 p-3 text-center text-sm">12 / md 8</div></Col><Col cols="12" md="4"><div class="rounded-md bg-primary/12 p-3 text-center text-sm">12 / md 4</div></Col></Row>
+</Preview>
+
+```astro
+---
+import { Col, Container, Row } from 'bws-astro-ui';
+---
+
+<Container>
+  <Row>
+    <Col cols="12" md="8">Content</Col>
+    <Col cols="12" md="4">Sidebar</Col>
+  </Row>
+</Container>
+```
+
+Breakpoints are the screen's width, Tailwind's: `sm` 640px, `md` 768px, `lg` 1024px, `xl` 1280px
+and `xxl` 1536px (Tailwind's `2xl`). A width carries over to bigger screens until another one
+takes over — `cols="12" md="6"` is full width on phones and half from tablets up. Resize the window
+to see the examples change.
+
+## Column widths
+
+| Value     | Width                                                     |
+| --------- | --------------------------------------------------------- |
+| `1`–`12`  | that many of the row's 12 columns                         |
+| `auto`    | as wide as its content                                    |
+| `true`    | an equal share of what's left — the default without `cols` |
+
+<Preview layout="stack" class="max-w-none">
+  <Row><Col><div class="rounded-md bg-primary/12 p-3 text-center text-sm">equal</div></Col><Col><div class="rounded-md bg-primary/12 p-3 text-center text-sm">equal</div></Col><Col><div class="rounded-md bg-primary/12 p-3 text-center text-sm">equal</div></Col></Row>
+  <Row><Col cols="auto"><div class="rounded-md bg-primary/12 p-3 text-center text-sm">auto</div></Col><Col><div class="rounded-md bg-primary/12 p-3 text-center text-sm">fills the rest</div></Col><Col cols="3"><div class="rounded-md bg-primary/12 p-3 text-center text-sm">3</div></Col></Row>
+</Preview>
+
+```astro
+<Row>
+  <Col cols="auto">auto</Col>
+  <Col>fills the rest</Col>
+  <Col cols="3">3</Col>
+</Row>
+```
+
+Columns that don't fit wrap to the next line.
+
+## Offset and order
+
+`offset` leaves columns empty before a column; `order` moves it (`0`–`12`, `first`, `last`)
+without changing the markup — handy for a sidebar that comes first in the HTML but should sit on
+the right on wide screens. Both have a version per breakpoint: `offsetMd`, `orderLg`…
+
+<Preview layout="stack" class="max-w-none">
+  <Row><Col cols="4" offset="4"><div class="rounded-md bg-primary/12 p-3 text-center text-sm">4, offset 4</div></Col></Row>
+  <Row><Col order="last"><div class="rounded-md bg-primary/12 p-3 text-center text-sm">first in markup</div></Col><Col><div class="rounded-md bg-primary/12 p-3 text-center text-sm">second</div></Col><Col order="first"><div class="rounded-md bg-primary/12 p-3 text-center text-sm">third in markup</div></Col></Row>
+</Preview>
+
+```astro
+<Row>
+  <Col cols="4" offset="4">4, offset 4</Col>
+</Row>
+
+<Row>
+  <Col cols="12" md="4" orderMd="last">Sidebar (right from md up)</Col>
+  <Col cols="12" md="8">Content</Col>
+</Row>
+```
+
+## Gaps
+
+Columns are 24px apart. `dense` makes it 8px, `noGutters` removes the gap, and `gap` sets any
+other: a Tailwind spacing step (`gap={8}` is 2rem) or a CSS length (`gap="3vw"`). The gap is
+also between wrapped lines.
+
+<Preview layout="stack" class="max-w-none">
+  <Row dense><Col><div class="rounded-md bg-primary/12 p-3 text-center text-sm">dense</div></Col><Col><div class="rounded-md bg-primary/12 p-3 text-center text-sm">dense</div></Col><Col><div class="rounded-md bg-primary/12 p-3 text-center text-sm">dense</div></Col></Row>
+  <Row noGutters><Col><div class="rounded-md bg-primary/12 p-3 text-center text-sm">no gutters</div></Col><Col><div class="rounded-md bg-primary/12 p-3 text-center text-sm">no gutters</div></Col><Col><div class="rounded-md bg-primary/12 p-3 text-center text-sm">no gutters</div></Col></Row>
+  <Row gap={12}><Col><div class="rounded-md bg-primary/12 p-3 text-center text-sm">gap 12</div></Col><Col><div class="rounded-md bg-primary/12 p-3 text-center text-sm">gap 12</div></Col></Row>
+</Preview>
+
+Column widths account for the gap, so 12 single columns fill the row exactly, and a row never
+sticks out of its parent (Vuetify's negative margins do). Change the gap only through these props
+or the `--row-gap` variable — a `gap-*` class would change the space but not the widths.
+
+## Alignment
+
+`align` lines the columns up vertically (`start`, `center`, `end`, `baseline`, `stretch`);
+`alignSelf` does it for one column. `justify` spreads columns that don't fill the row (`start`,
+`center`, `end`, `space-between`, `space-around`, `space-evenly`).
+
+<Preview layout="stack" class="max-w-none">
+  <Row justify="space-between" align="center" class="h-28 rounded-md border border-dashed border-on-surface/38"><Col cols="3"><div class="rounded-md bg-primary/12 p-3 text-center text-sm">align center</div></Col><Col cols="3" alignSelf="end"><div class="rounded-md bg-primary/12 p-3 text-center text-sm">alignSelf end</div></Col><Col cols="3"><div class="rounded-md bg-primary/12 p-3 text-center text-sm">justify between</div></Col></Row>
+</Preview>
+
+## Nesting
+
+A `Col` can hold another `Row`; its 12 columns divide the column's width.
+
+<Preview layout="stack" class="max-w-none">
+  <Row><Col cols="8"><Row dense><Col cols="6"><div class="rounded-md bg-primary/12 p-3 text-center text-sm">nested 6</div></Col><Col cols="6"><div class="rounded-md bg-primary/12 p-3 text-center text-sm">nested 6</div></Col></Row></Col><Col cols="4"><div class="rounded-md bg-primary/12 p-3 text-center text-sm">4</div></Col></Row>
+</Preview>
+
+## Container
+
+`Container` is centered, has 16px padding and grows to the width of the current breakpoint
+(Tailwind's `container`: 640px … 1536px). `fluid` makes it full width.
+
+```astro
+<Container tag="main">…</Container>
+<Container fluid>…</Container>
+```
+
+All three take `tag` for the element they render — `main` or `section` for a container, `ul` and
+`li` for a row of list items:
+
+```astro
+<Row tag="ul">
+  {posts.map((post) => <Col tag="li" cols="12" md="6">{post.title}</Col>)}
+</Row>
+```
+
+## API
+
+### Container
+
+| Prop          | Type                                                   | Default |
+| ------------- | ------------------------------------------------------ | ------- |
+| `fluid`       | `boolean` — full width instead of the breakpoint's     | `false` |
+| `tag`         | the element to render                                  | `div`   |
+| `id`, `class` | `string`                                               | —       |
+
+### Row
+
+| Prop          | Type                                                                          | Default |
+| ------------- | ----------------------------------------------------------------------------- | ------- |
+| `dense`       | `boolean` — 8px gaps                                                          | `false` |
+| `noGutters`   | `boolean` — no gaps                                                           | `false` |
+| `gap`         | `number` (Tailwind spacing step) or `string` (CSS length)                     | 24px    |
+| `align`       | `start` · `center` · `end` · `baseline` · `stretch`                          | —       |
+| `justify`     | `start` · `center` · `end` · `space-between` · `space-around` · `space-evenly` | —       |
+| `tag`         | the element to render                                                         | `div`   |
+| `id`, `class` | `string`                                                                      | —       |
+
+### Col
+
+| Prop                                    | Type                                              | Default |
+| --------------------------------------- | ------------------------------------------------- | ------- |
+| `cols`                                  | `1`–`12` · `auto` · `true` — width on every screen | `true`  |
+| `sm`, `md`, `lg`, `xl`, `xxl`             | the same, from that breakpoint up                 | —       |
+| `offset`, `offsetSm` … `offsetXxl`        | `0`–`11` — empty columns before it                | —       |
+| `order`, `orderSm` … `orderXxl`           | `0`–`12` · `first` · `last`                       | —       |
+| `alignSelf`                             | `start` · `center` · `end` · `baseline` · `stretch` | —       |
+| `tag`                                   | the element to render                             | `div`   |
+| `id`, `class`                           | `string`                                          | —       |
+
+Numbers work as strings too (`cols="6"`), and other attributes go to the element. An invalid value
+is ignored with a warning in the build output.

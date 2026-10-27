@@ -28,6 +28,7 @@ export default defineConfig({
         {
           label: 'Components',
           items: [
+            { label: 'Layout', items: ['components/grid'] },
             { label: 'Actions', items: ['components/button'] },
             { label: 'Containment', items: ['components/card'] },
             {

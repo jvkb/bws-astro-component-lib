@@ -1,0 +1,31 @@
+---
+import type { HTMLAttributes, HTMLTag } from 'astro/types';
+import { twMerge } from 'tailwind-merge';
+import type { SharedProps } from './types.ts';
+
+type Props = Omit<HTMLAttributes<'div'>, 'class' | 'id'> &
+  SharedProps & {
+    /** The element to render, e.g. `main` or `section`. */
+    tag?: HTMLTag;
+    /** Full width at every screen size, instead of Tailwind's `container` widths. */
+    fluid?: boolean;
+  };
+
+const props = Astro.props;
+// Component-only props stay out of the spread, so they don't end up as HTML attributes.
+const { tag, fluid, class: _class, id: _id, ...attrs } = props;
+const Tag = tag ?? 'div';
+---
+
+<Tag
+  id={props.id}
+  class={twMerge(
+    // `container` caps the width at the current breakpoint's (sm 640px … 2xl 1536px).
+    'mx-auto w-full p-4',
+    !fluid && 'container',
+    props.class,
+  )}
+  {...attrs}
+>
+  <slot />
+</Tag>

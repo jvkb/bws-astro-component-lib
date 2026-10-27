@@ -20,3 +20,6 @@ export { default as Tooltip } from './components/Tooltip.astro';
 export { default as Alert } from './components/Alert.astro';
 export { default as Breadcrumbs } from './components/Breadcrumbs.astro';
 export { default as Pagination } from './components/Pagination.astro';
+export { default as Container } from './components/Container.astro';
+export { default as Row } from './components/Row.astro';
+export { default as Col } from './components/Col.astro';
