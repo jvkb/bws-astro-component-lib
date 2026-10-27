@@ -3,6 +3,7 @@ import X from '@lucide/astro/icons/x';
 import type { ComponentProps, HTMLAttributes } from 'astro/types';
 import { twMerge } from 'tailwind-merge';
 import Icon from './Icon.astro';
+import { customColorStyle, isThemeColor, joinStyles } from './color.ts';
 import {
   chipBase,
   getChipColor,
@@ -13,7 +14,7 @@ import {
 } from './chip.ts';
 import type {
   ButtonVariant,
-  ColorVariant,
+  Color,
   RoundedVariant,
   SharedProps,
   Size,
@@ -25,8 +26,11 @@ type OwnProps = {
   /** Chip text; or use the default slot. */
   text?: string;
   variant?: ButtonVariant;
-  /** Without a color the chip is neutral gray. */
-  color?: ColorVariant;
+  /**
+   * Without a color the chip is neutral gray. A theme color, a Tailwind color (`white`, `red-500`),
+   * a hex code or any CSS color.
+   */
+  color?: Color;
   size?: Size;
   rounded?: RoundedVariant;
   /** Icon before the text; use the `prepend` slot for anything else (e.g. an avatar). */
@@ -65,11 +69,13 @@ const {
   closable,
   closeLabel,
   class: _class,
+  style,
   ...attrs
 } = props as OwnProps & {
   closable?: boolean;
   closeLabel?: string;
   href?: string;
+  style?: HTMLAttributes<'span'>['style'];
 };
 
 const Tag = attrs.href !== undefined ? 'a' : 'span';
@@ -86,13 +92,14 @@ const currentVariant = variant ?? 'tonal';
   data-chip
   class={twMerge(
     chipBase,
-    getChipColor(color),
+    getChipColor(isThemeColor(color) ? color : undefined),
     getChipVariantClasses(currentVariant),
     interactive && getChipInteractiveClasses(currentVariant),
     getChipSize(size ?? 'default'),
     getChipRounded(rounded ?? 'full'),
     props.class,
   )}
+  style={joinStyles(customColorStyle('chip', color), style)}
   {...attrs}
 >
   <slot name="prepend">

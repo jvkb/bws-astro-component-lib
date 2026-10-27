@@ -4,15 +4,18 @@ import Minus from '@lucide/astro/icons/minus';
 import type { HTMLAttributes } from 'astro/types';
 import { twMerge } from 'tailwind-merge';
 import { type Rule, toInputAttributes } from '../../rules.ts';
-import type { ColorVariant, SharedProps } from '../types.ts';
-import { getInputColor } from './field.ts';
+import type { Color, SharedProps } from '../types.ts';
+import { getInputColor, getInputColorStyle } from './field.ts';
 
 type Props = Omit<HTMLAttributes<'input'>, 'class' | 'id' | 'color' | 'type'> &
   SharedProps & {
     /** Text next to the checkbox; use the default slot for richer content (e.g. a link). */
     label?: string;
-    /** Color of the box when it's checked. */
-    color?: ColorVariant;
+    /**
+     * Color of the box when it's checked: a theme color, a Tailwind color (`white`, `red-500`), a
+     * hex code or any CSS color.
+     */
+    color?: Color;
     /** Partly checked — shows a dash, e.g. for "select all" when only some items are. */
     indeterminate?: boolean;
     /** Helper text under the checkbox. */
@@ -68,6 +71,7 @@ const filled =
     getInputColor(color ?? 'primary'),
     props.class,
   )}
+  style={getInputColorStyle(color)}
 >
   <label class="group/checkbox inline-flex w-fit cursor-pointer items-start gap-3 select-none has-[input:disabled]:cursor-not-allowed has-[input:disabled]:opacity-60">
     <input
@@ -84,7 +88,7 @@ const filled =
     <span
       aria-hidden="true"
       class={twMerge(
-        'mt-px inline-flex size-4.5 shrink-0 items-center justify-center rounded-[3px] border-2 border-on-surface/60 text-surface transition-colors duration-150 group-hover/checkbox:border-on-surface',
+        'mt-px inline-flex size-4.5 shrink-0 items-center justify-center rounded-[3px] border-2 border-on-surface/60 text-(--input-custom-on-color,var(--color-surface)) transition-colors duration-150 group-hover/checkbox:border-on-surface',
         // The input is visually hidden, so the box shows its focus.
         'peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-(--input-color)',
         'group-data-invalid/field:border-error',

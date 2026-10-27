@@ -1,7 +1,9 @@
 ---
 import type { HTMLAttributes } from 'astro/types';
 import { twMerge } from 'tailwind-merge';
+import { customColorStyle, isThemeColor, joinStyles } from './color.ts';
 import type {
+  Color,
   ColorVariant,
   RoundedVariant,
   SharedProps,
@@ -17,8 +19,11 @@ type Props = Omit<HTMLAttributes<'div'>, 'class' | 'id' | 'title'> &
     /** Body text; use the default slot for any other content. */
     text?: string;
     variant?: Variant;
-    /** Without a color the card is neutral (the theme's surface). */
-    color?: ColorVariant;
+    /**
+     * Without a color the card is neutral (the theme's surface). A theme color, a Tailwind color
+     * (`white`, `red-500`), a hex code or any CSS color.
+     */
+    color?: Color;
     rounded?: RoundedVariant;
     /** Element for the title — pick the heading level that fits the page outline. */
     titleTag?: 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'div';
@@ -35,6 +40,7 @@ const {
   rounded,
   titleTag,
   class: _class,
+  style,
   ...attrs
 } = props;
 
@@ -121,16 +127,21 @@ function getCardRounded(rounded: RoundedVariant) {
     }
   }
 }
+
+// Theme colors are classes (getCardColor); any other color is set inline.
+const colorStyle = customColorStyle('card', color);
+const colored = isThemeColor(color) || colorStyle !== undefined;
 ---
 
 <div
   class={twMerge(
     'flex flex-col text-on-surface',
-    color && getCardColor(color),
-    getClassesBasedOnVariant(variant ?? 'elevated', color !== undefined),
+    isThemeColor(color) && getCardColor(color),
+    getClassesBasedOnVariant(variant ?? 'elevated', colored),
     getCardRounded(rounded ?? 'default'),
     props.class,
   )}
+  style={joinStyles(colorStyle, style)}
   {...attrs}
 >
   {hasHeader && (

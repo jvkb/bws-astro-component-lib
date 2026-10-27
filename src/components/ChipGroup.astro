@@ -2,6 +2,7 @@
 import Check from '@lucide/astro/icons/check';
 import { twMerge } from 'tailwind-merge';
 import { type Rule } from '../rules.ts';
+import { cssVars, isThemeColor, onColor, toCssColor } from './color.ts';
 import {
   chipBase,
   getChipColor,
@@ -12,7 +13,7 @@ import {
 } from './chip.ts';
 import type {
   ButtonVariant,
-  ColorVariant,
+  Color,
   RoundedVariant,
   SelectItem,
   SharedProps,
@@ -33,8 +34,11 @@ type Props = SharedProps & {
   filter?: boolean;
   /** Group label, rendered as the fieldset's legend. */
   label?: string;
-  /** Color of selected chips; unselected ones are neutral. */
-  color?: ColorVariant;
+  /**
+   * Color of selected chips; unselected ones are neutral. A theme color, a Tailwind color (`white`,
+   * `red-500`), a hex code or any CSS color.
+   */
+  color?: Color;
   /** Look of unselected chips. */
   variant?: ButtonVariant;
   /**
@@ -119,7 +123,20 @@ function getSelectedVariantClasses(variant: ButtonVariant) {
   }
 }
 
-function getSelectedColor(color: ColorVariant) {
+const customColor =
+  color !== undefined && !isThemeColor(color) ? toCssColor(color) : undefined;
+const selectedStyle =
+  customColor &&
+  cssVars({
+    '--chip-selected-color': customColor,
+    '--chip-selected-on-color': onColor(customColor),
+  });
+
+// Any other color is set inline on the group (selectedStyle), and selected chips take it from there.
+function getSelectedColor(color: Color) {
+  if (!isThemeColor(color)) {
+    return 'peer-checked:[--chip-color:var(--chip-selected-color,var(--color-primary))] peer-checked:[--chip-on-color:var(--chip-selected-on-color,var(--color-on-primary))]';
+  }
   switch (color) {
     case 'primary': {
       return 'peer-checked:[--chip-color:var(--color-primary)] peer-checked:[--chip-on-color:var(--color-on-primary)]';
@@ -149,6 +166,7 @@ function getSelectedColor(color: ColorVariant) {
   data-chip-group
   data-invalid={error ? '' : undefined}
   class={twMerge('group/field flex flex-col gap-1', props.class)}
+  style={selectedStyle}
 >
   <fieldset
     disabled={disabled}

@@ -2,10 +2,11 @@
 import type { HTMLAttributes } from 'astro/types';
 import { twMerge } from 'tailwind-merge';
 import { type Rule, toInputAttributes } from '../../rules.ts';
-import type { ColorVariant, InputVariant, SharedProps } from '../types.ts';
+import type { Color, InputVariant, SharedProps } from '../types.ts';
 import {
   getFieldClasses,
   getInputColor,
+  getInputColorStyle,
   getInvalidFieldClasses,
   getLabelClasses,
 } from './field.ts';
@@ -17,7 +18,8 @@ type Props = Omit<
   SharedProps & {
     label?: string;
     variant?: InputVariant;
-    color?: ColorVariant;
+    /** A theme color, a Tailwind color (`white`, `red-500`), a hex code or any CSS color. */
+    color?: Color;
     /** Initial text. */
     value?: string;
     /** Visible lines; with `autoGrow`, the minimum. */
@@ -130,6 +132,7 @@ function getRestingLabelClasses(variant: InputVariant) {
     getInputColor(color ?? 'primary'),
     props.class,
   )}
+  style={getInputColorStyle(color)}
 >
   <div
     class={twMerge(

@@ -788,6 +788,107 @@ const palettes = {
     </section>
 
     <section class="mt-8 space-y-4">
+      <h2 class="text-lg font-semibold">Custom colors</h2>
+      <p class="text-sm text-on-surface/70">
+        Any <code>color</code> prop also takes Tailwind colors, hex codes and
+        CSS colors.
+      </p>
+      <div
+        id="custom-colors-dark"
+        data-theme="dark"
+        class="space-y-4 rounded-xl bg-slate-900 p-6"
+      >
+        <div class="flex flex-wrap items-center gap-3">
+          <Button color="white">White</Button>
+          <Button color="white" variant="outlined">
+            Outlined
+          </Button>
+          <Button color="white" variant="tonal">
+            Tonal
+          </Button>
+          <Button color="white" variant="text">
+            Text
+          </Button>
+          <Button color="white/50" variant="outlined">
+            white/50
+          </Button>
+          <Chip color="white">White chip</Chip>
+          <Chip color="amber-400" variant="flat">
+            amber-400
+          </Chip>
+        </div>
+        <div class="flex flex-wrap items-center gap-6">
+          <Checkbox label="White checkbox" color="white" checked />
+          <Switch label="Orange switch" color="orange-500" checked />
+          <Breadcrumbs color="white" items={breadcrumbs} />
+          <Pagination
+            page={2}
+            length={5}
+            href="/pagination/{page}"
+            color="white"
+            activeColor="white"
+          />
+        </div>
+      </div>
+      <div class="flex flex-wrap items-center gap-3">
+        <Button color="#7c3aed">#7c3aed</Button>
+        <Button color="emerald-500">emerald-500</Button>
+        <Button color="yellow-300">yellow-300</Button>
+        <Button color="oklch(55% 0.2 30)" variant="tonal">
+          oklch()
+        </Button>
+        <Button color="rebeccapurple" variant="outlined">
+          rebeccapurple
+        </Button>
+        <Chip color="sky-600">sky-600</Chip>
+        <Avatar color="rose-500" variant="flat" text="JB" />
+        <Icon icon={Heart} color="rose-500" size="lg" />
+        <Icon icon={Heart} color="primary" size="lg" />
+      </div>
+      <div class="grid max-w-5xl grid-cols-2 gap-3">
+        <Alert
+          color="#2B4570"
+          variant="flat"
+          title="Hex alert"
+          text='color="#2B4570", text picked for contrast.'
+        />
+        <Alert
+          color="teal-600"
+          title="teal-600"
+          text="Tonal alert in a Tailwind color."
+        />
+        <Card
+          color="indigo-700"
+          variant="flat"
+          title="indigo-700 card"
+          text="Text on it is white."
+        />
+        <Card
+          color="lime-300"
+          variant="flat"
+          title="lime-300 card"
+          text="Text on it is black."
+        />
+      </div>
+      <div class="grid max-w-3xl grid-cols-2 gap-4">
+        <TextInput label="Emerald field" color="emerald-600" />
+        <TextInput
+          id="custom-color-required"
+          label="Required (turns red when empty)"
+          color="emerald-600"
+          required
+        />
+      </div>
+      <ChipGroup
+        label="Violet selection"
+        name="custom-chips"
+        color="violet-600"
+        items={['One', 'Two', 'Three']}
+        value="Two"
+      />
+    </section>
+
+    <section class="mt-8 space-y-4">
       <h2 class="text-lg font-semibold">Pagination</h2>
       <p class="text-sm text-on-surface/70">
         Every page is its own URL —{' '}

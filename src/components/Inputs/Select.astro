@@ -3,7 +3,7 @@ import ChevronDown from '@lucide/astro/icons/chevron-down';
 import { twMerge } from 'tailwind-merge';
 import { type Rule, toInputAttributes } from '../../rules.ts';
 import type {
-  ColorVariant,
+  Color,
   InputVariant,
   MenuLocation,
   SelectItem,
@@ -12,6 +12,7 @@ import type {
 import {
   getFieldClasses,
   getInputColor,
+  getInputColorStyle,
   getInputPadding,
   getInvalidFieldClasses,
   getLabelClasses,
@@ -26,7 +27,8 @@ type Props = SharedProps & {
   label?: string;
   placeholder?: string;
   variant?: InputVariant;
-  color?: ColorVariant;
+  /** A theme color, a Tailwind color (`white`, `red-500`), a hex code or any CSS color. */
+  color?: Color;
   /** Helper text under the field. */
   hint?: string;
   /** Error message, e.g. from server-side validation. When set, the field starts out invalid. */
@@ -100,6 +102,7 @@ function getRestingLabelClasses(variant: InputVariant) {
     getInputColor(color ?? 'primary'),
     props.class,
   )}
+  style={getInputColorStyle(color)}
 >
   {/* The value lives in a hidden native <select>, so the field submits, resets and validates like any other. */}
   <select

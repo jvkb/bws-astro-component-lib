@@ -1,6 +1,6 @@
 {
   "name": "bws-astro-ui",
-  "version": "1.11.0",
+  "version": "1.12.0",
   "description": "BWS Astro UI — Vuetify-inspired Astro components styled with Tailwind CSS v4.",
   "type": "module",
   "license": "MIT",

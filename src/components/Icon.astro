@@ -1,7 +1,8 @@
 ---
 import type { AstroComponent as LucideIcon, LucideProps } from '@lucide/astro';
 import type { HTMLAttributes, SvgComponent } from 'astro/types';
-import type { Size } from './types.ts';
+import { isThemeColor, joinStyles, toCssColor } from './color.ts';
+import type { Color, Size } from './types.ts';
 
 // Lucide types these attributes more strictly (no `null`), so they come from LucideProps.
 type StrictAttributes = 'color' | 'stroke-width' | 'class' | 'title';
@@ -10,13 +11,18 @@ type Props = Omit<
   HTMLAttributes<'svg'>,
   StrictAttributes | 'width' | 'height'
 > &
-  Pick<LucideProps, StrictAttributes> & {
+  Pick<LucideProps, Exclude<StrictAttributes, 'color'>> & {
     /** A Lucide icon (`bws-astro-ui/icons`) or an imported `.svg` file. */
     icon: LucideIcon | SvgComponent;
     /** Size step or pixels. Without it the icon follows the current font size (1em), e.g. inside a Button. */
     size?: Size | number;
     /** Accessible name. Without it the icon is treated as decorative and hidden from screen readers. */
     label?: string;
+    /**
+     * A theme color, a Tailwind color (`white`, `red-500`), a hex code or any CSS color. Without it
+     * the icon takes the text color.
+     */
+    color?: Color;
   };
 
 const sizes: Record<Size, string> = {
@@ -27,7 +33,23 @@ const sizes: Record<Size, string> = {
   xl: 'size-8',
 };
 
-const { icon: Component, size, label, class: className, ...rest } = Astro.props;
+const {
+  icon: Component,
+  size,
+  label,
+  class: className,
+  color,
+  style,
+  ...rest
+} = Astro.props;
+
+// Set as the CSS color (the icon draws in currentColor): an SVG attribute can't hold var().
+const cssColor =
+  color === undefined
+    ? undefined
+    : isThemeColor(color)
+      ? `var(--color-${color})`
+      : toCssColor(color);
 
 const sizeClass =
   size === undefined
@@ -44,6 +66,7 @@ const a11y = label
   width={typeof size === 'number' ? size : undefined}
   height={typeof size === 'number' ? size : undefined}
   class:list={['shrink-0', sizeClass, className]}
+  style={joinStyles(cssColor && `color: ${cssColor}`, style)}
   {...a11y}
   {...rest}
 />

@@ -6,6 +6,8 @@ export type Variant = 'flat' | 'outlined' | 'elevated' | 'tonal';
 export type ButtonVariant = 'text' | Variant;
 export type ColorVariant =
   'primary' | 'secondary' | 'success' | 'warning' | 'info' | 'error';
+/** A theme role, a Tailwind color (`white`, `red-500`, `sky-400/50`), a hex code or any CSS color. */
+export type Color = ColorVariant | (string & {});
 export type Size = 'xs' | 'sm' | 'default' | 'lg' | 'xl';
 export type RoundedVariant = 'xs' | 'sm' | 'default' | 'lg' | 'xl' | 'full';
 export type InputVariant = 'filled' | 'outlined' | 'underlined';
@@ -37,7 +39,7 @@ export type MenuItem =
       value?: string;
       icon?: LucideIcon | SvgComponent;
       /** E.g. `error` for a destructive action. */
-      color?: ColorVariant;
+      color?: Color;
       disabled?: boolean;
     }
   | { divider: true };

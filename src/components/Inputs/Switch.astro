@@ -2,8 +2,8 @@
 import type { HTMLAttributes } from 'astro/types';
 import { twMerge } from 'tailwind-merge';
 import { type Rule, toInputAttributes } from '../../rules.ts';
-import type { ColorVariant, SharedProps } from '../types.ts';
-import { getInputColor } from './field.ts';
+import type { Color, SharedProps } from '../types.ts';
+import { getInputColor, getInputColorStyle } from './field.ts';
 
 type Props = Omit<
   HTMLAttributes<'input'>,
@@ -12,8 +12,11 @@ type Props = Omit<
   SharedProps & {
     /** Text next to the switch; use the default slot for richer content (e.g. a link). */
     label?: string;
-    /** Color of the switch when it's on. */
-    color?: ColorVariant;
+    /**
+     * Color of the switch when it's on: a theme color, a Tailwind color (`white`, `red-500`), a hex
+     * code or any CSS color.
+     */
+    color?: Color;
     /** Material 3 look: a wide track with the thumb inside. */
     inset?: boolean;
     /** Helper text under the switch. */
@@ -73,6 +76,7 @@ const thumb = inset
     getInputColor(color ?? 'primary'),
     props.class,
   )}
+  style={getInputColorStyle(color)}
 >
   <label class="inline-flex w-fit cursor-pointer items-center gap-3 select-none has-[input:disabled]:cursor-not-allowed has-[input:disabled]:opacity-60">
     <input

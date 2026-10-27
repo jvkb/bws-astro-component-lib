@@ -4,8 +4,10 @@ description: Light and dark themes, theme roles and switching the theme.
 ---
 
 import {
+  Alert,
   Button,
   Card,
+  Checkbox,
   Chip,
   ChipGroup,
   Select,
@@ -32,6 +34,50 @@ roles are regular Tailwind colors — use them in your own markup too:
 <body class="bg-background text-on-background">
   <p class="text-on-surface/70">Muted text</p>
 </body>
+```
+
+## Custom colors
+
+Every `color` prop takes a theme role (`primary`, `secondary`, `success`, `warning`, `info`,
+`error`) and any other color too:
+
+| Value                                    | Example                                       |
+| ---------------------------------------- | --------------------------------------------- |
+| a Tailwind color                         | `white`, `black`, `red-500`, `sky-400`        |
+| a Tailwind color with opacity            | `white/50`, `emerald-500/20`                  |
+| a hex code                               | `#7c3aed`, `#fff`, `#2b457080`                |
+| any CSS color                            | `rebeccapurple`, `oklch(55% 0.2 30)`, `var(--brand)` |
+
+<Preview layout="stack" class="max-w-none">
+  <div data-theme="dark" class="flex flex-wrap items-center gap-3 rounded-lg bg-slate-900 p-5"><Button color="white">White</Button><Button color="white" variant="outlined">Outlined</Button><Button color="white/50" variant="outlined">white/50</Button><Chip color="amber-400" variant="flat">amber-400</Chip><Checkbox label="Checked" color="white" checked /></div>
+  <div class="flex flex-wrap items-center gap-3"><Button color="#7c3aed">#7c3aed</Button><Button color="emerald-500">emerald-500</Button><Button color="yellow-300">yellow-300</Button><Button color="rebeccapurple" variant="outlined">rebeccapurple</Button><Chip color="sky-600">sky-600</Chip></div>
+  <div class="grid gap-3 sm:grid-cols-2"><Alert color="teal-600" title="teal-600" text="A tonal alert in a Tailwind color." /><Card color="indigo-700" variant="flat" title="indigo-700" text="Text on solid fills is white or black." /></div>
+</Preview>
+
+```astro
+<Button color="white">White</Button>
+<Button color="#7c3aed">Hex</Button>
+<Chip color="amber-400" variant="flat">Tailwind</Chip>
+<TextInput label="Name" color="emerald-600" />
+```
+
+Text on solid fills (flat buttons, selected chips, colored cards) is black or white, whichever
+reads better on that color — the browser picks it with
+[relative colors](https://caniuse.com/css-relative-colors), so it works with variables too.
+
+Unlike theme roles, these colors are the same in light and dark themes. For a color that changes
+with the theme, use a role or `light-dark()`: `color="light-dark(#2b4570, #a4c4f7)"`. Fields still
+turn the theme's `error` color when they're invalid.
+
+Tailwind colors are read from your theme's variables (`--color-red-500`), so your own `@theme`
+colors work by name too (`color="brand-500"`). Tailwind's default palette works out of the box;
+for your own colors, make sure their variables are in the CSS — Tailwind only outputs the ones
+your classes use, unless you declare them with `@theme static`:
+
+```css title="src/styles/global.css"
+@theme static {
+  --color-brand-500: #ff5a1f;
+}
 ```
 
 ## Switching the theme

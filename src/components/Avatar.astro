@@ -4,8 +4,10 @@ import type { ComponentProps, HTMLAttributes } from 'astro/types';
 import { Image } from 'astro:assets';
 import { twMerge } from 'tailwind-merge';
 import Icon from './Icon.astro';
+import { customColorStyle, isThemeColor, joinStyles } from './color.ts';
 import type {
   ButtonVariant,
+  Color,
   ColorVariant,
   RoundedVariant,
   SharedProps,
@@ -25,8 +27,11 @@ type Props = Omit<HTMLAttributes<'span'>, 'class' | 'id' | 'style'> &
     /** Size step or pixels. */
     size?: Size | number;
     variant?: ButtonVariant;
-    /** Without a color the avatar is neutral. */
-    color?: ColorVariant;
+    /**
+     * Without a color the avatar is neutral. A theme color, a Tailwind color (`white`, `red-500`), a
+     * hex code or any CSS color.
+     */
+    color?: Color;
     rounded?: RoundedVariant;
     /** Accessible name, e.g. the person's full name. Without it the avatar is read as its content. */
     label?: string;
@@ -145,12 +150,12 @@ const slotted = Astro.slots.has('default')
   aria-label={label}
   class={twMerge(
     'relative inline-flex shrink-0 items-center justify-center overflow-hidden border align-middle leading-none font-medium select-none',
-    getAvatarColor(color),
+    getAvatarColor(isThemeColor(color) ? color : undefined),
     getClassesBasedOnVariant(variant ?? 'tonal'),
     getAvatarRounded(rounded ?? 'full'),
     props.class,
   )}
-  style={style ? `${sizeStyle}${style}` : sizeStyle}
+  style={joinStyles(sizeStyle, customColorStyle('avatar', color), style)}
   {...attrs}
 >
   {/* Content in Vuetify's order: slot, otherwise icon or text, with the image on top. */}

@@ -2,7 +2,13 @@
 import type { ComponentProps, HTMLAttributes } from 'astro/types';
 import { twMerge } from 'tailwind-merge';
 import Icon from './Icon.astro';
-import type { BreadcrumbItem, ColorVariant, SharedProps } from './types.ts';
+import { customTextStyle, isThemeColor } from './color.ts';
+import type {
+  BreadcrumbItem,
+  Color,
+  ColorVariant,
+  SharedProps,
+} from './types.ts';
 
 type Props = Omit<HTMLAttributes<'nav'>, 'class' | 'id'> &
   SharedProps & {
@@ -10,8 +16,11 @@ type Props = Omit<HTMLAttributes<'nav'>, 'class' | 'id'> &
     items: BreadcrumbItem[];
     /** Between items: text (`/` by default) or an icon. */
     divider?: string | ComponentProps<typeof Icon>['icon'];
-    /** Color of the links; without it they're muted text. */
-    color?: ColorVariant;
+    /**
+     * Color of the links; without it they're muted text. A theme color, a Tailwind color (`white`,
+     * `red-500`), a hex code or any CSS color.
+     */
+    color?: Color;
     /** Accessible name of the navigation. */
     label?: string;
     /**
@@ -119,9 +128,10 @@ const json =
               href={item.href}
               class={twMerge(
                 itemClass,
-                getLinkColor(color),
+                getLinkColor(isThemeColor(color) ? color : undefined),
                 'underline-offset-4 transition-colors hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current',
               )}
+              style={customTextStyle(color)}
             >
               {content}
             </a>

@@ -7,10 +7,12 @@ import X from '@lucide/astro/icons/x';
 import type { ComponentProps, HTMLAttributes } from 'astro/types';
 import { twMerge } from 'tailwind-merge';
 import Icon from './Icon.astro';
+import { customColorStyle, isThemeColor, joinStyles } from './color.ts';
 import type {
   AlertBorder,
   AlertType,
   ButtonVariant,
+  Color,
   ColorVariant,
   RoundedVariant,
   SharedProps,
@@ -25,8 +27,11 @@ type Props = Omit<HTMLAttributes<'div'>, 'class' | 'id' | 'title'> &
     /** Body text; or the default slot. */
     text?: string;
     variant?: ButtonVariant;
-    /** Overrides the type's color. Without a type or color the alert is neutral. */
-    color?: ColorVariant;
+    /**
+     * Overrides the type's color. Without a type or color the alert is neutral. A theme color, a
+     * Tailwind color (`white`, `red-500`), a hex code or any CSS color.
+     */
+    color?: Color;
     /** Overrides the type's icon; `false` hides it. */
     icon?: ComponentProps<typeof Icon>['icon'] | false;
     /** A thick accent border on one edge. */
@@ -56,6 +61,7 @@ const {
   closeLabel,
   class: _class,
   id: _id,
+  style,
   ...attrs
 } = props;
 
@@ -184,12 +190,13 @@ function getAlertRounded(rounded: RoundedVariant) {
   data-alert
   class={twMerge(
     'flex items-start gap-3 border p-4',
-    getAlertColor(color ?? type),
+    getAlertColor(isThemeColor(color) ? color : type),
     getClassesBasedOnVariant(currentVariant),
     border && getBorderClasses(border, currentVariant),
     getAlertRounded(rounded ?? 'default'),
     props.class,
   )}
+  style={joinStyles(customColorStyle('alert', color), style)}
   {...attrs}
 >
   <slot name="prepend">

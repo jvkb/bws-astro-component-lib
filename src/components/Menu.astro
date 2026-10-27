@@ -2,6 +2,7 @@
 import type { HTMLAttributes } from 'astro/types';
 import { twMerge } from 'tailwind-merge';
 import Icon from './Icon.astro';
+import { customTextStyle, isThemeColor } from './color.ts';
 import type {
   ColorVariant,
   MenuItem,
@@ -109,7 +110,11 @@ const animation =
               role="menuitem"
               tabindex="-1"
               aria-disabled={item.disabled ? 'true' : undefined}
-              class={twMerge(itemClass, getItemColor(item.color))}
+              class={twMerge(
+                itemClass,
+                getItemColor(isThemeColor(item.color) ? item.color : undefined),
+              )}
+              style={customTextStyle(item.color)}
             >
               {item.icon && (
                 <Icon
@@ -127,7 +132,11 @@ const animation =
               tabindex="-1"
               data-value={item.value ?? item.title}
               aria-disabled={item.disabled ? 'true' : undefined}
-              class={twMerge(itemClass, getItemColor(item.color))}
+              class={twMerge(
+                itemClass,
+                getItemColor(isThemeColor(item.color) ? item.color : undefined),
+              )}
+              style={customTextStyle(item.color)}
             >
               {item.icon && (
                 <Icon

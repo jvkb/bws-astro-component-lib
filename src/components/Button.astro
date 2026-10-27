@@ -1,8 +1,10 @@
 ---
 import type { HTMLAttributes } from 'astro/types';
 import { twMerge } from 'tailwind-merge';
+import { customColorStyle, isThemeColor, joinStyles } from './color.ts';
 import type {
   ButtonVariant,
+  Color,
   ColorVariant,
   RoundedVariant,
   SharedProps,
@@ -11,7 +13,8 @@ import type {
 
 type OwnProps = {
   variant?: ButtonVariant;
-  color?: ColorVariant;
+  /** A theme color, a Tailwind color (`white`, `red-500`), a hex code or any CSS color. */
+  color?: Color;
   size?: Size;
   block?: boolean;
   rounded?: RoundedVariant;
@@ -34,12 +37,15 @@ const {
   rounded,
   class: _class,
   type,
+  style,
   ...attrs
 } = props;
 
 // `type` is set once, outside the spread: Astro would render it twice and the browser keeps the first.
 // A <button> defaults to type="submit" — default to "button" so it never submits a form by accident.
 const buttonType = (type ?? 'button') as HTMLAttributes<'button'>['type'];
+// Theme colors are classes (getButtonColor); any other color is set inline, before your own style.
+const colorStyle = joinStyles(customColorStyle('btn', color), style);
 
 // Shared by every variant. Every variant has a 1px border (transparent unless outlined), so all of them are the same size.
 // Dimensions live in getButtonSize, corner radius in getButtonRounded.
@@ -143,7 +149,7 @@ function getButtonRounded(rounded: RoundedVariant) {
 function getClasses() {
   const cls = [
     base,
-    getButtonColor(color ?? 'primary'),
+    getButtonColor(isThemeColor(color) ? color : 'primary'),
     getClassesBasedOnVariant(variant ?? 'elevated'),
     getButtonSize(size ?? 'default'),
     getButtonRounded(rounded ?? 'default'),
@@ -159,11 +165,11 @@ function getClasses() {
 ---
 
 {props.href !== undefined ? (
-  <a type={type} class={getClasses()} {...attrs}>
+  <a type={type} class={getClasses()} style={colorStyle} {...attrs}>
     <slot />
   </a>
 ) : (
-  <button type={buttonType} class={getClasses()} {...attrs}>
+  <button type={buttonType} class={getClasses()} style={colorStyle} {...attrs}>
     <slot />
   </button>
 )}

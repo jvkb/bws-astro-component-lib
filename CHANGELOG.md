@@ -4,6 +4,16 @@ All notable changes to this project are documented here. The project follows
 [Semantic Versioning](https://semver.org): a new component or feature raises the
 minor version, a fix the patch version, and an incompatible change the major version.
 
+## [1.12.0] - 2026-10-27
+
+### Added
+
+- Custom colors: every `color` prop (`Button`, `Chip`, `ChipGroup`, `Card`, `Alert`, `Avatar`,
+  `Icon`, `Breadcrumbs`, `Pagination`, `Menu` items and the form fields) also takes Tailwind colors
+  (`white`, `red-500`, `sky-400/50`), hex codes and any CSS color. Text on solid fills is black or
+  white, whichever has more contrast. Tailwind names use your theme's variables, so custom `@theme`
+  colors work by name too.
+
 ## [1.11.0] - 2026-10-26
 
 ### Added

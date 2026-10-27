@@ -10,7 +10,7 @@ import Icon from './Icon.astro';
 import { getPageItems } from './pagination.ts';
 import type {
   ButtonVariant,
-  ColorVariant,
+  Color,
   RoundedVariant,
   SharedProps,
   Size,
@@ -29,9 +29,9 @@ type Props = Omit<HTMLAttributes<'nav'>, 'class' | 'id'> &
     /** Also show buttons for the first and last page. */
     showFirstLast?: boolean;
     /** Color of the other pages and the arrows; without it they're the theme's text color. */
-    color?: ColorVariant;
+    color?: Color;
     /** Color of the current page. */
-    activeColor?: ColorVariant;
+    activeColor?: Color;
     size?: Size;
     rounded?: RoundedVariant;
     /** Look of the other pages. */

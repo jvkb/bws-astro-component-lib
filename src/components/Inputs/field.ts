@@ -1,8 +1,14 @@
 // Field styles shared by the Vuetify-style inputs (TextInput, Textarea, Select), so they look and behave alike.
 import { twMerge } from 'tailwind-merge';
-import type { ColorVariant, InputVariant } from '../types.ts';
+import { isThemeColor, onColor, toCssColor } from '../color.ts';
+import type { Color, InputVariant } from '../types.ts';
 
-export function getInputColor(color: ColorVariant) {
+export function getInputColor(color: Color) {
+  // Any other color comes inline as --input-custom-color (getInputColorStyle): an inline
+  // --input-color would beat the error color the field switches to when it's invalid.
+  if (!isThemeColor(color)) {
+    return '[--input-color:var(--input-custom-color,var(--color-primary))]';
+  }
   switch (color) {
     case 'primary': {
       return '[--input-color:var(--color-primary)]';
@@ -23,6 +29,16 @@ export function getInputColor(color: ColorVariant) {
       return '[--input-color:var(--color-error)]';
     }
   }
+}
+
+/** The inline style for a color that isn't a theme role, on the same element as getInputColor. */
+export function getInputColorStyle(color: Color | undefined) {
+  if (color === undefined || isThemeColor(color)) return undefined;
+  const css = toCssColor(color);
+  return (
+    css &&
+    `--input-custom-color: ${css}; --input-custom-on-color: ${onColor(css)}`
+  );
 }
 
 // filled/underlined get Vuetify's underline that grows from the middle on focus (the ::after line).
